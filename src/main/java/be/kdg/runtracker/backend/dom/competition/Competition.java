@@ -16,6 +16,7 @@ import java.util.List;
 @Table(name="Competition")
 public class Competition implements Serializable {
 
+
     @Id
     @GeneratedValue
     @Column(nullable=false)
