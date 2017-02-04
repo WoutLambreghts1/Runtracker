@@ -3,7 +3,6 @@ package be.kdg.runtracker.backend.dom.tracking;
 import javax.persistence.*;
 import java.io.Serializable;
 import java.sql.Timestamp;
-import java.util.List;
 
 /**
  * @author Wout
@@ -33,8 +32,6 @@ public class Tracking implements Serializable {
     @Basic
     private double avgSpeed;
 
-    @ManyToMany(targetEntity = Coordinate.class)
-    private List<Coordinate> coordinates;
 
     public Long getTracking_id() {
         return this.tracking_id;
@@ -84,12 +81,5 @@ public class Tracking implements Serializable {
         this.avgSpeed = avgSpeed;
     }
 
-    public List<Coordinate> getCoordinates() {
-        return this.coordinates;
-    }
-
-    public void setCoordinates(List<Coordinate> coordinates) {
-        this.coordinates = coordinates;
-    }
 
 }

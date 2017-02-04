@@ -1,45 +1,29 @@
 package be.kdg.runtracker.backend.dom.tracking;
 
-import javax.persistence.*;
-import javax.validation.constraints.NotNull;
-import java.io.Serializable;
-import java.sql.Time;
+import java.time.LocalTime;
 
 /**
  * @author Wout
  */
+public class Coordinate{
 
-@Entity
-@Table(name="Coordinate")
-public class Coordinate implements Serializable {
-
-    @Id
-    @GeneratedValue
-    @Column(nullable=false)
-    private Long coordinate_id;
-
-    @Column(nullable=false)
-    @Basic
-    @NotNull
     private double lat;
-
-    @Column(nullable=false)
-    @Basic
-    @NotNull
-    private String lon;
-
-    @Basic
-    private Time time;
-
-    @Basic
+    private double lon;
+    private LocalTime time;
     private long trackingID;
 
-    public Long getCoordinate_id() {
-        return this.coordinate_id;
+    public Coordinate(double lat, double lon, long trackingID) {
+        this.lat = lat;
+        this.lon = lon;
+        this.trackingID = trackingID;
+        time = LocalTime.now();
     }
 
-    public void setCoordinate_id(Long coordinate_id) {
-        this.coordinate_id = coordinate_id;
+    public Coordinate(double lat, double lon, LocalTime time, long trackingID) {
+        this.lat = lat;
+        this.lon = lon;
+        this.time = time;
+        this.trackingID = trackingID;
     }
 
     public double getLat() {
@@ -50,19 +34,19 @@ public class Coordinate implements Serializable {
         this.lat = lat;
     }
 
-    public String getLon() {
+    public double getLon() {
         return this.lon;
     }
 
-    public void setLon(String lon) {
+    public void setLon(double lon) {
         this.lon = lon;
     }
 
-    public Time getTime() {
+    public LocalTime getTime() {
         return this.time;
     }
 
-    public void setTime(Time time) {
+    public void setTime(LocalTime time) {
         this.time = time;
     }
 
