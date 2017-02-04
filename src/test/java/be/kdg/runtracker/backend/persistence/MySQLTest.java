@@ -82,7 +82,7 @@ public class MySQLTest {
             events.add(e);
             eventRepository.save(e);
         }
-        scheduleRepository.save(new Schedule("Beginner",4,events));
+        scheduleRepository.save(new Schedule("TestSchedule",4,events));
         u.setSchedule(scheduleRepository.findOne(scheduleRepository.count()-1));
         userRepository.save(u);
 
@@ -97,7 +97,7 @@ public class MySQLTest {
     }
 
     @Test
-    public void cUpdateUser()
+    public void bUpdateUser()
     {
         User u = userRepository.findUserByUsername(username);
         u.setGender(Gender.MALE);
@@ -121,6 +121,7 @@ public class MySQLTest {
     {
         competitionRepository.delete(userRepository.findUserByUsername(username).getCompetitionsCreated());
         userRepository.delete(userRepository.findUserByUsername(username).getUser_id());
+        scheduleRepository.delete(scheduleRepository.findScheduleByName("TestSchedule"));
     }
 
 
