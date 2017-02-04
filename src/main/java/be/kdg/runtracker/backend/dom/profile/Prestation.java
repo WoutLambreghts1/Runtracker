@@ -43,7 +43,7 @@ public class Prestation implements Serializable {
     @Basic
     private int competitionsWon;
 
-    @OneToOne(targetEntity = User.class,mappedBy = "prestation")
+    @OneToOne(targetEntity = User.class,mappedBy = "prestation",fetch = FetchType.EAGER)
     private User user;
 
     public Long getPrestation_id() {

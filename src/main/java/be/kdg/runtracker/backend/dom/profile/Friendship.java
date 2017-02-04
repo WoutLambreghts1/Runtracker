@@ -21,7 +21,7 @@ public class Friendship implements Serializable {
     @NotNull
     private String friendsSince;
 
-    @OneToOne(targetEntity = User.class,mappedBy = "friendship")
+    @OneToOne(targetEntity = User.class,mappedBy = "friendship",fetch = FetchType.EAGER)
     private User user;
 
     public Long getFriendship_id() {

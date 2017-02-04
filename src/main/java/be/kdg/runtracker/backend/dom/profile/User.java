@@ -3,13 +3,14 @@ package be.kdg.runtracker.backend.dom.profile;
 import be.kdg.runtracker.backend.dom.competition.Competition;
 import be.kdg.runtracker.backend.dom.scheduling.Schedule;
 import be.kdg.runtracker.backend.dom.tracking.Tracking;
+import org.hibernate.annotations.LazyCollection;
+import org.hibernate.annotations.LazyCollectionOption;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.sql.Date;
 import java.util.List;
-import java.util.Optional;
 
 /**
  * @author Wout
@@ -43,7 +44,7 @@ public class User implements Serializable {
     private String lastname;
 
     @Basic
-    private byte gender;
+    private Gender gender;
 
     @Basic
     private String city;
@@ -66,28 +67,33 @@ public class User implements Serializable {
     @Basic
     private double plength;
 
-    @OneToOne(targetEntity = Prestation.class)
+    @OneToOne(targetEntity = Prestation.class, cascade = CascadeType.REMOVE,fetch = FetchType.EAGER)
     private Prestation prestation;
 
-    @OneToOne(targetEntity = Friendship.class)
+    @OneToOne(targetEntity = Friendship.class, cascade = CascadeType.REMOVE,fetch = FetchType.EAGER)
     private Friendship friendship;
 
-    @ManyToOne(targetEntity = Schedule.class)
+    @ManyToOne(targetEntity = Schedule.class,fetch = FetchType.EAGER)
     private Schedule schedule;
 
-    @OneToMany(targetEntity = Friendship.class)
+    @OneToMany(targetEntity = Friendship.class, cascade = CascadeType.REMOVE)
+    @LazyCollection(LazyCollectionOption.FALSE)
     private List<Friendship> friendships;
 
-    @OneToMany(targetEntity = Competition.class,mappedBy = "userCreated")
+    @OneToMany(targetEntity = Competition.class,mappedBy = "userCreated",cascade = CascadeType.REMOVE)
+    @LazyCollection(LazyCollectionOption.FALSE)
     private List<Competition> competitionsCreated;
 
-    @OneToMany(targetEntity = Tracking.class)
+    @OneToMany(targetEntity = Tracking.class,cascade = CascadeType.REMOVE)
+    @LazyCollection(LazyCollectionOption.FALSE)
     private List<Tracking> trackings;
 
     @OneToMany(targetEntity = Competition.class,mappedBy = "userWon")
+    @LazyCollection(LazyCollectionOption.FALSE)
     private List<Competition> competitionsWon;
 
     @ManyToMany(targetEntity = Competition.class)
+    @LazyCollection(LazyCollectionOption.FALSE)
     private List<Competition> competitionsRun;
 
     public Long getUser_id() {
@@ -122,19 +128,19 @@ public class User implements Serializable {
         this.firstname = firstname;
     }
 
-    public Optional<String> getLastname() {
-        return Optional.ofNullable(this.lastname);
+    public String getLastname() {
+        return lastname;
     }
 
     public void setLastname(String lastname) {
         this.lastname = lastname;
     }
 
-    public Optional<Byte> getGender() {
-        return Optional.ofNullable(this.gender);
+    public Gender getGender() {
+        return this.gender;
     }
 
-    public void setGender(byte gender) {
+    public void setGender(Gender gender) {
         this.gender = gender;
     }
 

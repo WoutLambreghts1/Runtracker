@@ -27,6 +27,14 @@ public class Goal implements Serializable {
     @NotNull
     private long distance;
 
+    public Goal(String name, long distance) {
+        this.name = name;
+        this.distance = distance;
+    }
+
+    public Goal() {
+    }
+
     public Long getId() {
         return this.id;
     }

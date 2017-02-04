@@ -2,6 +2,8 @@ package be.kdg.runtracker.backend.dom.competition;
 
 import be.kdg.runtracker.backend.dom.profile.User;
 import be.kdg.runtracker.backend.dom.tracking.Tracking;
+import org.hibernate.annotations.LazyCollection;
+import org.hibernate.annotations.LazyCollectionOption;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -26,20 +28,31 @@ public class Competition implements Serializable {
     @NotNull
     private CompetitionType competitionType;
 
-    @ManyToOne(targetEntity = Goal.class)
+    @ManyToOne(targetEntity = Goal.class,fetch = FetchType.EAGER)
     private Goal goal;
 
-    @ManyToOne(targetEntity = User.class)
+    @ManyToOne(targetEntity = User.class,fetch = FetchType.EAGER)
     private User userCreated;
 
-    @ManyToOne(targetEntity = User.class)
+    @ManyToOne(targetEntity = User.class,fetch = FetchType.EAGER)
     private User userWon;
 
     @OneToMany(targetEntity = Tracking.class)
+    @LazyCollection(LazyCollectionOption.FALSE)
     private List<Tracking> trackings;
 
     @ManyToMany(targetEntity = User.class,mappedBy = "competitionsRun")
+    @LazyCollection(LazyCollectionOption.FALSE)
     private List<User> usersRun;
+
+    public Competition(User userCreated, Goal goal, CompetitionType competitionType) {
+        this.userCreated = userCreated;
+        this.goal = goal;
+        this.competitionType = competitionType;
+    }
+
+    public Competition() {
+    }
 
     public Long getCompetition_id() {
         return this.competition_id;

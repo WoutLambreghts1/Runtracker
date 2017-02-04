@@ -1,10 +1,12 @@
 package be.kdg.runtracker.backend.dom.scheduling;
 
+import org.hibernate.annotations.LazyCollection;
+import org.hibernate.annotations.LazyCollectionOption;
+
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.util.List;
-import java.util.Optional;
 
 /**
  * @author Wout
@@ -25,9 +27,10 @@ public class Schedule implements Serializable {
     private String name;
 
     @Basic
-    private byte nrOfWeeks;
+    private int nrOfWeeks;
 
-    @OneToMany(targetEntity = Event.class)
+    @LazyCollection(LazyCollectionOption.FALSE)
+    @OneToMany(targetEntity = Event.class, cascade = CascadeType.REMOVE)
     private List<Event> events;
 
     public Long getSchedule_id() {
@@ -46,11 +49,11 @@ public class Schedule implements Serializable {
         this.name = name;
     }
 
-    public Optional<Byte> getNrOfWeeks() {
-        return Optional.ofNullable(this.nrOfWeeks);
+    public int getNrOfWeeks() {
+        return this.nrOfWeeks;
     }
 
-    public void setNrOfWeeks(byte nrOfWeeks) {
+    public void setNrOfWeeks(int nrOfWeeks) {
         this.nrOfWeeks = nrOfWeeks;
     }
 
@@ -62,4 +65,12 @@ public class Schedule implements Serializable {
         this.events = events;
     }
 
+    public Schedule(String name, int nrOfWeeks, List<Event> events) {
+        this.name = name;
+        this.nrOfWeeks = nrOfWeeks;
+        this.events = events;
+    }
+
+    public Schedule() {
+    }
 }

@@ -1,7 +1,6 @@
-package be.kdg.runtracker;
+package be.kdg.runtracker.backend.persistence;
 
 import be.kdg.runtracker.backend.dom.tracking.Coordinate;
-import be.kdg.runtracker.backend.persistence.CoordinatesRepositoryImpl;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -21,7 +20,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * Created by Wout on 4/02/2017.
  */
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = be.kdg.runtracker.MongoDbTest.class)
+@SpringBootTest(classes = MongoDbTest.class)
 @ComponentScan("be.kdg.runtracker")
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class MongoDbTest {

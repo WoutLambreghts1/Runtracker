@@ -18,7 +18,7 @@ public class Event implements Serializable {
 
     @Column(nullable=false)
     @Basic
-    private byte dayOfWeek;
+    private int dayOfWeek;
 
     @Basic
     private String name;
@@ -29,6 +29,16 @@ public class Event implements Serializable {
     @Basic
     private long duration;
 
+    public Event(int dayOfWeek, String name, String description, long duration) {
+        this.dayOfWeek = dayOfWeek;
+        this.name = name;
+        this.description = description;
+        this.duration = duration;
+    }
+
+    public Event() {
+    }
+
     public Long getEvent_id() {
         return this.event_id;
     }
@@ -37,11 +47,11 @@ public class Event implements Serializable {
         this.event_id = event_id;
     }
 
-    public byte getDayOfWeek() {
+    public int getDayOfWeek() {
         return this.dayOfWeek;
     }
 
-    public void setDayOfWeek(byte dayOfWeek) {
+    public void setDayOfWeek(int dayOfWeek) {
         this.dayOfWeek = dayOfWeek;
     }
 

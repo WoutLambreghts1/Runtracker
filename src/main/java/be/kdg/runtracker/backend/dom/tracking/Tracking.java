@@ -3,6 +3,7 @@ package be.kdg.runtracker.backend.dom.tracking;
 import javax.persistence.*;
 import java.io.Serializable;
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
 
 /**
  * @author Wout
@@ -32,6 +33,9 @@ public class Tracking implements Serializable {
     @Basic
     private double avgSpeed;
 
+    public Tracking() {
+        this.time = Timestamp.valueOf(LocalDateTime.now());
+    }
 
     public Long getTracking_id() {
         return this.tracking_id;
