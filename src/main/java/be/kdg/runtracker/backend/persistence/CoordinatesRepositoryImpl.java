@@ -9,6 +9,7 @@ import org.bson.Document;
 
 import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -28,7 +29,7 @@ public class CoordinatesRepositoryImpl implements CoordinatesRepository{
     public List<Coordinate> readCoordinatesByTrackingId(long trackingId) {
         MongoCollection<Document> collection = database.getCollection(String.valueOf(trackingId));
         List<Document> documents = (List<Document>) collection.find().into(new ArrayList<Document>());
-        return documents.stream().map(d -> docToCoordinate(d)).collect(Collectors.toList());
+        return documents.stream().map(d -> docToCoordinate(d)).sorted(Comparator.comparing(t -> t.getTime())).collect(Collectors.toList());
     }
 
     @Override
