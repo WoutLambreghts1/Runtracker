@@ -112,7 +112,6 @@ public class UserRestController {
         currentUser.setCity(user.getCity());
         currentUser.setEmail(user.getEmail());
         currentUser.setPhone(user.getPhone());
-        currentUser.setPictureURL(user.getPictureURL());
         currentUser.setBirthday(user.getBirthday());
         currentUser.setWeight(user.getWeight());
         currentUser.setPlength(user.getPlength());
