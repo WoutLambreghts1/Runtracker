@@ -36,10 +36,10 @@ public class MySQLTest {
     private String userFirstName;
     @Value("Jansens")
     private String userLastName;
-    @Value("123456789")
+    @Value("Jan_Jansens1")
     private String username;
-    @Value("hash")
-    private String password;
+    @Value("123")
+    private long authId;
 
     @Autowired
     private UserRepository userRepository;
@@ -66,7 +66,7 @@ public class MySQLTest {
 
         User u = new User();
         u.setUsername(username);
-        u.setPassword(password);
+        u.setAuthId(authId);
         u.setFirstname(userFirstName);
         u.setLastname(userLastName);
         userRepository.save(u);
@@ -96,7 +96,6 @@ public class MySQLTest {
 
         userRepository.save(u);
 
-   
         assertTrue((userRepository.findUserByUsername(username).getFirstname()+userRepository.findUserByUsername(username).getLastname()).equals((u.getFirstname()+u.getLastname())));
     }
 
@@ -124,9 +123,9 @@ public class MySQLTest {
     public void delete()
     {
         competitionRepository.delete(userRepository.findUserByUsername(username).getCompetitionsCreated());
-        userRepository.delete(userRepository.findUserByUsername(username).getUser_id());
+        userRepository.delete(userRepository.findUserByAuthId(authId).getUser_id());
         scheduleRepository.delete(scheduleRepository.findScheduleByName("TestSchedule"));
-        assertTrue(userRepository.findUserByUsername(username) == null);
+        assertTrue(userRepository.findUserByAuthId(authId) == null);
     }
 
 
