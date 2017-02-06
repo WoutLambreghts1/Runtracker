@@ -14,7 +14,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertTrue;
+
 
 /**
  * Created by Wout on 4/02/2017.
@@ -28,7 +29,7 @@ public class MongoDbTest {
     @Value("1")
     private long trackingId;
 
-    CoordinatesRepositoryImpl coordinatesRepository = new CoordinatesRepositoryImpl();
+    private CoordinatesRepositoryImpl coordinatesRepository = new CoordinatesRepositoryImpl();
 
     @Test
     public void aSaveToMongoDb()
@@ -52,19 +53,29 @@ public class MongoDbTest {
 
     @Test
     public void bReadFromMongoDb(){
-        assertThat(coordinatesRepository.readCoordinatesByTrackingId(trackingId).size() > 0);
+        assertTrue(coordinatesRepository.readCoordinatesByTrackingId(trackingId).size() > 0);
+        assertTrue(coordinatesRepository.readCoordinatesByTrackingId(trackingId).get(0) != null);
+        assertTrue(coordinatesRepository.readCoordinatesByTrackingId(trackingId).get(0).getTrackingID() == trackingId);
     }
+
 
     @Test
     public void cUpdateCollection(){
-        coordinatesRepository.addCoordinateToCollection(trackingId, new Coordinate(56.8,53.2,trackingId));
+        Coordinate c = new Coordinate(56.8,53.2,trackingId);
+        coordinatesRepository.addCoordinateToCollection(trackingId, c);
+        assertTrue(coordinatesRepository.readCoordinatesByTrackingId(trackingId).get(coordinatesRepository.readCoordinatesByTrackingId(trackingId).size() - 1).getLat() == c.getLat() &&
+                        coordinatesRepository.readCoordinatesByTrackingId(trackingId).get(coordinatesRepository.readCoordinatesByTrackingId(trackingId).size() - 1).getLon() == c.getLon()
+        );
     }
 
 
     @Test
     public void deleteCollection(){
         coordinatesRepository.deleteCoordinatesCollection(trackingId);
+        System.out.println(coordinatesRepository.readCoordinatesByTrackingId(trackingId).size());
+        assertTrue(coordinatesRepository.readCoordinatesByTrackingId(trackingId).size() == 0);
     }
+
 
 
 

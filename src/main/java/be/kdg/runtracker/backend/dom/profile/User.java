@@ -34,7 +34,7 @@ public class User implements Serializable {
     @Column(nullable=false)
     @Basic(optional=false)
     @NotNull
-    private String password;
+    private long authId;
 
     @Basic
     @NotNull
@@ -54,9 +54,6 @@ public class User implements Serializable {
 
     @Basic
     private String phone;
-
-    @Basic
-    private String pictureURL;
 
     @Basic
     private Date birthday;
@@ -112,12 +109,12 @@ public class User implements Serializable {
         this.username = username;
     }
 
-    public String getPassword() {
-        return this.password;
+    public long getAuthId() {
+        return authId;
     }
 
-    public void setPassword(String password) {
-        this.password = password;
+    public void setAuthId(long authId) {
+        this.authId = authId;
     }
 
     public String getFirstname() {
@@ -166,14 +163,6 @@ public class User implements Serializable {
 
     public void setPhone(String phone) {
         this.phone = phone;
-    }
-
-    public String getPictureURL() {
-        return this.pictureURL;
-    }
-
-    public void setPictureURL(String pictureURL) {
-        this.pictureURL = pictureURL;
     }
 
     public Date getBirthday() {

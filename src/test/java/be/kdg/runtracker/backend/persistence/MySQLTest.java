@@ -18,10 +18,13 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import java.sql.Date;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertTrue;
+
 
 /**
  * Created by Wout on 3/02/2017.
@@ -35,10 +38,10 @@ public class MySQLTest {
     private String userFirstName;
     @Value("Jansens")
     private String userLastName;
-    @Value("123456789")
+    @Value("Jan_Jansens1")
     private String username;
-    @Value("hash")
-    private String password;
+    @Value("123")
+    private long authId;
 
     @Autowired
     private UserRepository userRepository;
@@ -65,7 +68,7 @@ public class MySQLTest {
 
         User u = new User();
         u.setUsername(username);
-        u.setPassword(password);
+        u.setAuthId(authId);
         u.setFirstname(userFirstName);
         u.setLastname(userLastName);
         userRepository.save(u);
@@ -73,7 +76,7 @@ public class MySQLTest {
         //COMPETITION
         Goal g =  new Goal("Run 100m",100);
         goalRepository.save(g);
-        competitionRepository.save(new Competition(u,g, CompetitionType.REALTIME));
+        competitionRepository.save(new Competition(u,g, CompetitionType.REALTIME, Date.valueOf(LocalDate.now()),4));
 
         //SCHEDULE
         List<Event> events = new ArrayList<>();
@@ -94,6 +97,8 @@ public class MySQLTest {
         u.setTrackings(trackings);
 
         userRepository.save(u);
+
+        assertTrue((userRepository.findUserByUsername(username).getFirstname()+userRepository.findUserByUsername(username).getLastname()).equals((u.getFirstname()+u.getLastname())));
     }
 
     @Test
@@ -102,7 +107,7 @@ public class MySQLTest {
         User u = userRepository.findUserByUsername(username);
         u.setGender(Gender.MALE);
         userRepository.save(u);
-        assertThat(userRepository.findUserByUsername(username).getGender().equals(Gender.MALE));
+        assertTrue(userRepository.findUserByUsername(username).getGender().equals(Gender.MALE));
 
         Tracking tracking = u.getTrackings().get(u.getTrackings().size() - 1);
         tracking.setTotalDuration(60 * 60);
@@ -110,7 +115,7 @@ public class MySQLTest {
         tracking.setMaxSpeed(12.5);
         tracking.setAvgSpeed(10);
         trackingRepository.save(tracking);
-        assertThat(trackingRepository.findOne(tracking.getTracking_id()).equals(tracking));
+        assertTrue(trackingRepository.findOne(tracking.getTracking_id()).getAvgSpeed() == tracking.getAvgSpeed());
 
     }
 
@@ -120,8 +125,9 @@ public class MySQLTest {
     public void delete()
     {
         competitionRepository.delete(userRepository.findUserByUsername(username).getCompetitionsCreated());
-        userRepository.delete(userRepository.findUserByUsername(username).getUser_id());
+        userRepository.delete(userRepository.findUserByAuthId(authId).getUser_id());
         scheduleRepository.delete(scheduleRepository.findScheduleByName("TestSchedule"));
+        assertTrue(userRepository.findUserByAuthId(authId) == null);
     }
 
 

@@ -8,6 +8,7 @@ import org.hibernate.annotations.LazyCollectionOption;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
+import java.sql.Date;
 import java.util.List;
 
 /**
@@ -28,6 +29,14 @@ public class Competition implements Serializable {
     @NotNull
     private CompetitionType competitionType;
 
+    @Basic
+    @NotNull
+    private Date deadline;
+
+    @Basic
+    @NotNull
+    private int maxParticipants;
+
     @ManyToOne(targetEntity = Goal.class,fetch = FetchType.EAGER)
     private Goal goal;
 
@@ -45,10 +54,12 @@ public class Competition implements Serializable {
     @LazyCollection(LazyCollectionOption.FALSE)
     private List<User> usersRun;
 
-    public Competition(User userCreated, Goal goal, CompetitionType competitionType) {
+    public Competition(User userCreated, Goal goal, CompetitionType competitionType,Date deadline,int maxParticipants) {
         this.userCreated = userCreated;
         this.goal = goal;
         this.competitionType = competitionType;
+        this.deadline = deadline;
+        this.maxParticipants = maxParticipants;
     }
 
     public Competition() {
@@ -110,4 +121,19 @@ public class Competition implements Serializable {
         this.usersRun = usersRun;
     }
 
+    public Date getDeadline() {
+        return deadline;
+    }
+
+    public void setDeadline(Date deadline) {
+        this.deadline = deadline;
+    }
+
+    public int getMaxParticipants() {
+        return maxParticipants;
+    }
+
+    public void setMaxParticipants(int maxParticipants) {
+        this.maxParticipants = maxParticipants;
+    }
 }
