@@ -18,6 +18,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import java.sql.Date;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -74,7 +76,7 @@ public class MySQLTest {
         //COMPETITION
         Goal g =  new Goal("Run 100m",100);
         goalRepository.save(g);
-        competitionRepository.save(new Competition(u,g, CompetitionType.REALTIME));
+        competitionRepository.save(new Competition(u,g, CompetitionType.REALTIME, Date.valueOf(LocalDate.now()),4));
 
         //SCHEDULE
         List<Event> events = new ArrayList<>();

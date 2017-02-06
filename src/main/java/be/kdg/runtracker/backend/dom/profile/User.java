@@ -56,9 +56,6 @@ public class User implements Serializable {
     private String phone;
 
     @Basic
-    private String pictureURL;
-
-    @Basic
     private Date birthday;
 
     @Basic
@@ -166,14 +163,6 @@ public class User implements Serializable {
 
     public void setPhone(String phone) {
         this.phone = phone;
-    }
-
-    public String getPictureURL() {
-        return this.pictureURL;
-    }
-
-    public void setPictureURL(String pictureURL) {
-        this.pictureURL = pictureURL;
     }
 
     public Date getBirthday() {

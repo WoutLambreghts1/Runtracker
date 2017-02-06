@@ -3,6 +3,7 @@ package be.kdg.runtracker.backend.dom.profile;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
+import java.sql.Date;
 
 /**
  * @author Wout
@@ -19,7 +20,7 @@ public class Friendship implements Serializable {
 
     @Basic
     @NotNull
-    private String friendsSince;
+    private Date friendsSince;
 
     @OneToOne(targetEntity = User.class,mappedBy = "friendship",fetch = FetchType.EAGER)
     private User user;
@@ -32,11 +33,11 @@ public class Friendship implements Serializable {
         this.friendship_id = friendship_id;
     }
 
-    public String getFriendsSince() {
-        return this.friendsSince;
+    public Date getFriendsSince() {
+        return friendsSince;
     }
 
-    public void setFriendsSince(String friendsSince) {
+    public void setFriendsSince(Date friendsSince) {
         this.friendsSince = friendsSince;
     }
 
