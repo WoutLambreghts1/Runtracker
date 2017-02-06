@@ -11,15 +11,17 @@ public class Coordinate{
     private double lon;
     private LocalTime time;
     private long trackingID;
+    private double speed;
 
-    public Coordinate(double lat, double lon, long trackingID) {
+    public Coordinate(double lat, double lon, long trackingID,double speed) {
         this.lat = lat;
         this.lon = lon;
         this.trackingID = trackingID;
+        this.speed = speed;
         time = LocalTime.now();
     }
 
-    public Coordinate(double lat, double lon, LocalTime time, long trackingID) {
+    public Coordinate(double lat, double lon, LocalTime time, long trackingID,double speed) {
         this.lat = lat;
         this.lon = lon;
         this.time = time;
@@ -58,4 +60,11 @@ public class Coordinate{
         this.trackingID = trackingID;
     }
 
+    public void setSpeed(double speed) {
+        this.speed = speed;
+    }
+
+    public double getSpeed() {
+        return speed;
+    }
 }

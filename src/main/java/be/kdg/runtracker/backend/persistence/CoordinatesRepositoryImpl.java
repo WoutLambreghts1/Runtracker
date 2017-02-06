@@ -57,12 +57,13 @@ public class CoordinatesRepositoryImpl implements CoordinatesRepository{
         doc.put("lon",coordinate.getLon());
         doc.put("time",coordinate.getTime().toSecondOfDay());
         doc.put("trackingID",coordinate.getTrackingID());
+        doc.put("speed",coordinate.getSpeed());
 
         return doc;
     }
 
     private Coordinate docToCoordinate(Document document){
-        Coordinate coordinate = new Coordinate(document.getDouble("lat"),document.getDouble("lon"),LocalTime.ofSecondOfDay(document.getInteger("time")),document.getLong("trackingID"));
+        Coordinate coordinate = new Coordinate(document.getDouble("lat"),document.getDouble("lon"),LocalTime.ofSecondOfDay(document.getInteger("time")),document.getLong("trackingID"),document.getDouble("speed"));
         return coordinate;
     }
 

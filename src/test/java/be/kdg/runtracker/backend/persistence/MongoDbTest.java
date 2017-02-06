@@ -40,7 +40,7 @@ public class MongoDbTest {
         List<Coordinate> coordinateList;
         coordinateList = new ArrayList<>();
         for (int i = 0; i < 5; i++) {
-            coordinateList.add(new Coordinate(r.nextDouble(),r.nextDouble(),trackingId));
+            coordinateList.add(new Coordinate(r.nextDouble(),r.nextDouble(),trackingId,10 + r.nextDouble()));
             try {
                 Thread.sleep(1000);
             } catch (InterruptedException e) {
@@ -61,12 +61,13 @@ public class MongoDbTest {
 
     @Test
     public void cUpdateCollection(){
-        Coordinate c = new Coordinate(56.8,53.2,trackingId);
+        Coordinate c = new Coordinate(56.8,53.2,trackingId,10.4);
         coordinatesRepository.addCoordinateToCollection(trackingId, c);
         assertTrue(coordinatesRepository.readCoordinatesByTrackingId(trackingId).get(coordinatesRepository.readCoordinatesByTrackingId(trackingId).size() - 1).getLat() == c.getLat() &&
                         coordinatesRepository.readCoordinatesByTrackingId(trackingId).get(coordinatesRepository.readCoordinatesByTrackingId(trackingId).size() - 1).getLon() == c.getLon()
         );
     }
+
 
 
     @Test
@@ -75,6 +76,7 @@ public class MongoDbTest {
         System.out.println(coordinatesRepository.readCoordinatesByTrackingId(trackingId).size());
         assertTrue(coordinatesRepository.readCoordinatesByTrackingId(trackingId).size() == 0);
     }
+
 
 
 
