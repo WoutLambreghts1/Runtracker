@@ -21,7 +21,8 @@ import org.springframework.test.context.junit4.SpringRunner;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.Assert.assertTrue;
+import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertNull;
 
 
 /**
@@ -99,7 +100,7 @@ public class MySQLTest {
 
         userRepository.save(u);
 
-        assertTrue((userRepository.findUserByUsername(username).getFirstname()+userRepository.findUserByUsername(username).getLastname()).equals((u.getFirstname()+u.getLastname())));
+        assertEquals((userRepository.findUserByUsername(username).getFirstname() + userRepository.findUserByUsername(username).getLastname()), (u.getFirstname() + u.getLastname()));
     }
 
     @Test
@@ -108,7 +109,7 @@ public class MySQLTest {
         User u = userRepository.findUserByUsername(username);
         u.setGender(Gender.MALE);
         userRepository.save(u);
-        assertTrue(userRepository.findUserByUsername(username).getGender().equals(Gender.MALE));
+        assertEquals(userRepository.findUserByUsername(username).getGender(), Gender.MALE);
 
         Tracking tracking = u.getTrackings().get(u.getTrackings().size() - 1);
         tracking.setTotalDuration(60 * 60);
@@ -116,7 +117,7 @@ public class MySQLTest {
         tracking.setMaxSpeed(12.5);
         tracking.setAvgSpeed(10);
         trackingRepository.save(tracking);
-        assertTrue(trackingRepository.findOne(tracking.getTracking_id()).getAvgSpeed() == tracking.getAvgSpeed());
+        assertEquals(trackingRepository.findOne(tracking.getTracking_id()).getAvgSpeed(), tracking.getAvgSpeed());
 
     }
 
@@ -130,7 +131,7 @@ public class MySQLTest {
         scheduleRepository.delete(scheduleRepository.findScheduleByName("TestSchedule"));
         goalRepository.delete(goalRepository.findGoalByName(goalname));
         trackingRepository.delete(trackingRepository.findAll().get(trackingRepository.findAll().size() - 1));
-        assertTrue(userRepository.findUserByAuthId(authId) == null);
+        assertNull(userRepository.findUserByAuthId(authId));
     }
 
 

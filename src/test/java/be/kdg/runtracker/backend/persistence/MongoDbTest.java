@@ -31,7 +31,7 @@ public class MongoDbTest {
     private long trackingId;
 
     @Autowired
-    private CoordinatesRepositoryImpl coordinatesRepository;
+    private CoordinatesRepository coordinatesRepository;
 
 
     @Test
