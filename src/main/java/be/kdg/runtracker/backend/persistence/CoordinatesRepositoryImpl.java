@@ -6,6 +6,7 @@ import com.mongodb.MongoClientURI;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import org.bson.Document;
+import org.springframework.stereotype.Repository;
 
 import java.time.LocalTime;
 import java.util.ArrayList;
@@ -16,6 +17,7 @@ import java.util.stream.Collectors;
 /**
  * Created by Wout on 4/02/2017.
  */
+@Repository
 public class CoordinatesRepositoryImpl implements CoordinatesRepository{
 
     private MongoClient mongoClient;
@@ -68,9 +70,14 @@ public class CoordinatesRepositoryImpl implements CoordinatesRepository{
     }
 
     private void configMongo(){
-        //mongoClient = new MongoClient("localhost", 27017);
+        /*
         mongoClient = new MongoClient(
                 new MongoClientURI( "mongodb://runtracking:Runtracker2017@ds135039.mlab.com:35039/runtrackerdb" )
+        );
+        */
+
+        mongoClient = new MongoClient(
+                new MongoClientURI( "mongodb://runtracking:Runtracker2017@schadronds.synology.me:27017/runtrackerdb" )
         );
         database = mongoClient.getDatabase("runtrackerdb");
     }

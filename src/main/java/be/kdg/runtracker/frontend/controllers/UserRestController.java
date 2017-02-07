@@ -1,7 +1,7 @@
 package be.kdg.runtracker.frontend.controllers;
 
 import be.kdg.runtracker.backend.dom.profile.User;
-import be.kdg.runtracker.backend.services.UserService;
+import be.kdg.runtracker.backend.persistence.UserRepository;
 import be.kdg.runtracker.frontend.util.CustomErrorType;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,11 +22,11 @@ import java.util.List;
 public class UserRestController {
 
     public static final Logger logger = Logger.getLogger(UserRestController.class);
-    private UserService userService;
+    private UserRepository userRepository;
 
     @Autowired
-    public UserRestController(UserService userService) {
-        this.userService = userService;
+    public UserRestController(UserRepository userRepository) {
+        this.userRepository = userRepository;
     }
 
     protected UserRestController() { }
@@ -37,7 +37,7 @@ public class UserRestController {
      */
     @RequestMapping(method = RequestMethod.GET)
     public ResponseEntity<List<User>> listAllUsers() {
-        List<User> users = userService.findAll();
+        List<User> users = userRepository.findAll();
         if (users.isEmpty()) {
             return new ResponseEntity(HttpStatus.NO_CONTENT);
         }
@@ -53,7 +53,7 @@ public class UserRestController {
     public ResponseEntity<?> getUser(@PathVariable("userId") long userId) {
         logger.info("Fetching User with userId " + userId + ".");
 
-        User user = userService.findUserByUserId(userId);
+        User user = userRepository.findUserByAuthId(userId);
         if (user == null) {
             logger.error("User with userId " + userId + "not found!");
             return new ResponseEntity(new CustomErrorType("User with userId " + userId + " not found"),
@@ -73,13 +73,13 @@ public class UserRestController {
     public ResponseEntity<?> createUser(@RequestBody User user, UriComponentsBuilder ucBuilder) {
         logger.info("Creating User: " + user + ".");
 
-        if (userService.findUser(user) != null) {
+        if (userRepository.findUserByAuthId(user.getAuthId()) != null) {
             logger.error("A User with name " + user.getFirstname() + " " + user.getLastname() + " already exists!");
             return new ResponseEntity("A User with name " + user.getFirstname() + " " + user.getLastname() + " already exists!",
                     HttpStatus.CONFLICT
             );
         }
-        userService.saveUser(user);
+        userRepository.save(user);
 
         HttpHeaders headers = new HttpHeaders();
         headers.setLocation(ucBuilder.path("/api/users/{userId}").buildAndExpand(user.getUser_id()).toUri());
@@ -96,7 +96,7 @@ public class UserRestController {
     public ResponseEntity<?> updateUser(@PathVariable("userId") long userId, @RequestBody User user) {
         logger.info("Updating User with userId: " + userId + ".");
 
-        User currentUser = userService.findUserByUserId(userId);
+        User currentUser = userRepository.findUserByAuthId(userId);
 
         if (currentUser == null) {
             logger.error("User with userId: " + userId + " not found!");
@@ -116,7 +116,7 @@ public class UserRestController {
         currentUser.setWeight(user.getWeight());
         currentUser.setPlength(user.getPlength());
 
-        userService.saveUser(currentUser);
+        userRepository.save(currentUser);
         return new ResponseEntity<User>(currentUser, HttpStatus.OK);
     }
 
@@ -129,14 +129,14 @@ public class UserRestController {
     public ResponseEntity<?> deleteUser(@PathVariable("userId") long userId) {
         logger.info("Fetching & Deleting User with id: " + userId + ".");
 
-        User user = userService.findUserByUserId(userId);
+        User user = userRepository.findUserByAuthId(userId);
         if (user == null) {
             logger.error("User with id " + userId + " does not exist!");
             return new ResponseEntity(new CustomErrorType("User with id " + userId + " does not exist!"),
                     HttpStatus.NOT_FOUND
             );
         }
-        userService.deleteUserById(userId);
+        userRepository.delete(userId);
         return new ResponseEntity<User>(HttpStatus.NO_CONTENT);
     }
 

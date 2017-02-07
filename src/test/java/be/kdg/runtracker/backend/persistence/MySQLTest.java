@@ -18,8 +18,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import java.sql.Date;
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,7 +28,7 @@ import static org.junit.Assert.assertTrue;
  * Created by Wout on 3/02/2017.
  */
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = be.kdg.runtracker.RuntrackerApplicationTests.class)
+@SpringBootTest(classes = MySQLTest.class)
 @ComponentScan("be.kdg.runtracker")
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class MySQLTest {
@@ -42,6 +40,9 @@ public class MySQLTest {
     private String username;
     @Value("123")
     private long authId;
+
+    @Value("TestGoal")
+    private String goalname;
 
     @Autowired
     private UserRepository userRepository;
@@ -74,9 +75,9 @@ public class MySQLTest {
         userRepository.save(u);
 
         //COMPETITION
-        Goal g =  new Goal("Run 100m",100);
+        Goal g =  new Goal(goalname,1000);
         goalRepository.save(g);
-        competitionRepository.save(new Competition(u,g, CompetitionType.REALTIME, Date.valueOf(LocalDate.now()),4));
+        competitionRepository.save(new Competition(u,g, CompetitionType.REALTIME, 0,4));
 
         //SCHEDULE
         List<Event> events = new ArrayList<>();
@@ -91,7 +92,7 @@ public class MySQLTest {
 
         //TRACKING
         List<Tracking> trackings = (u.getTrackings() == null)?(new ArrayList<>()):u.getTrackings();
-        Tracking tracking = new Tracking();
+        Tracking tracking = new Tracking(60*20,5000,15,14.2);
         trackingRepository.save(tracking);
         trackings.add(tracking);
         u.setTrackings(trackings);
@@ -127,6 +128,8 @@ public class MySQLTest {
         competitionRepository.delete(userRepository.findUserByUsername(username).getCompetitionsCreated());
         userRepository.delete(userRepository.findUserByAuthId(authId).getUser_id());
         scheduleRepository.delete(scheduleRepository.findScheduleByName("TestSchedule"));
+        goalRepository.delete(goalRepository.findGoalByName(goalname));
+        trackingRepository.delete((long)trackingRepository.findAll().size()-1);
         assertTrue(userRepository.findUserByAuthId(authId) == null);
     }
 

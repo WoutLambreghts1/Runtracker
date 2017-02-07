@@ -10,6 +10,7 @@ import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.sql.Date;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -64,24 +65,18 @@ public class User implements Serializable {
     @Basic
     private double plength;
 
-    @OneToOne(targetEntity = Prestation.class, cascade = CascadeType.REMOVE,fetch = FetchType.EAGER)
-    private Prestation prestation;
-
-    @OneToOne(targetEntity = Friendship.class, cascade = CascadeType.REMOVE,fetch = FetchType.EAGER)
-    private Friendship friendship;
-
     @ManyToOne(targetEntity = Schedule.class,fetch = FetchType.EAGER)
     private Schedule schedule;
 
-    @OneToMany(targetEntity = Friendship.class, cascade = CascadeType.REMOVE)
+    @ManyToMany(targetEntity = User.class)
     @LazyCollection(LazyCollectionOption.FALSE)
-    private List<Friendship> friendships;
+    private List<User> friends;
 
     @OneToMany(targetEntity = Competition.class,mappedBy = "userCreated",cascade = CascadeType.REMOVE)
     @LazyCollection(LazyCollectionOption.FALSE)
     private List<Competition> competitionsCreated;
 
-    @OneToMany(targetEntity = Tracking.class,cascade = CascadeType.REMOVE)
+    @OneToMany(targetEntity = Tracking.class)
     @LazyCollection(LazyCollectionOption.FALSE)
     private List<Tracking> trackings;
 
@@ -92,6 +87,34 @@ public class User implements Serializable {
     @ManyToMany(targetEntity = Competition.class)
     @LazyCollection(LazyCollectionOption.FALSE)
     private List<Competition> competitionsRun;
+
+
+    @Basic
+    private double maxSpeed;
+
+    @Basic
+    private double avgSpeed;
+
+    @Basic
+    private long maxDistance;
+
+    @Basic
+    private double avgDistance;
+
+    @Basic
+    private long totalDistance;
+
+    @Basic
+    private boolean ranTenKm;
+
+    @Basic
+    private boolean ranTwentyKm;
+
+    @Basic
+    private boolean ranMarathon;
+
+    @Basic
+    private int nrOfCompetitionsWon;
 
     public Long getUser_id() {
         return this.user_id;
@@ -189,20 +212,13 @@ public class User implements Serializable {
         this.plength = plength;
     }
 
-    public Prestation getPrestation() {
-        return this.prestation;
+
+    public List<User> getFriends() {
+        return friends;
     }
 
-    public void setPrestation(Prestation prestation) {
-        this.prestation = prestation;
-    }
-
-    public Friendship getFriendship() {
-        return this.friendship;
-    }
-
-    public void setFriendship(Friendship friendship) {
-        this.friendship = friendship;
+    public void setFriends(List<User> friends) {
+        this.friends = friends;
     }
 
     public Schedule getSchedule() {
@@ -213,13 +229,6 @@ public class User implements Serializable {
         this.schedule = schedule;
     }
 
-    public List<Friendship> getFriendships() {
-        return this.friendships;
-    }
-
-    public void setFriendships(List<Friendship> friendships) {
-        this.friendships = friendships;
-    }
 
     public List<Competition> getCompetitionsCreated() {
         return this.competitionsCreated;
@@ -251,6 +260,94 @@ public class User implements Serializable {
 
     public void setCompetitionsRun(List<Competition> competitionsRun) {
         this.competitionsRun = competitionsRun;
+    }
+
+    public double getAvgDistance() {
+        return avgDistance;
+    }
+
+    public void setAvgDistance(double avgDistance) {
+        this.avgDistance = avgDistance;
+    }
+
+    public double getMaxSpeed() {
+        return maxSpeed;
+    }
+
+    public void setMaxSpeed(double maxSpeed) {
+        this.maxSpeed = maxSpeed;
+    }
+
+    public double getAvgSpeed() {
+        return avgSpeed;
+    }
+
+    public void setAvgSpeed(double avgSpeed) {
+        this.avgSpeed = avgSpeed;
+    }
+
+    public long getMaxDistance() {
+        return maxDistance;
+    }
+
+    public void setMaxDistance(long maxDistance) {
+        this.maxDistance = maxDistance;
+    }
+
+    public long getTotalDistance() {
+        return totalDistance;
+    }
+
+    public void setTotalDistance(long totalDistance) {
+        this.totalDistance = totalDistance;
+    }
+
+    public boolean isRanTenKm() {
+        return ranTenKm;
+    }
+
+    public void setRanTenKm(boolean ranTenKm) {
+        this.ranTenKm = ranTenKm;
+    }
+
+    public boolean isRanTwentyKm() {
+        return ranTwentyKm;
+    }
+
+    public void setRanTwentyKm(boolean ranTwentyKm) {
+        this.ranTwentyKm = ranTwentyKm;
+    }
+
+    public boolean isRanMarathon() {
+        return ranMarathon;
+    }
+
+    public void setRanMarathon(boolean ranMarathon) {
+        this.ranMarathon = ranMarathon;
+    }
+
+    public int getNrOfCompetitionsWon() {
+        return nrOfCompetitionsWon;
+    }
+
+    public void setNrOfCompetitionsWon(int nrOfCompetitionsWon) {
+        this.nrOfCompetitionsWon = nrOfCompetitionsWon;
+    }
+
+    public void addFriend(User friend){
+        if(friends == null){
+            friends = new ArrayList<>();
+        }
+
+        if(!friends.contains(friend)){
+            friends.add(friend);
+        }
+    }
+
+    public void removeTracking(User friend){
+        if(friends.contains(friend)){
+            friends.remove(friend);
+        }
     }
 
 

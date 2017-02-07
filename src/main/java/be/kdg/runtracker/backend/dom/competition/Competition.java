@@ -9,6 +9,8 @@ import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.sql.Date;
+import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 /**
@@ -46,7 +48,7 @@ public class Competition implements Serializable {
     @ManyToOne(targetEntity = User.class,fetch = FetchType.EAGER)
     private User userWon;
 
-    @OneToMany(targetEntity = Tracking.class)
+    @OneToMany(targetEntity = Tracking.class, cascade = CascadeType.REMOVE)
     @LazyCollection(LazyCollectionOption.FALSE)
     private List<Tracking> trackings;
 
@@ -54,12 +56,13 @@ public class Competition implements Serializable {
     @LazyCollection(LazyCollectionOption.FALSE)
     private List<User> usersRun;
 
-    public Competition(User userCreated, Goal goal, CompetitionType competitionType,Date deadline,int maxParticipants) {
+    public Competition(User userCreated, Goal goal, CompetitionType competitionType,int deadlineInAmountOfDays,int maxParticipants) {
         this.userCreated = userCreated;
         this.goal = goal;
         this.competitionType = competitionType;
-        this.deadline = deadline;
+        this.deadline = new Date(Calendar.getInstance().getTime().getTime() + deadlineInAmountOfDays);
         this.maxParticipants = maxParticipants;
+        addRunner(userCreated);
     }
 
     public Competition() {
@@ -135,5 +138,62 @@ public class Competition implements Serializable {
 
     public void setMaxParticipants(int maxParticipants) {
         this.maxParticipants = maxParticipants;
+    }
+
+    public void addRunner(User runner){
+        if(usersRun == null){
+            usersRun = new ArrayList<>();
+        }
+
+        if(!usersRun.stream().filter(u -> u.getUser_id() == runner.getUser_id()).findFirst().isPresent()){
+            usersRun.add(runner);
+        }
+
+    }
+
+    public void removeRunner(User runner){
+        if(usersRun.stream().filter(u -> u.getUser_id() == runner.getUser_id()).findFirst().isPresent()){
+            usersRun.remove(runner);
+        }
+    }
+
+    public void addTracking(Tracking tracking){
+        if(trackings == null){
+            trackings = new ArrayList<>();
+        }
+
+        if(!trackings.contains(tracking)){
+            trackings.add(tracking);
+        }
+    }
+
+    public void removeTracking(Tracking tracking){
+        if(trackings.contains(tracking)){
+            trackings.remove(tracking);
+        }
+    }
+
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Competition that = (Competition) o;
+
+        if (maxParticipants != that.maxParticipants) return false;
+        if (competitionType != that.competitionType) return false;
+        if (!goal.equals(that.goal)) return false;
+        return userCreated.getUsername().equals(that.userCreated.getUsername());
+
+    }
+
+    @Override
+    public int hashCode() {
+        int result = competitionType.hashCode();
+        result = 31 * result + maxParticipants;
+        result = 31 * result + goal.hashCode();
+        result = 31 * result + userCreated.getUsername().hashCode();
+        return result;
     }
 }

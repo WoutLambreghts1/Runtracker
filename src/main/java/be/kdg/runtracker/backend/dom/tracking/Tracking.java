@@ -1,5 +1,7 @@
 package be.kdg.runtracker.backend.dom.tracking;
 
+import be.kdg.runtracker.backend.dom.profile.User;
+
 import javax.persistence.*;
 import java.io.Serializable;
 import java.sql.Timestamp;
@@ -33,8 +35,18 @@ public class Tracking implements Serializable {
     @Basic
     private double avgSpeed;
 
+    @ManyToOne(targetEntity = User.class)
+    private User user;
+
     public Tracking() {
+    }
+
+    public Tracking(long totalDuration, long totalDistance, double maxSpeed, double avgSpeed) {
         this.time = Timestamp.valueOf(LocalDateTime.now());
+        this.totalDuration = totalDuration;
+        this.totalDistance = totalDistance;
+        this.maxSpeed = maxSpeed;
+        this.avgSpeed = avgSpeed;
     }
 
     public Long getTracking_id() {
@@ -85,5 +97,11 @@ public class Tracking implements Serializable {
         this.avgSpeed = avgSpeed;
     }
 
+    public User getUser() {
+        return user;
+    }
 
+    public void setUser(User user) {
+        this.user = user;
+    }
 }

@@ -5,6 +5,7 @@ import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.MethodSorters;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.ComponentScan;
@@ -26,10 +27,12 @@ import static org.junit.Assert.assertTrue;
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class MongoDbTest {
 
-    @Value("1")
+    @Value("999999")
     private long trackingId;
 
-    private CoordinatesRepositoryImpl coordinatesRepository = new CoordinatesRepositoryImpl();
+    @Autowired
+    private CoordinatesRepositoryImpl coordinatesRepository;
+
 
     @Test
     public void aSaveToMongoDb()
@@ -76,6 +79,7 @@ public class MongoDbTest {
         System.out.println(coordinatesRepository.readCoordinatesByTrackingId(trackingId).size());
         assertTrue(coordinatesRepository.readCoordinatesByTrackingId(trackingId).size() == 0);
     }
+
 
 
 
