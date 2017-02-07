@@ -11,6 +11,8 @@ import java.util.List;
  */
 public interface CompetitionRepository extends JpaRepository<Competition,Long> {
 
+    Competition findCompetitionByCompetitionId(long competitionId);
+
     List<Competition> findCompetitionByUserCreated(User userCreated);
 
 }

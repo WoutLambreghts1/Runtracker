@@ -39,7 +39,7 @@ public class UserRestController {
     public ResponseEntity<List<User>> getAllUsers() {
         List<User> users = userRepository.findAll();
         if (users.isEmpty()) {
-            return new ResponseEntity(HttpStatus.NO_CONTENT);
+            return new ResponseEntity(new CustomErrorType("No Users found!"), HttpStatus.NO_CONTENT);
         }
         return new ResponseEntity<List<User>>(users, HttpStatus.OK);
     }
@@ -60,6 +60,7 @@ public class UserRestController {
                     HttpStatus.NOT_FOUND
             );
         }
+
         return new ResponseEntity<User>(user, HttpStatus.OK);
     }
 

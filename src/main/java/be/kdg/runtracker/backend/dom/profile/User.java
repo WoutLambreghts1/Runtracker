@@ -309,6 +309,22 @@ public class User implements Serializable {
         }
     }
 
+    public void addTracking(Tracking tracking) {
+        if (!trackings.contains(tracking)) trackings.add(tracking);
+    }
+
+    public void addCompetitionsCreated(Competition competition) {
+        this.competitionsCreated.add(competition);
+    }
+
+    public void addCompetitionsRan(Competition competition) {
+        if (!competitionsRun.contains(competition)) this.competitionsRun.add(competition);
+    }
+
+    public void addCompetitionsWon(Competition competition) {
+        this.competitionsWon.add(competition);
+    }
+
     public void removeTracking(User friend){
         if(friends.contains(friend)){
             friends.remove(friend);
