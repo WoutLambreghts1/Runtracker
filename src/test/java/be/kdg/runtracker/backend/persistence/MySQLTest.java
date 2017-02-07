@@ -5,8 +5,6 @@ import be.kdg.runtracker.backend.dom.competition.CompetitionType;
 import be.kdg.runtracker.backend.dom.competition.Goal;
 import be.kdg.runtracker.backend.dom.profile.Gender;
 import be.kdg.runtracker.backend.dom.profile.User;
-import be.kdg.runtracker.backend.dom.scheduling.Event;
-import be.kdg.runtracker.backend.dom.scheduling.Schedule;
 import be.kdg.runtracker.backend.dom.tracking.Tracking;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
@@ -52,13 +50,7 @@ public class MySQLTest {
     private CompetitionRepository competitionRepository;
 
     @Autowired
-    private ScheduleRepository scheduleRepository;
-
-    @Autowired
     private GoalRepository goalRepository;
-
-    @Autowired
-    private EventRepository eventRepository;
 
     @Autowired
     private TrackingRepository trackingRepository;
@@ -79,17 +71,6 @@ public class MySQLTest {
         Goal g =  new Goal(goalname,1000);
         goalRepository.save(g);
         competitionRepository.save(new Competition(u,g, CompetitionType.REALTIME, 0,4));
-
-        //SCHEDULE
-        List<Event> events = new ArrayList<>();
-        for (int i = 0; i < 7; i+=2) {
-            Event e = new Event(i,"Run 5km","Run 5km within 40 minutes.",60*40);
-            events.add(e);
-            eventRepository.save(e);
-        }
-        scheduleRepository.save(new Schedule("TestSchedule",4,events));
-        u.setSchedule(scheduleRepository.findOne(scheduleRepository.count()-1));
-        userRepository.save(u);
 
         //TRACKING
         List<Tracking> trackings = (u.getTrackings() == null)?(new ArrayList<>()):u.getTrackings();
@@ -128,7 +109,6 @@ public class MySQLTest {
     {
         competitionRepository.delete(userRepository.findUserByUsername(username).getCompetitionsCreated());
         userRepository.delete(userRepository.findUserByAuthId(authId).getUser_id());
-        scheduleRepository.delete(scheduleRepository.findScheduleByName("TestSchedule"));
         goalRepository.delete(goalRepository.findGoalByName(goalname));
         trackingRepository.delete(trackingRepository.findAll().get(trackingRepository.findAll().size() - 1));
         assertNull(userRepository.findUserByAuthId(authId));

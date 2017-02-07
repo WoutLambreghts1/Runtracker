@@ -68,9 +68,6 @@ public class MongoDbTest {
         assertEquals(coordinatesRepository.readCoordinatesByTrackingId(trackingId).get(coordinatesRepository.readCoordinatesByTrackingId(trackingId).size() - 1).getLat(), c.getLat(), 0);
         assertEquals(coordinatesRepository.readCoordinatesByTrackingId(trackingId).get(coordinatesRepository.readCoordinatesByTrackingId(trackingId).size() - 1).getLon(), c.getLon(), 0);
 
-        /*assertTrue(coordinatesRepository.readCoordinatesByTrackingId(trackingId).get(coordinatesRepository.readCoordinatesByTrackingId(trackingId).size() - 1).getLat() == c.getLat() &&
-                        coordinatesRepository.readCoordinatesByTrackingId(trackingId).get(coordinatesRepository.readCoordinatesByTrackingId(trackingId).size() - 1).getLon() == c.getLon()
-        );*/
     }
 
 

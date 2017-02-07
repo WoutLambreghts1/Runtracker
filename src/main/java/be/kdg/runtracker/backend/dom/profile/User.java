@@ -1,7 +1,6 @@
 package be.kdg.runtracker.backend.dom.profile;
 
 import be.kdg.runtracker.backend.dom.competition.Competition;
-import be.kdg.runtracker.backend.dom.scheduling.Schedule;
 import be.kdg.runtracker.backend.dom.tracking.Tracking;
 import org.hibernate.annotations.LazyCollection;
 import org.hibernate.annotations.LazyCollectionOption;
@@ -58,9 +57,6 @@ public class User implements Serializable {
 
     @Basic
     private double plength;
-
-    @ManyToOne(targetEntity = Schedule.class,fetch = FetchType.EAGER)
-    private Schedule schedule;
 
     @ManyToMany(targetEntity = User.class)
     @LazyCollection(LazyCollectionOption.FALSE)
@@ -198,15 +194,6 @@ public class User implements Serializable {
     public void setFriends(List<User> friends) {
         this.friends = friends;
     }
-
-    public Schedule getSchedule() {
-        return this.schedule;
-    }
-
-    public void setSchedule(Schedule schedule) {
-        this.schedule = schedule;
-    }
-
 
     public List<Competition> getCompetitionsCreated() {
         return this.competitionsCreated;
