@@ -63,7 +63,6 @@ public class InitializeTestdata {
         User alex = new User();
         alex.setFirstname("Alexander");
         alex.setLastname("van Ravestyn");
-        alex.setEmail("alexander.vanravestyn@student.kdg.be");
         alex.setGender(Gender.MALE);
         alex.setUsername(usernameAlex);
         users.add(alex);
@@ -71,7 +70,6 @@ public class InitializeTestdata {
         User jens = new User();
         jens.setFirstname("Jens");
         jens.setLastname("Schadron");
-        jens.setEmail("jens.schadron@student.kdg.be");
         jens.setGender(Gender.MALE);
         jens.setUsername(usernameJens);
         users.add(jens);
@@ -79,7 +77,6 @@ public class InitializeTestdata {
         User jelle = new User();
         jelle.setFirstname("Jelle");
         jelle.setLastname("Mannaerts");
-        jelle.setEmail("jelle.mannaerts@student.kdg.be");
         jelle.setGender(Gender.MALE);
         jelle.setUsername(usernameJelle);
         users.add(jelle);
@@ -87,7 +84,6 @@ public class InitializeTestdata {
         User stijn = new User();
         stijn.setFirstname("Stijn");
         stijn.setLastname("Ergeerts");
-        stijn.setEmail("stijn.ergeerts@student.kdg.be");
         stijn.setGender(Gender.MALE);
         stijn.setUsername(usernameStijn);
         users.add(stijn);
@@ -95,7 +91,6 @@ public class InitializeTestdata {
         User wout = new User();
         wout.setFirstname("Wout");
         wout.setLastname("Lambreghts");
-        wout.setEmail("wout.lambreghts@student.kdg.be");
         wout.setGender(Gender.MALE);
         wout.setUsername(usernameWout);
         users.add(wout);

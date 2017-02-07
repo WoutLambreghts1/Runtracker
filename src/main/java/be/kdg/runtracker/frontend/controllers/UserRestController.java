@@ -109,9 +109,7 @@ public class UserRestController {
         currentUser.setFirstname(user.getFirstname());
         currentUser.setLastname(user.getLastname());
         currentUser.setGender(user.getGender());
-        currentUser.setCity(user.getCity());
-        currentUser.setEmail(user.getEmail());
-        currentUser.setPhone(user.getPhone());
+        currentUser.setCity(user.getCity());;
         currentUser.setBirthday(user.getBirthday());
         currentUser.setWeight(user.getWeight());
         currentUser.setPlength(user.getPlength());

@@ -51,12 +51,6 @@ public class User implements Serializable {
     private String city;
 
     @Basic
-    private String email;
-
-    @Basic
-    private String phone;
-
-    @Basic
     private Date birthday;
 
     @Basic
@@ -170,22 +164,6 @@ public class User implements Serializable {
 
     public void setCity(String city) {
         this.city = city;
-    }
-
-    public String getEmail() {
-        return this.email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public String getPhone() {
-        return this.phone;
-    }
-
-    public void setPhone(String phone) {
-        this.phone = phone;
     }
 
     public Date getBirthday() {
