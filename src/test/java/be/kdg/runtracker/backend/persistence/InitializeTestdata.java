@@ -219,15 +219,21 @@ public class InitializeTestdata {
     }
 
     //DELETE EVERYTHING
-    /*
+
     @Test
     public void cDelete() {
-        //DELETE USERS
+        //DELETE COORDINATES IN MONGODB
+        for (int i = 0; i < trackingRepository.findAll().size(); i++) {
+            Tracking t = trackingRepository.findAll().get(i);
+            if(t.getUser().getUsername().equals(usernameStijn) || t.getUser().getUsername().equals(usernameAlex) || t.getUser().getUsername().equals(usernameJelle) || t.getUser().getUsername().equals(usernameWout) || t.getUser().getUsername().equals(usernameJens)){
+                coordinatesRepositoryImpl.deleteCoordinatesCollection(t.getTracking_id());
+            }
+        }
 
+        //DELETE USERS
         User u1 = userRepository.findUserByUsername(usernameStijn);
         u1.getFriends().clear();
         userRepository.save(u1);
-
         User u2 = userRepository.findUserByUsername(usernameAlex);
         u2.getFriends().clear();
         userRepository.save(u2);
@@ -241,20 +247,17 @@ public class InitializeTestdata {
         u5.getFriends().clear();
         userRepository.save(u5);
 
-        userRepository.delete(u1);
-        userRepository.delete(u2);
-        userRepository.delete(u3);
-        userRepository.delete(u4);
-        userRepository.delete(u5);
+
+        userRepository.delete(userRepository.findUserByUsername(usernameStijn));
+        userRepository.delete(userRepository.findUserByUsername(usernameAlex));
+        userRepository.delete(userRepository.findUserByUsername(usernameJelle));
+        userRepository.delete(userRepository.findUserByUsername(usernameWout));
+        userRepository.delete(userRepository.findUserByUsername(usernameJens));
 
 
         //DELETE COMPETITIONS
         for (int i = 0; i < competitionRepository.findAll().size(); i++) {
             if(competitionRepository.findAll().get(i).getUserCreated() == null){
-                for (int j = 0; j < competitionRepository.findAll().get(i).getTrackings().size(); j++) {
-                    coordinatesRepositoryImpl.deleteCoordinatesCollection(competitionRepository.findAll().get(i).getTrackings().get(j).getTracking_id());
-                }
-
                 competitionRepository.delete(competitionRepository.findAll().get(i));
             }
         }
@@ -269,7 +272,7 @@ public class InitializeTestdata {
 
 
     }
-    */
+
 
 
 

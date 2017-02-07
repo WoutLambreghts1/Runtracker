@@ -129,7 +129,7 @@ public class MySQLTest {
         userRepository.delete(userRepository.findUserByAuthId(authId).getUser_id());
         scheduleRepository.delete(scheduleRepository.findScheduleByName("TestSchedule"));
         goalRepository.delete(goalRepository.findGoalByName(goalname));
-        trackingRepository.delete((long)trackingRepository.findAll().size()-1);
+        trackingRepository.delete(trackingRepository.findAll().get(trackingRepository.findAll().size() - 1));
         assertTrue(userRepository.findUserByAuthId(authId) == null);
     }
 
