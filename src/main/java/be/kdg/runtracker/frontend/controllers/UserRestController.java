@@ -33,10 +33,10 @@ public class UserRestController {
 
     /**
      * Get all {@link User}s.
-     * @return
+     * @return List of Users
      */
     @RequestMapping(method = RequestMethod.GET)
-    public ResponseEntity<List<User>> listAllUsers() {
+    public ResponseEntity<List<User>> getAllUsers() {
         List<User> users = userRepository.findAll();
         if (users.isEmpty()) {
             return new ResponseEntity(HttpStatus.NO_CONTENT);
@@ -45,18 +45,18 @@ public class UserRestController {
     }
 
     /**
-     * Get {@link User} by its userId.
-     * @param userId
-     * @return
+     * Get {@link User} by its authId.
+     * @param authId authorization id
+     * @return User
      */
-    @RequestMapping(value = "/{userId}", method = RequestMethod.GET)
-    public ResponseEntity<?> getUser(@PathVariable("userId") long userId) {
-        logger.info("Fetching User with userId " + userId + ".");
+    @RequestMapping(value = "/{authId}", method = RequestMethod.GET)
+    public ResponseEntity<?> getUser(@PathVariable("authId") long authId) {
+        logger.info("Fetching User with authId " + authId + ".");
 
-        User user = userRepository.findUserByAuthId(userId);
+        User user = userRepository.findUserByAuthId(authId);
         if (user == null) {
-            logger.error("User with userId " + userId + "not found!");
-            return new ResponseEntity(new CustomErrorType("User with userId " + userId + " not found"),
+            logger.error("User with authId " + authId + "not found!");
+            return new ResponseEntity(new CustomErrorType("User with authId " + authId + " not found"),
                     HttpStatus.NOT_FOUND
             );
         }
@@ -65,9 +65,9 @@ public class UserRestController {
 
     /**
      * Create a {@link User}.
-     * @param user
-     * @param ucBuilder
-     * @return
+     * @param user User from body
+     * @param ucBuilder Uri Builder
+     * @return HTTP status
      */
     @RequestMapping(method = RequestMethod.POST)
     public ResponseEntity<?> createUser(@RequestBody User user, UriComponentsBuilder ucBuilder) {
@@ -82,25 +82,25 @@ public class UserRestController {
         userRepository.save(user);
 
         HttpHeaders headers = new HttpHeaders();
-        headers.setLocation(ucBuilder.path("/api/users/{userId}").buildAndExpand(user.getUser_id()).toUri());
+        headers.setLocation(ucBuilder.path("/api/users/{authId}").buildAndExpand(user.getUser_id()).toUri());
         return new ResponseEntity<String>(headers, HttpStatus.CREATED);
     }
 
     /**
      * Update an existing {@link User}.
-     * @param userId
-     * @param user
-     * @return
+     * @param authId authorization id
+     * @param user User from body
+     * @return HTTP status
      */
-    @RequestMapping(value = "/user/{userId}", method = RequestMethod.PUT)
-    public ResponseEntity<?> updateUser(@PathVariable("userId") long userId, @RequestBody User user) {
-        logger.info("Updating User with userId: " + userId + ".");
+    @RequestMapping(value = "/user/{authId}", method = RequestMethod.PUT)
+    public ResponseEntity<?> updateUser(@PathVariable("authId") long authId, @RequestBody User user) {
+        logger.info("Updating User with authId: " + authId + ".");
 
-        User currentUser = userRepository.findUserByAuthId(userId);
+        User currentUser = userRepository.findUserByAuthId(authId);
 
         if (currentUser == null) {
-            logger.error("User with userId: " + userId + " not found!");
-            return new ResponseEntity(new CustomErrorType("User with userId: " + userId + " not found!"),
+            logger.error("User with authId: " + authId + " not found!");
+            return new ResponseEntity(new CustomErrorType("User with authId: " + authId + " not found!"),
                     HttpStatus.NOT_FOUND
             );
         }
@@ -120,21 +120,21 @@ public class UserRestController {
 
     /**
      * Delete an existing {@link User}.
-     * @param userId
-     * @return
+     * @param authId authorization id
+     * @return HTTP status
      */
-    @RequestMapping(value = "/user/{userId}", method = RequestMethod.DELETE)
-    public ResponseEntity<?> deleteUser(@PathVariable("userId") long userId) {
-        logger.info("Fetching & Deleting User with id: " + userId + ".");
+    @RequestMapping(value = "/user/{authId}", method = RequestMethod.DELETE)
+    public ResponseEntity<?> deleteUser(@PathVariable("authId") long authId) {
+        logger.info("Fetching & Deleting User with id: " + authId + ".");
 
-        User user = userRepository.findUserByAuthId(userId);
+        User user = userRepository.findUserByAuthId(authId);
         if (user == null) {
-            logger.error("User with id " + userId + " does not exist!");
-            return new ResponseEntity(new CustomErrorType("User with id " + userId + " does not exist!"),
+            logger.error("User with id " + authId + " does not exist!");
+            return new ResponseEntity(new CustomErrorType("User with id " + authId + " does not exist!"),
                     HttpStatus.NOT_FOUND
             );
         }
-        userRepository.delete(userId);
+        userRepository.delete(user.getUser_id());
         return new ResponseEntity<User>(HttpStatus.NO_CONTENT);
     }
 
