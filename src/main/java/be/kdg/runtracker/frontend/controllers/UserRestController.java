@@ -92,7 +92,7 @@ public class UserRestController {
      * @param user User from body
      * @return HTTP status
      */
-    @RequestMapping(value = "/user/{authId}", method = RequestMethod.PUT)
+    @RequestMapping(value = "/{authId}", method = RequestMethod.PUT)
     public ResponseEntity<?> updateUser(@PathVariable("authId") long authId, @RequestBody User user) {
         logger.info("Updating User with authId: " + authId + ".");
 
@@ -123,7 +123,7 @@ public class UserRestController {
      * @param authId authorization id
      * @return HTTP status
      */
-    @RequestMapping(value = "/user/{authId}", method = RequestMethod.DELETE)
+    @RequestMapping(value = "/{authId}", method = RequestMethod.DELETE)
     public ResponseEntity<?> deleteUser(@PathVariable("authId") long authId) {
         logger.info("Fetching & Deleting User with id: " + authId + ".");
 
