@@ -1,16 +1,25 @@
 package be.kdg.runtracker.backend.dom.tracking;
 
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
+
 import java.time.LocalTime;
 
 /**
  * @author Wout
  */
+@Document
 public class Coordinate{
 
-    private double lat;
-    private double lon;
+    @Id
     private LocalTime time;
+
+    private double lat;
+
+    private double lon;
+
     private long trackingID;
+
     private double speed;
 
     public Coordinate(double lat, double lon, long trackingID,double speed) {

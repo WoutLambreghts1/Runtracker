@@ -39,7 +39,7 @@ public class InitializeTestdata {
     @Autowired
     TrackingRepository trackingRepository;
     @Autowired
-    CoordinatesRepositoryImpl coordinatesRepositoryImpl;
+    CoordinatesRepository coordinatesRepository;
 
     //USERNAMES
     @Value("AlexVr")
@@ -203,7 +203,7 @@ public class InitializeTestdata {
                         for (int l = 0; l < 10; l++) {
                             coordinates.add(new Coordinate(r.nextDouble() * r.nextInt(50),r.nextDouble() * r.nextInt(50), LocalTime.now().plusSeconds(i),trackingID,11+r.nextDouble()));
                         }
-                        coordinatesRepositoryImpl.createCoordinatesCollection(coordinates.get(i).getTrackingID(),coordinates);
+                        coordinatesRepository.createCoordinatesCollection(coordinates.get(i).getTrackingID(), coordinates);
                     }
                 }
 
@@ -221,7 +221,7 @@ public class InitializeTestdata {
         for (int i = 0; i < trackingRepository.findAll().size(); i++) {
             Tracking t = trackingRepository.findAll().get(i);
             if(t.getUser().getUsername().equals(usernameStijn) || t.getUser().getUsername().equals(usernameAlex) || t.getUser().getUsername().equals(usernameJelle) || t.getUser().getUsername().equals(usernameWout) || t.getUser().getUsername().equals(usernameJens)){
-                coordinatesRepositoryImpl.deleteCoordinatesCollection(t.getTracking_id());
+                coordinatesRepository.deleteCoordinatesCollection(t.getTracking_id());
             }
         }
 
