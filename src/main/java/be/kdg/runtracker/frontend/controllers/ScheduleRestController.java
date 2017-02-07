@@ -1,6 +1,5 @@
 package be.kdg.runtracker.frontend.controllers;
 
-import be.kdg.runtracker.backend.dom.profile.User;
 import be.kdg.runtracker.backend.dom.scheduling.Schedule;
 import be.kdg.runtracker.backend.persistence.ScheduleRepository;
 import be.kdg.runtracker.backend.persistence.UserRepository;
@@ -49,22 +48,12 @@ public class ScheduleRestController {
 
     /**
      * Find {@link Schedule} by name.
-     * @param userId
-     * @param scheduleName
+     * @param scheduleName Name of Schedule
      * @return Schedule
      */
-    @RequestMapping(method = RequestMethod.GET, value = "/{scheduleId}")
-    public ResponseEntity<?> getUserSchedule(@PathVariable String userId, @PathVariable String scheduleName) {
-        logger.info("Fetching schedule with name: " + scheduleName + " for user with id: " + userId + ".");
-
-        User user = userRepository.findOne(Long.valueOf(userId));
-        if (user == null) {
-            logger.error("User with id " + userId + " not found!");
-            return new ResponseEntity<Object>(
-                    new CustomErrorType("User with id " + userId + " not found!"),
-                    HttpStatus.NOT_FOUND
-            );
-        }
+    @RequestMapping(method = RequestMethod.GET, value = "/{scheduleName}")
+    public ResponseEntity<?> getUserSchedule(@PathVariable String scheduleName) {
+        logger.info("Fetching schedule with name: " + scheduleName + ".");
 
         Schedule schedule = scheduleRepository.findScheduleByName(scheduleName);
         if (schedule == null) {
