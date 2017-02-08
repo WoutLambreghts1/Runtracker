@@ -15,10 +15,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import java.util.List;
-
 @RepositoryRestController
-@RequestMapping("/api/users")
+@RequestMapping("/users/")
 public class UserRestController {
 
     public static final Logger logger = Logger.getLogger(UserRestController.class);
@@ -30,19 +28,6 @@ public class UserRestController {
     }
 
     protected UserRestController() { }
-
-    /**
-     * Get all {@link User}s.
-     * @return List of Users
-     */
-    @RequestMapping(method = RequestMethod.GET)
-    public ResponseEntity<List<User>> getAllUsers() {
-        List<User> users = userRepository.findAll();
-        if (users.isEmpty()) {
-            return new ResponseEntity(new CustomErrorType("No Users found!"), HttpStatus.NO_CONTENT);
-        }
-        return new ResponseEntity<List<User>>(users, HttpStatus.OK);
-    }
 
     /**
      * Get {@link User} by its authId.

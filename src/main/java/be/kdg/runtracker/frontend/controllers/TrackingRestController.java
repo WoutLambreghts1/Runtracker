@@ -1,7 +1,6 @@
 package be.kdg.runtracker.frontend.controllers;
 
 import be.kdg.runtracker.backend.dom.profile.User;
-import be.kdg.runtracker.backend.dom.tracking.Coordinate;
 import be.kdg.runtracker.backend.dom.tracking.Tracking;
 import be.kdg.runtracker.backend.persistence.CoordinatesRepository;
 import be.kdg.runtracker.backend.persistence.TrackingRepository;
@@ -22,7 +21,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 import java.util.List;
 
 @RepositoryRestController
-@RequestMapping("/api/trackings/")
+@RequestMapping("/trackings/")
 public class TrackingRestController {
 
     public static final Logger logger = Logger.getLogger(TrackingRestController.class);

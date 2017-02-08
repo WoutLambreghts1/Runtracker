@@ -20,7 +20,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 import java.util.List;
 
 @RepositoryRestController
-@RequestMapping("/api/competitions/")
+@RequestMapping("/competitions/")
 public class CompetitionRestController {
 
     public static final Logger logger = Logger.getLogger(CompetitionRestController.class);

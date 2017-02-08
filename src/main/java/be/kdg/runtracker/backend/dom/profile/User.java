@@ -60,7 +60,7 @@ public class User implements Serializable {
     @LazyCollection(LazyCollectionOption.FALSE)
     private List<Competition> competitionsCreated;
 
-    @OneToMany(targetEntity = Tracking.class, orphanRemoval=true, cascade = CascadeType.REMOVE)
+    @OneToMany(targetEntity = Tracking.class)
     @LazyCollection(LazyCollectionOption.FALSE)
     private List<Tracking> trackings;
 
