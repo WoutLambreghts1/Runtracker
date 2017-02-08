@@ -167,13 +167,13 @@ public class CompetitionRestController {
     /**
      * {@link User} runs in a {@link Competition}.
      * @param authId Authorization id
-     * @param competition Competition in which a User runs
+     * @param competitionId Id of Competition in which a User runs
      * @param ucBuilder Uri Builder
      * @return HTTP Status
      */
-    @RequestMapping(value = "/{authId}/running", method = RequestMethod.POST)
-    public ResponseEntity<?> runCompetition(@PathVariable("authId") String authId, @RequestBody Competition competition, UriComponentsBuilder ucBuilder) {
-        logger.info("Competition " + competition + ", ran by User with authId " + authId + ".");
+    @RequestMapping(value = "/{authId}/running/{competitionId}", method = RequestMethod.POST)
+    public ResponseEntity<?> runCompetition(@PathVariable("authId") String authId, @PathVariable("competitionId") String competitionId, UriComponentsBuilder ucBuilder) {
+        logger.info("Competition " + competitionId + ", ran by User with authId " + authId + ".");
 
         User user = this.userRepository.findUserByAuthId(authId);
 
@@ -184,6 +184,7 @@ public class CompetitionRestController {
             );
         }
 
+        Competition competition = this.competitionRepository.findCompetitionByCompetitionId(Long.valueOf(competitionId));
         user.addCompetitionsRan(competition);
         competition.addRunner(user);
 
@@ -191,20 +192,20 @@ public class CompetitionRestController {
         userRepository.save(user);
 
         HttpHeaders headers = new HttpHeaders();
-        headers.setLocation(ucBuilder.path("/api/users/{authId}").buildAndExpand(user.getUserId()).toUri());
-        return new ResponseEntity<String>(headers, HttpStatus.CREATED);
+        headers.setLocation(ucBuilder.path("/api/competitions/{competitionId}").buildAndExpand(competition.getCompetitionId()).toUri());
+        return new ResponseEntity<String>(headers, HttpStatus.OK);
     }
 
     /**
      * {@link User} wins a {@link Competition}.
      * @param authId Authorization id
-     * @param competition Competition which a User won
+     * @param competitionId Id of Competition which a User won
      * @param ucBuilder Uri Builder
      * @return HTTP Status
      */
     @RequestMapping(value = "/{authId}/winning", method = RequestMethod.POST)
-    public ResponseEntity<?> wonCompetition(@PathVariable("authId") String authId, @RequestBody Competition competition, UriComponentsBuilder ucBuilder) {
-        logger.info("Competition " + competition + ", won by User with authId " + authId + ".");
+    public ResponseEntity<?> wonCompetition(@PathVariable("authId") String authId, @PathVariable("competitionId") String competitionId, UriComponentsBuilder ucBuilder) {
+        logger.info("Competition " + competitionId + ", won by User with authId " + authId + ".");
 
         User user = this.userRepository.findUserByAuthId(authId);
 
@@ -215,6 +216,7 @@ public class CompetitionRestController {
             );
         }
 
+        Competition competition = this.competitionRepository.findCompetitionByCompetitionId(Long.valueOf(competitionId));
         user.addCompetitionsWon(competition);
         competition.setUserWon(user);
 

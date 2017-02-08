@@ -2,6 +2,8 @@ package be.kdg.runtracker.backend.dom.profile;
 
 import be.kdg.runtracker.backend.dom.competition.Competition;
 import be.kdg.runtracker.backend.dom.tracking.Tracking;
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import org.hibernate.annotations.LazyCollection;
 import org.hibernate.annotations.LazyCollectionOption;
 
@@ -17,9 +19,9 @@ import java.util.List;
  */
 
 @Entity
+@JsonIdentityInfo(generator=ObjectIdGenerators.PropertyGenerator.class, property="userId")
 @Table(name="User")
 public class User implements Serializable { 
-
 
     @Id
     @GeneratedValue
@@ -71,7 +73,6 @@ public class User implements Serializable {
     @ManyToMany(targetEntity = Competition.class)
     @LazyCollection(LazyCollectionOption.FALSE)
     private List<Competition> competitionsRun;
-
 
     @Basic
     private double maxSpeed;

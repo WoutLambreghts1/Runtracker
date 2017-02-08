@@ -1,6 +1,8 @@
 package be.kdg.runtracker.backend.dom.tracking;
 
 import be.kdg.runtracker.backend.dom.profile.User;
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -13,12 +15,13 @@ import java.util.List;
  */
 
 @Entity
+@JsonIdentityInfo(generator=ObjectIdGenerators.PropertyGenerator.class, property="trackingId")
 @Table(name="Tracking")
 public class Tracking implements Serializable {
 
     @Id
     @GeneratedValue
-    @Column(nullable=false, name = "trackingId")
+    @Column(nullable=false, name = "tracking_id")
     private Long trackingId;
 
     @Basic

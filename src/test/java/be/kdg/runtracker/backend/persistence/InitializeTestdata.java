@@ -220,6 +220,7 @@ public class InitializeTestdata {
 
     //DELETE EVERYTHING
 
+    /*
     @Test
     public void cDelete() {
         //DELETE COORDINATES IN MONGODB
@@ -272,6 +273,7 @@ public class InitializeTestdata {
 
 
     }
+    */
 
 
 

@@ -88,21 +88,60 @@ public class UserRestControllerTest {
 
     @Test
     public void testGetAllUsers() throws Exception {
-        this.mockMvc.perform(get("/api/users").contentType(MediaType.APPLICATION_JSON))
+        this.mockMvc.perform(get("/users/").contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andDo(print());
     }
 
     @Test
     public void testGetNoUsers() throws Exception {
+        removeAllUsers();
+
+        this.mockMvc.perform(get("/users/").contentType(MediaType.APPLICATION_JSON))
+                .andDo(print())
+                .andExpect(status().isNoContent());
+
+        addAllUsers();
+    }
+
+    private void removeAllUsers() {
         this.userRepository.delete(userRepository.findUserByAuthId("123").getUserId());
         this.userRepository.delete(userRepository.findUserByAuthId("234").getUserId());
         this.userRepository.delete(userRepository.findUserByAuthId("345").getUserId());
         this.userRepository.delete(userRepository.findUserByAuthId("456").getUserId());
         this.userRepository.delete(userRepository.findUserByAuthId("567").getUserId());
+    }
 
-        this.mockMvc.perform(get("/api/users").contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isNoContent());
+    private void addAllUsers() {
+        this.alexander = new User();
+        this.alexander.setAuthId("123");
+        this.alexander.setFirstname("Alexander");
+        this.alexander.setLastname("van Ravestyn");
+        this.alexander.setUsername("alexvr");
+
+        this.wout = new User();
+        this.wout.setAuthId("234");
+        this.wout.setFirstname("Wout");
+        this.wout.setLastname("Lambreghts");
+        this.wout.setUsername("woutl");
+
+        this.jelle = new User();
+        this.jelle.setAuthId("345");
+        this.jelle.setFirstname("Jelle");
+        this.jelle.setLastname("Mannaerts");
+        this.jelle.setUsername("jellem");
+
+        this.stijn = new User();
+        this.stijn.setAuthId("456");
+        this.stijn.setFirstname("Stijn");
+        this.stijn.setLastname("Ergeerts");
+        this.stijn.setUsername("stijne");
+
+        this.jens = new User();
+        this.jens.setAuthId("567");
+        this.jens.setFirstname("Jens");
+        this.jens.setLastname("Schadron");
+        this.jens.setUsername("jenss");
 
         this.userRepository.save(alexander);
         this.userRepository.save(wout);
@@ -114,16 +153,16 @@ public class UserRestControllerTest {
     @Test
     public void testGetUserByAuthId() throws Exception {
         String authId = "123";
-        this.mockMvc.perform(get("/api/users/" + authId).contentType(MediaType.APPLICATION_JSON))
+        this.mockMvc.perform(get("/users/" + authId).contentType(MediaType.APPLICATION_JSON))
                 .andDo(print())
-                .andExpect(jsonPath("$.authId", is(123)))
+                .andExpect(jsonPath("$.authId", is("123")))
                 .andExpect(status().isOk());
     }
 
     @Test
     public void testGetUserByWrongAuthId() throws Exception {
         String authId = "123123123";
-        this.mockMvc.perform(get("/api/users/" + authId).contentType(MediaType.APPLICATION_JSON))
+        this.mockMvc.perform(get("/users/" + authId).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound());
     }
 
@@ -135,7 +174,8 @@ public class UserRestControllerTest {
         testUser.setLastname("User");
         testUser.setUsername("TestUser");
 
-        this.mockMvc.perform(post("/api/users").content(gson.toJson(testUser)).contentType(MediaType.APPLICATION_JSON))
+        this.mockMvc.perform(post("/users").content(gson.toJson(testUser)).contentType(MediaType.APPLICATION_JSON))
+                .andDo(print())
                 .andExpect(status().isCreated());
 
         this.userRepository.delete(userRepository.findUserByAuthId("100").getUserId());
@@ -149,7 +189,7 @@ public class UserRestControllerTest {
         testUser.setLastname("User");
         testUser.setUsername("TestUser");
 
-        this.mockMvc.perform(post("/api/users").content(gson.toJson(testUser)).contentType(MediaType.APPLICATION_JSON))
+        this.mockMvc.perform(post("/users/").content(gson.toJson(testUser)).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isConflict());
     }
 
@@ -158,7 +198,7 @@ public class UserRestControllerTest {
         User updateAlexander = userRepository.findUserByAuthId("123");
         updateAlexander.setFirstname("Alex");
 
-        this.mockMvc.perform(put("/api/users/" + updateAlexander.getAuthId()).content(gson.toJson(updateAlexander)).contentType(MediaType.APPLICATION_JSON))
+        this.mockMvc.perform(put("/users/" + updateAlexander.getAuthId()).content(gson.toJson(updateAlexander)).contentType(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.firstname", is("Alex")));
@@ -172,23 +212,69 @@ public class UserRestControllerTest {
         testUser.setLastname("User");
         testUser.setUsername("TestUser");
 
-        this.mockMvc.perform(put("/api/users/" + testUser.getAuthId()).content(gson.toJson(testUser)).contentType(MediaType.APPLICATION_JSON))
+        this.mockMvc.perform(put("/users/" + testUser.getAuthId()).content(gson.toJson(testUser)).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound());
     }
 
     @Test
     public void testDeleteUser() throws Exception {
         String authId = "123";
-        this.mockMvc.perform(delete("/api/users/" + authId).contentType(MediaType.APPLICATION_JSON))
+        this.mockMvc.perform(delete("/users/" + authId).contentType(MediaType.APPLICATION_JSON))
+                .andDo(print())
                 .andExpect(status().isNoContent());
+
+        this.alexander = new User();
+        this.alexander.setAuthId("123");
+        this.alexander.setFirstname("Alexander");
+        this.alexander.setLastname("van Ravestyn");
+        this.alexander.setUsername("alexvr");
+        this.userRepository.save(alexander);
     }
 
     @Test
     public void testDeleteNonExistingUser() throws Exception {
         String authId = "100";
-        this.mockMvc.perform(delete("/api/users/" + authId).contentType(MediaType.APPLICATION_JSON))
+        this.mockMvc.perform(delete("/users/" + authId).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound());
     }
+
+    @Test
+    public void testBefriendOtherUser() throws Exception {
+        String authId = "123";
+        String username = "woutl";
+        this.mockMvc.perform(put("/users/" + authId + "/" + username).contentType(MediaType.APPLICATION_JSON))
+                .andDo(print())
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    public void testBefriendSelf() throws Exception {
+        String authId = "123";
+        String username = "alexvr";
+        this.mockMvc.perform(put("/users/" + authId + "/" + username).contentType(MediaType.APPLICATION_JSON))
+                .andDo(print())
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    public void testBefriendNonExistingUser() throws Exception {
+        String authId = "123";
+        String username = "testuser";
+        this.mockMvc.perform(put("/users/" + authId + "/" + username).contentType(MediaType.APPLICATION_JSON))
+                .andDo(print())
+                .andExpect(status().isNotFound());
+    }
+
+    // TODO: Test voor username afwerken.
+    /*
+    @Test
+    public void checkAvailableUsername() throws Exception {
+        String username = "testuser";
+        this.mockMvc.perform(get("/check/" + username).contentType(MediaType.APPLICATION_JSON))
+                .andDo(print())
+                .andExpect(status().isOk());
+    }
+    */
 
     @After
     public void removeTestUsers() {
