@@ -73,6 +73,7 @@ public class MySQLTest {
         //TRACKING
         List<Tracking> trackings = (u.getTrackings() == null)?(new ArrayList<>()):u.getTrackings();
         Tracking tracking = new Tracking(60*20,5000,15,14.2);
+        tracking.setUser(u);
         trackingRepository.save(tracking);
         trackings.add(tracking);
         u.setTrackings(trackings);
@@ -100,8 +101,6 @@ public class MySQLTest {
 
     }
 
-
-
     @Test
     public void delete()
     {
@@ -110,8 +109,5 @@ public class MySQLTest {
         goalRepository.delete(goalRepository.findGoalByName(goalname));
         assertNull(userRepository.findUserByAuthId(authId));
     }
-
-
-
 
 }

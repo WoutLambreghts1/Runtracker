@@ -7,15 +7,19 @@ import be.kdg.runtracker.backend.persistence.UserRepository;
 import com.google.gson.Gson;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.WebApplicationContext;
 
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.setup.MockMvcBuilders.webAppContextSetup;
 
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -44,7 +48,7 @@ public class TrackingRestControllerTest {
     @Before
     public void setup() {
         this.alexander = new User();
-        this.alexander.setAuthId("abc");
+        this.alexander.setAuthId("123");
         this.alexander.setFirstname("Alexander");
         this.alexander.setLastname("van Ravestyn");
         this.alexander.setUsername("alexvr");
@@ -63,6 +67,14 @@ public class TrackingRestControllerTest {
 
         this.mockMvc = webAppContextSetup(webApplicationContext).build();
         this.gson = new Gson();
+    }
+
+    @Test
+    public void testGetAllTrackingsForUser() throws Exception {
+        String authId = "123";
+        this.mockMvc.perform(get("/api/trackings/" + authId).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andDo(print());
     }
 
     @After

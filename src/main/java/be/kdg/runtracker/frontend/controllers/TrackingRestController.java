@@ -38,6 +38,11 @@ public class TrackingRestController {
 
     protected TrackingRestController() { }
 
+    /**
+     * Get all {@link Tracking}s of a {@link User}.
+     * @param authId Authorization id
+     * @return List of Trackings
+     */
     public ResponseEntity<List<Tracking>> getAllTrackingsOfUser(@PathVariable("authId") String authId) {
         logger.info("Fetching all Trackings for User with authId " + authId + ".");
 
@@ -60,7 +65,7 @@ public class TrackingRestController {
     }
 
     /**
-     * Get all {@link Tracking}s for a specific {@link User}.
+     * Get all {@link Tracking}s of a friend.
      * @param authId Authorization id
      * @return List of Trackings
      */

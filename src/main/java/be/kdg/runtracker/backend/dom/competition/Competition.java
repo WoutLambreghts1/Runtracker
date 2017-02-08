@@ -2,6 +2,8 @@ package be.kdg.runtracker.backend.dom.competition;
 
 import be.kdg.runtracker.backend.dom.profile.User;
 import be.kdg.runtracker.backend.dom.tracking.Tracking;
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import org.hibernate.annotations.LazyCollection;
 import org.hibernate.annotations.LazyCollectionOption;
 
@@ -18,13 +20,13 @@ import java.util.List;
  */
 
 @Entity
+@JsonIdentityInfo(generator=ObjectIdGenerators.PropertyGenerator.class, property="competitionId")
 @Table(name="Competition")
 public class Competition implements Serializable {
 
-
     @Id
     @GeneratedValue
-    @Column(nullable=false, name = "competitionId")
+    @Column(nullable=false, name = "competition_id")
     private Long competitionId;
 
     @Column(nullable=false)

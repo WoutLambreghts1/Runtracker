@@ -1,5 +1,8 @@
 package be.kdg.runtracker.backend.dom.competition;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
@@ -9,6 +12,7 @@ import java.io.Serializable;
  */
 
 @Entity
+@JsonIdentityInfo(generator=ObjectIdGenerators.PropertyGenerator.class, property="goalId")
 @Table(name="Goal")
 public class Goal implements Serializable {
 
