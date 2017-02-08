@@ -114,8 +114,6 @@ public class UserRestController {
         currentUser.setGender(user.getGender());
         currentUser.setCity(user.getCity());;
         currentUser.setBirthday(user.getBirthday());
-        currentUser.setWeight(user.getWeight());
-        currentUser.setPlength(user.getPlength());
 
         userRepository.save(currentUser);
         return new ResponseEntity<User>(currentUser, HttpStatus.OK);

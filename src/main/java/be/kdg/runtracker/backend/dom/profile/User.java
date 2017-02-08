@@ -52,12 +52,6 @@ public class User implements Serializable {
     @Basic
     private Date birthday;
 
-    @Basic
-    private double weight;
-
-    @Basic
-    private double plength;
-
     @ManyToMany(targetEntity = User.class)
     @LazyCollection(LazyCollectionOption.FALSE)
     private List<User> friends;
@@ -169,23 +163,6 @@ public class User implements Serializable {
     public void setBirthday(Date birthday) {
         this.birthday = birthday;
     }
-
-    public double getWeight() {
-        return this.weight;
-    }
-
-    public void setWeight(double weight) {
-        this.weight = weight;
-    }
-
-    public double getPlength() {
-        return this.plength;
-    }
-
-    public void setPlength(double plength) {
-        this.plength = plength;
-    }
-
 
     public List<User> getFriends() {
         return friends;
