@@ -136,7 +136,7 @@ public class InitializeTestdata {
             if(goalRepository.findGoalByName(goals.get(i).getName())==null){
                 goalRepository.save(goals.get(i));
             }else {
-                goals.get(i).setId(goalRepository.findGoalByName(goals.get(i).getName()).getId());
+                goals.get(i).setGoalId(goalRepository.findGoalByName(goals.get(i).getName()).getGoalId());
             }
         }
 
@@ -199,11 +199,11 @@ public class InitializeTestdata {
                     for (int j = 0; j < competitions.get(i).getTrackings().size(); j++) {
                         Random r = new Random();
                         List<Coordinate> coordinates = new ArrayList<>();
-                        long trackingID = competitionRepository.findAll().get(competitionRepository.findAll().size() - 1).getTrackings().get(j).getTracking_id();
+                        long trackingID = competitionRepository.findAll().get(competitionRepository.findAll().size() - 1).getTrackings().get(j).getTrackingId();
                         for (int l = 0; l < 10; l++) {
                             coordinates.add(new Coordinate(r.nextDouble() * r.nextInt(50),r.nextDouble() * r.nextInt(50), LocalTime.now().plusSeconds(i),trackingID,11+r.nextDouble()));
                         }
-                        coordinatesRepository.createCoordinatesCollection(coordinates.get(i).getTrackingID(), coordinates);
+                        coordinatesRepository.createCoordinatesCollection(coordinates.get(i).getTrackingId(), coordinates);
                     }
                 }
 
@@ -221,7 +221,7 @@ public class InitializeTestdata {
         for (int i = 0; i < trackingRepository.findAll().size(); i++) {
             Tracking t = trackingRepository.findAll().get(i);
             if(t.getUser().getUsername().equals(usernameStijn) || t.getUser().getUsername().equals(usernameAlex) || t.getUser().getUsername().equals(usernameJelle) || t.getUser().getUsername().equals(usernameWout) || t.getUser().getUsername().equals(usernameJens)){
-                coordinatesRepository.deleteCoordinatesCollection(t.getTracking_id());
+                coordinatesRepository.deleteCoordinatesCollection(t.getTrackingId());
             }
         }
 

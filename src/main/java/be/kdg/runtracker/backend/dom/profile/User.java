@@ -23,8 +23,8 @@ public class User implements Serializable {
 
     @Id
     @GeneratedValue
-    @Column(nullable=false)
-    private Long user_id;
+    @Column(nullable=false, name = "user_id")
+    private Long userId;
 
     @Column(nullable=false)
     @Basic(optional=false)
@@ -34,7 +34,7 @@ public class User implements Serializable {
     @Column(nullable=false)
     @Basic(optional=false)
     @NotNull
-    private long authId;
+    private String authId;
 
     @Basic
     @NotNull
@@ -62,11 +62,11 @@ public class User implements Serializable {
     @LazyCollection(LazyCollectionOption.FALSE)
     private List<User> friends;
 
-    @OneToMany(targetEntity = Competition.class,mappedBy = "userCreated",cascade = CascadeType.REMOVE)
+    @OneToMany(targetEntity = Competition.class,mappedBy = "userCreated")
     @LazyCollection(LazyCollectionOption.FALSE)
     private List<Competition> competitionsCreated;
 
-    @OneToMany(targetEntity = Tracking.class)
+    @OneToMany(targetEntity = Tracking.class, cascade = CascadeType.REMOVE)
     @LazyCollection(LazyCollectionOption.FALSE)
     private List<Tracking> trackings;
 
@@ -106,12 +106,12 @@ public class User implements Serializable {
     @Basic
     private int nrOfCompetitionsWon;
 
-    public Long getUser_id() {
-        return this.user_id;
+    public Long getUserId() {
+        return this.userId;
     }
 
-    public void setUser_id(Long user_id) {
-        this.user_id = user_id;
+    public void setUserId(Long userId) {
+        this.userId = userId;
     }
 
     public String getUsername() {
@@ -122,11 +122,11 @@ public class User implements Serializable {
         this.username = username;
     }
 
-    public long getAuthId() {
+    public String getAuthId() {
         return authId;
     }
 
-    public void setAuthId(long authId) {
+    public void setAuthId(String authId) {
         this.authId = authId;
     }
 

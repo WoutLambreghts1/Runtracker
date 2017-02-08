@@ -19,9 +19,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import java.util.ArrayList;
 import java.util.List;
 
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertNull;
-
+import static org.junit.Assert.*;
 
 /**
  * Created by Wout on 3/02/2017.
@@ -37,8 +35,8 @@ public class MySQLTest {
     private String userLastName;
     @Value("Jan_Jansens1")
     private String username;
-    @Value("123")
-    private long authId;
+    @Value("abc")
+    private String authId;
 
     @Value("TestGoal")
     private String goalname;
@@ -98,7 +96,7 @@ public class MySQLTest {
         tracking.setMaxSpeed(12.5);
         tracking.setAvgSpeed(10);
         trackingRepository.save(tracking);
-        assertEquals(trackingRepository.findOne(tracking.getTracking_id()).getAvgSpeed(), tracking.getAvgSpeed());
+        assertEquals(trackingRepository.findOne(tracking.getTrackingId()).getAvgSpeed(), tracking.getAvgSpeed(), 0);
 
     }
 
@@ -108,7 +106,7 @@ public class MySQLTest {
     public void delete()
     {
         competitionRepository.delete(userRepository.findUserByUsername(username).getCompetitionsCreated());
-        userRepository.delete(userRepository.findUserByAuthId(authId).getUser_id());
+        userRepository.delete(userRepository.findUserByAuthId(authId).getUserId());
         goalRepository.delete(goalRepository.findGoalByName(goalname));
         trackingRepository.delete(trackingRepository.findAll().get(trackingRepository.findAll().size() - 1));
         assertNull(userRepository.findUserByAuthId(authId));

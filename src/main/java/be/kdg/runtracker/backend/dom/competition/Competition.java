@@ -24,8 +24,8 @@ public class Competition implements Serializable {
 
     @Id
     @GeneratedValue
-    @Column(nullable=false)
-    private Long competition_id;
+    @Column(nullable=false, name = "competitionId")
+    private Long competitionId;
 
     @Column(nullable=false)
     @NotNull
@@ -68,12 +68,12 @@ public class Competition implements Serializable {
     public Competition() {
     }
 
-    public Long getCompetition_id() {
-        return this.competition_id;
+    public Long getCompetitionId() {
+        return this.competitionId;
     }
 
-    public void setCompetition_id(Long competition_id) {
-        this.competition_id = competition_id;
+    public void setCompetitionId(Long competitionId) {
+        this.competitionId = competitionId;
     }
 
     public CompetitionType getCompetitionType() {
@@ -145,14 +145,14 @@ public class Competition implements Serializable {
             usersRun = new ArrayList<>();
         }
 
-        if(!usersRun.stream().filter(u -> u.getUser_id() == runner.getUser_id()).findFirst().isPresent()){
+        if(!usersRun.stream().filter(u -> u.getUserId() == runner.getUserId()).findFirst().isPresent()){
             usersRun.add(runner);
         }
 
     }
 
     public void removeRunner(User runner){
-        if(usersRun.stream().filter(u -> u.getUser_id() == runner.getUser_id()).findFirst().isPresent()){
+        if(usersRun.stream().filter(u -> u.getUserId() == runner.getUserId()).findFirst().isPresent()){
             usersRun.remove(runner);
         }
     }

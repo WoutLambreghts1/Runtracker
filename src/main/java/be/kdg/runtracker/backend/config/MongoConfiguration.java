@@ -26,8 +26,4 @@ public class MongoConfiguration extends AbstractMongoConfiguration {
         );
     }
 
-    @Override
-    protected String getMappingBasePackage() {
-        return "foo.bar.domain";
-    }
 }

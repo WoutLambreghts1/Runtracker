@@ -14,8 +14,8 @@ public class Goal implements Serializable {
 
     @Id
     @GeneratedValue
-    @Column(nullable=false)
-    private Long id;
+    @Column(nullable=false, name = "goal_id")
+    private Long goalId;
 
     @Column(nullable=false)
     @Basic
@@ -35,12 +35,12 @@ public class Goal implements Serializable {
     public Goal() {
     }
 
-    public Long getId() {
-        return this.id;
+    public Long getGoalId() {
+        return this.goalId;
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    public void setGoalId(Long goalId) {
+        this.goalId = goalId;
     }
 
     public String getName() {

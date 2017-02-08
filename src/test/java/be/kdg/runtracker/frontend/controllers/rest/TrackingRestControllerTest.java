@@ -7,26 +7,19 @@ import be.kdg.runtracker.backend.persistence.UserRepository;
 import com.google.gson.Gson;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.WebApplicationContext;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 import static org.springframework.test.web.servlet.setup.MockMvcBuilders.webAppContextSetup;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.*;
 
-import static org.hamcrest.Matchers.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -51,7 +44,7 @@ public class TrackingRestControllerTest {
     @Before
     public void setup() {
         this.alexander = new User();
-        this.alexander.setAuthId(123);
+        this.alexander.setAuthId("abc");
         this.alexander.setFirstname("Alexander");
         this.alexander.setLastname("van Ravestyn");
         this.alexander.setUsername("alexvr");
@@ -74,9 +67,9 @@ public class TrackingRestControllerTest {
 
     @After
     public void deleteUserAndTrackings() {
-        trackingRepository.delete(tracking1.getTracking_id());
-        trackingRepository.delete(tracking2.getTracking_id());
-        userRepository.delete(alexander.getUser_id());
+        trackingRepository.delete(tracking1.getTrackingId());
+        trackingRepository.delete(tracking2.getTrackingId());
+        userRepository.delete(alexander.getUserId());
     }
 
 }

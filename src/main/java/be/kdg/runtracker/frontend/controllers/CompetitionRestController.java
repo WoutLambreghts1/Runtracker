@@ -58,7 +58,7 @@ public class CompetitionRestController {
      * @return List of Competitions
      */
     @RequestMapping(value = "/{authId}/created", method = RequestMethod.GET)
-    public ResponseEntity<List<Competition>> getAllCreatedCompetitionsFromUser(@PathVariable("authId") long authId) {
+    public ResponseEntity<List<Competition>> getAllCreatedCompetitionsFromUser(@PathVariable("authId") String authId) {
         logger.info("Fetching all Competitions created by User with authorization id: " + authId + ".");
 
         User user = this.userRepository.findUserByAuthId(authId);
@@ -85,7 +85,7 @@ public class CompetitionRestController {
      * @return List of Competitions
      */
     @RequestMapping(value = "/{authId}/won", method = RequestMethod.GET)
-    public ResponseEntity<List<Competition>> getAllWonCompetitionsFromUser(@PathVariable("authId") long authId) {
+    public ResponseEntity<List<Competition>> getAllWonCompetitionsFromUser(@PathVariable("authId") String authId) {
         logger.info("Fetching all Competitions won by User with authorization id: " + authId + ".");
 
         User user = this.userRepository.findUserByAuthId(authId);
@@ -112,7 +112,7 @@ public class CompetitionRestController {
      * @return List of Competitions
      */
     @RequestMapping(value = "/{authId}/run", method = RequestMethod.GET)
-    public ResponseEntity<List<Competition>> getAllRunCompetitionsFromUser(@PathVariable("authId") long authId) {
+    public ResponseEntity<List<Competition>> getAllRunCompetitionsFromUser(@PathVariable("authId") String authId) {
         logger.info("Fetching all Competitions run by User with authorization id: " + authId + ".");
 
         User user = this.userRepository.findUserByAuthId(authId);
@@ -140,8 +140,8 @@ public class CompetitionRestController {
      * @param ucBuilder Uri Builder
      * @return HTTP Status
      */
-    @RequestMapping(value = "/{authId}", method = RequestMethod.POST)
-    public ResponseEntity<?> createCompetition(@PathVariable("authId") long authId, @RequestBody Competition competition, UriComponentsBuilder ucBuilder) {
+    @RequestMapping(value = "/{authId}/create", method = RequestMethod.POST)
+    public ResponseEntity<?> createCompetition(@PathVariable("authId") String authId, @RequestBody Competition competition, UriComponentsBuilder ucBuilder) {
         logger.info("Creating a Competition " + competition + " for User with authId " + authId + ".");
 
         User user = this.userRepository.findUserByAuthId(authId);
@@ -160,7 +160,7 @@ public class CompetitionRestController {
         userRepository.save(user);
 
         HttpHeaders headers = new HttpHeaders();
-        headers.setLocation(ucBuilder.path("/api/users/{authId}").buildAndExpand(user.getUser_id()).toUri());
+        headers.setLocation(ucBuilder.path("/api/users/{authId}").buildAndExpand(user.getUserId()).toUri());
         return new ResponseEntity<String>(headers, HttpStatus.CREATED);
     }
 
@@ -171,8 +171,8 @@ public class CompetitionRestController {
      * @param ucBuilder Uri Builder
      * @return HTTP Status
      */
-    @RequestMapping(value = "/{authId}", method = RequestMethod.POST)
-    public ResponseEntity<?> runCompetition(@PathVariable("authId") long authId, @RequestBody Competition competition, UriComponentsBuilder ucBuilder) {
+    @RequestMapping(value = "/{authId}/running", method = RequestMethod.POST)
+    public ResponseEntity<?> runCompetition(@PathVariable("authId") String authId, @RequestBody Competition competition, UriComponentsBuilder ucBuilder) {
         logger.info("Competition " + competition + ", ran by User with authId " + authId + ".");
 
         User user = this.userRepository.findUserByAuthId(authId);
@@ -191,7 +191,7 @@ public class CompetitionRestController {
         userRepository.save(user);
 
         HttpHeaders headers = new HttpHeaders();
-        headers.setLocation(ucBuilder.path("/api/users/{authId}").buildAndExpand(user.getUser_id()).toUri());
+        headers.setLocation(ucBuilder.path("/api/users/{authId}").buildAndExpand(user.getUserId()).toUri());
         return new ResponseEntity<String>(headers, HttpStatus.CREATED);
     }
 
@@ -202,8 +202,8 @@ public class CompetitionRestController {
      * @param ucBuilder Uri Builder
      * @return HTTP Status
      */
-    @RequestMapping(value = "/{authId}", method = RequestMethod.POST)
-    public ResponseEntity<?> wonCompetition(@PathVariable("authId") long authId, @RequestBody Competition competition, UriComponentsBuilder ucBuilder) {
+    @RequestMapping(value = "/{authId}/winning", method = RequestMethod.POST)
+    public ResponseEntity<?> wonCompetition(@PathVariable("authId") String authId, @RequestBody Competition competition, UriComponentsBuilder ucBuilder) {
         logger.info("Competition " + competition + ", won by User with authId " + authId + ".");
 
         User user = this.userRepository.findUserByAuthId(authId);
@@ -222,7 +222,7 @@ public class CompetitionRestController {
         userRepository.save(user);
 
         HttpHeaders headers = new HttpHeaders();
-        headers.setLocation(ucBuilder.path("/api/users/{authId}").buildAndExpand(user.getUser_id()).toUri());
+        headers.setLocation(ucBuilder.path("/api/users/{authId}").buildAndExpand(user.getUserId()).toUri());
         return new ResponseEntity<String>(headers, HttpStatus.CREATED);
     }
 
@@ -233,7 +233,7 @@ public class CompetitionRestController {
      * @return HTTP Status
      */
     @RequestMapping(value = "/{competitionId}/{authId}", method = RequestMethod.DELETE)
-    public ResponseEntity<?> deleteCompetition(@PathVariable("competitionId") long competitionId, @PathVariable("authId") long authId) {
+    public ResponseEntity<?> deleteCompetition(@PathVariable("competitionId") long competitionId, @PathVariable("authId") String authId) {
         logger.info("Fetching & Deleting Competition with id: " + competitionId + ".");
 
         User user = userRepository.findUserByAuthId(authId);
@@ -253,7 +253,7 @@ public class CompetitionRestController {
         }
 
         // TODO: Kan een competition cascading worden gedelete?
-        competitionRepository.delete(competition.getCompetition_id());
+        competitionRepository.delete(competition.getCompetitionId());
 
         return new ResponseEntity<User>(HttpStatus.NO_CONTENT);
     }

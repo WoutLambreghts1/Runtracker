@@ -18,23 +18,23 @@ public class Coordinate{
 
     private double lon;
 
-    private long trackingID;
+    private long trackingId;
 
     private double speed;
 
-    public Coordinate(double lat, double lon, long trackingID,double speed) {
+    public Coordinate(double lat, double lon, long trackingId, double speed) {
         this.lat = lat;
         this.lon = lon;
-        this.trackingID = trackingID;
+        this.trackingId = trackingId;
         this.speed = speed;
         time = LocalTime.now();
     }
 
-    public Coordinate(double lat, double lon, LocalTime time, long trackingID,double speed) {
+    public Coordinate(double lat, double lon, LocalTime time, long trackingId, double speed) {
         this.lat = lat;
         this.lon = lon;
         this.time = time;
-        this.trackingID = trackingID;
+        this.trackingId = trackingId;
     }
 
     public double getLat() {
@@ -61,12 +61,12 @@ public class Coordinate{
         this.time = time;
     }
 
-    public long getTrackingID() {
-        return this.trackingID;
+    public long getTrackingId() {
+        return this.trackingId;
     }
 
-    public void setTrackingID(long trackingID) {
-        this.trackingID = trackingID;
+    public void setTrackingId(long trackingId) {
+        this.trackingId = trackingId;
     }
 
     public void setSpeed(double speed) {

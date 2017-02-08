@@ -6,6 +6,7 @@ import javax.persistence.*;
 import java.io.Serializable;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
+import java.util.List;
 
 /**
  * @author Wout
@@ -17,8 +18,8 @@ public class Tracking implements Serializable {
 
     @Id
     @GeneratedValue
-    @Column(nullable=false)
-    private Long tracking_id;
+    @Column(nullable=false, name = "trackingId")
+    private Long trackingId;
 
     @Basic
     private Timestamp time;
@@ -38,6 +39,9 @@ public class Tracking implements Serializable {
     @ManyToOne(targetEntity = User.class)
     private User user;
 
+    @Transient
+    List<Coordinate> coordinates;
+
     public Tracking() {
     }
 
@@ -49,12 +53,21 @@ public class Tracking implements Serializable {
         this.avgSpeed = avgSpeed;
     }
 
-    public Long getTracking_id() {
-        return this.tracking_id;
+    public Tracking(long totalDuration, long totalDistance, double maxSpeed, double avgSpeed, List<Coordinate> coordinates) {
+        this.time = Timestamp.valueOf(LocalDateTime.now());
+        this.totalDuration = totalDuration;
+        this.totalDistance = totalDistance;
+        this.maxSpeed = maxSpeed;
+        this.avgSpeed = avgSpeed;
+        this.coordinates = coordinates;
     }
 
-    public void setTracking_id(Long tracking_id) {
-        this.tracking_id = tracking_id;
+    public Long getTrackingId() {
+        return this.trackingId;
+    }
+
+    public void setTrackingId(Long trackingId) {
+        this.trackingId = trackingId;
     }
 
     public Timestamp getTime() {
@@ -104,4 +117,13 @@ public class Tracking implements Serializable {
     public void setUser(User user) {
         this.user = user;
     }
+
+    public List<Coordinate> getCoordinates() {
+        return coordinates;
+    }
+
+    public void setCoordinates(List<Coordinate> coordinates) {
+        this.coordinates = coordinates;
+    }
+
 }

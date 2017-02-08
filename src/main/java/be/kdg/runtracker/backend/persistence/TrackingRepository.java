@@ -8,6 +8,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
  */
 public interface TrackingRepository extends JpaRepository<Tracking,Long> {
 
-    Tracking findTrackingByTracking_id(long trackingId);
+    Tracking findTrackingByTrackingId(long trackingId);
 
 }

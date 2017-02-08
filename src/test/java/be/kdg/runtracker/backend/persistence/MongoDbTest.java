@@ -57,7 +57,7 @@ public class MongoDbTest {
     public void bReadFromMongoDb() {
         assertFalse(coordinatesRepository.readCoordinatesByTrackingId(trackingId).isEmpty());
         assertNotNull(coordinatesRepository.readCoordinatesByTrackingId(trackingId).get(0));
-        assertEquals(coordinatesRepository.readCoordinatesByTrackingId(trackingId).get(0).getTrackingID(), trackingId);
+        assertEquals(coordinatesRepository.readCoordinatesByTrackingId(trackingId).get(0).getTrackingId(), trackingId);
     }
 
 

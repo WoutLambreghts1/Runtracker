@@ -50,7 +50,7 @@ public class UserRestController {
      * @return User
      */
     @RequestMapping(value = "/{authId}", method = RequestMethod.GET)
-    public ResponseEntity<?> getUser(@PathVariable("authId") long authId) {
+    public ResponseEntity<?> getUser(@PathVariable("authId") String authId) {
         logger.info("Fetching User with authId " + authId + ".");
 
         User user = userRepository.findUserByAuthId(authId);
@@ -83,7 +83,7 @@ public class UserRestController {
         userRepository.save(user);
 
         HttpHeaders headers = new HttpHeaders();
-        headers.setLocation(ucBuilder.path("/api/users/{authId}").buildAndExpand(user.getUser_id()).toUri());
+        headers.setLocation(ucBuilder.path("/api/users/{authId}").buildAndExpand(user.getUserId()).toUri());
         return new ResponseEntity<String>(headers, HttpStatus.CREATED);
     }
 
@@ -94,7 +94,7 @@ public class UserRestController {
      * @return HTTP status
      */
     @RequestMapping(value = "/{authId}", method = RequestMethod.PUT)
-    public ResponseEntity<?> updateUser(@PathVariable("authId") long authId, @RequestBody User user) {
+    public ResponseEntity<?> updateUser(@PathVariable("authId") String authId, @RequestBody User user) {
         logger.info("Updating User with authId: " + authId + ".");
 
         User currentUser = userRepository.findUserByAuthId(authId);
@@ -105,6 +105,8 @@ public class UserRestController {
                     HttpStatus.NOT_FOUND
             );
         }
+
+        // TODO: Checken of username nog niet bestaat.
 
         currentUser.setUsername(user.getUsername());
         currentUser.setFirstname(user.getFirstname());
@@ -125,7 +127,7 @@ public class UserRestController {
      * @return HTTP status
      */
     @RequestMapping(value = "/{authId}", method = RequestMethod.DELETE)
-    public ResponseEntity<?> deleteUser(@PathVariable("authId") long authId) {
+    public ResponseEntity<?> deleteUser(@PathVariable("authId") String authId) {
         logger.info("Fetching & Deleting User with id: " + authId + ".");
 
         User user = userRepository.findUserByAuthId(authId);
@@ -135,8 +137,12 @@ public class UserRestController {
                     HttpStatus.NOT_FOUND
             );
         }
-        userRepository.delete(user.getUser_id());
+        userRepository.delete(user.getUserId());
         return new ResponseEntity<User>(HttpStatus.NO_CONTENT);
     }
+
+    // TODO: Create friendship with other User.
+
+    // TODO: Check if username exists.
 
 }

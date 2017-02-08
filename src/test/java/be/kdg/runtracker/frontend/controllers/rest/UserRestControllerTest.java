@@ -17,9 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.WebApplicationContext;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 import static org.springframework.test.web.servlet.setup.MockMvcBuilders.webAppContextSetup;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.*;
 
 import static org.hamcrest.Matchers.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -49,31 +47,31 @@ public class UserRestControllerTest {
     @Before
     public void setup() {
         this.alexander = new User();
-        this.alexander.setAuthId(123);
+        this.alexander.setAuthId("123");
         this.alexander.setFirstname("Alexander");
         this.alexander.setLastname("van Ravestyn");
         this.alexander.setUsername("alexvr");
 
         this.wout = new User();
-        this.wout.setAuthId(234);
+        this.wout.setAuthId("234");
         this.wout.setFirstname("Wout");
         this.wout.setLastname("Lambreghts");
         this.wout.setUsername("woutl");
 
         this.jelle = new User();
-        this.jelle.setAuthId(345);
+        this.jelle.setAuthId("345");
         this.jelle.setFirstname("Jelle");
         this.jelle.setLastname("Mannaerts");
         this.jelle.setUsername("jellem");
 
         this.stijn = new User();
-        this.stijn.setAuthId(456);
+        this.stijn.setAuthId("456");
         this.stijn.setFirstname("Stijn");
         this.stijn.setLastname("Ergeerts");
         this.stijn.setUsername("stijne");
 
         this.jens = new User();
-        this.jens.setAuthId(567);
+        this.jens.setAuthId("567");
         this.jens.setFirstname("Jens");
         this.jens.setLastname("Schadron");
         this.jens.setUsername("jenss");
@@ -97,11 +95,11 @@ public class UserRestControllerTest {
 
     @Test
     public void testGetNoUsers() throws Exception {
-        this.userRepository.delete(userRepository.findUserByAuthId(123).getUser_id());
-        this.userRepository.delete(userRepository.findUserByAuthId(234).getUser_id());
-        this.userRepository.delete(userRepository.findUserByAuthId(345).getUser_id());
-        this.userRepository.delete(userRepository.findUserByAuthId(456).getUser_id());
-        this.userRepository.delete(userRepository.findUserByAuthId(567).getUser_id());
+        this.userRepository.delete(userRepository.findUserByAuthId("123").getUserId());
+        this.userRepository.delete(userRepository.findUserByAuthId("234").getUserId());
+        this.userRepository.delete(userRepository.findUserByAuthId("345").getUserId());
+        this.userRepository.delete(userRepository.findUserByAuthId("456").getUserId());
+        this.userRepository.delete(userRepository.findUserByAuthId("567").getUserId());
 
         this.mockMvc.perform(get("/api/users").contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNoContent());
@@ -132,7 +130,7 @@ public class UserRestControllerTest {
     @Test
     public void testCreateUser() throws Exception {
         User testUser = new User();
-        testUser.setAuthId(100);
+        testUser.setAuthId("100");
         testUser.setFirstname("Test");
         testUser.setLastname("User");
         testUser.setUsername("TestUser");
@@ -140,13 +138,13 @@ public class UserRestControllerTest {
         this.mockMvc.perform(post("/api/users").content(gson.toJson(testUser)).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isCreated());
 
-        this.userRepository.delete(userRepository.findUserByAuthId(100).getUser_id());
+        this.userRepository.delete(userRepository.findUserByAuthId("100").getUserId());
     }
 
     @Test
     public void testCreateAlreadyExistingUser() throws Exception {
         User testUser = new User();
-        testUser.setAuthId(123);
+        testUser.setAuthId("123");
         testUser.setFirstname("Test");
         testUser.setLastname("User");
         testUser.setUsername("TestUser");
@@ -157,7 +155,7 @@ public class UserRestControllerTest {
 
     @Test
     public void testUpdateUser() throws Exception {
-        User updateAlexander = userRepository.findUserByAuthId(123);
+        User updateAlexander = userRepository.findUserByAuthId("123");
         updateAlexander.setFirstname("Alex");
 
         this.mockMvc.perform(put("/api/users/" + updateAlexander.getAuthId()).content(gson.toJson(updateAlexander)).contentType(MediaType.APPLICATION_JSON))
@@ -169,7 +167,7 @@ public class UserRestControllerTest {
     @Test
     public void testUpdateNonExistingUser() throws Exception {
         User testUser = new User();
-        testUser.setAuthId(100);
+        testUser.setAuthId("100");
         testUser.setFirstname("Test");
         testUser.setLastname("User");
         testUser.setUsername("TestUser");
@@ -194,14 +192,14 @@ public class UserRestControllerTest {
 
     @After
     public void removeTestUsers() {
-        if (this.userRepository.findUserByAuthId(123) != null) {
-            this.userRepository.delete(alexander.getUser_id());
+        if (this.userRepository.findUserByAuthId("123") != null) {
+            this.userRepository.delete(alexander.getUserId());
         }
         if (!this.userRepository.findAll().isEmpty()) {
-            this.userRepository.delete(wout.getUser_id());
-            this.userRepository.delete(jelle.getUser_id());
-            this.userRepository.delete(stijn.getUser_id());
-            this.userRepository.delete(jens.getUser_id());
+            this.userRepository.delete(wout.getUserId());
+            this.userRepository.delete(jelle.getUserId());
+            this.userRepository.delete(stijn.getUserId());
+            this.userRepository.delete(jens.getUserId());
         }
     }
 

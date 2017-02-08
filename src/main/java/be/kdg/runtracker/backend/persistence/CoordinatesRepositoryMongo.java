@@ -49,7 +49,7 @@ public class CoordinatesRepositoryMongo implements CoordinatesRepository {
         basicDBObject.put("lat",coordinate.getLat());
         basicDBObject.put("lon",coordinate.getLon());
         basicDBObject.put("time",coordinate.getTime().toSecondOfDay());
-        basicDBObject.put("trackingID",coordinate.getTrackingID());
+        basicDBObject.put("trackingId",coordinate.getTrackingId());
         basicDBObject.put("speed",coordinate.getSpeed());
 
         return basicDBObject;
