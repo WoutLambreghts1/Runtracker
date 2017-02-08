@@ -108,7 +108,6 @@ public class MySQLTest {
         competitionRepository.delete(userRepository.findUserByUsername(username).getCompetitionsCreated());
         userRepository.delete(userRepository.findUserByAuthId(authId).getUserId());
         goalRepository.delete(goalRepository.findGoalByName(goalname));
-        trackingRepository.delete(trackingRepository.findAll().get(trackingRepository.findAll().size() - 1));
         assertNull(userRepository.findUserByAuthId(authId));
     }
 

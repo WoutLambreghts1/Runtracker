@@ -57,7 +57,7 @@ public class CoordinatesRepositoryMongo implements CoordinatesRepository {
 
     private Coordinate docToCoordinate(DBObject dbObject){
         BasicDBObject object = (BasicDBObject) dbObject;
-        Coordinate coordinate = new Coordinate(object.getDouble("lat"),object.getDouble("lon"), LocalTime.ofSecondOfDay(object.getInt("time")),object.getLong("trackingID"),object.getDouble("speed"));
+        Coordinate coordinate = new Coordinate(object.getDouble("lat"),object.getDouble("lon"), LocalTime.ofSecondOfDay(object.getInt("time")),object.getLong("trackingId"),object.getDouble("speed"));
         return coordinate;
     }
 }

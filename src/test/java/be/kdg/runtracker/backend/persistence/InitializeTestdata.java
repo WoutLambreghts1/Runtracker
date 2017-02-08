@@ -65,6 +65,7 @@ public class InitializeTestdata {
         alex.setLastname("van Ravestyn");
         alex.setGender(Gender.MALE);
         alex.setUsername(usernameAlex);
+        alex.setAuthId("123");
         users.add(alex);
 
         User jens = new User();
@@ -72,6 +73,7 @@ public class InitializeTestdata {
         jens.setLastname("Schadron");
         jens.setGender(Gender.MALE);
         jens.setUsername(usernameJens);
+        jens.setAuthId("456");
         users.add(jens);
 
         User jelle = new User();
@@ -79,6 +81,7 @@ public class InitializeTestdata {
         jelle.setLastname("Mannaerts");
         jelle.setGender(Gender.MALE);
         jelle.setUsername(usernameJelle);
+        jelle.setAuthId("789");
         users.add(jelle);
 
         User stijn = new User();
@@ -86,6 +89,7 @@ public class InitializeTestdata {
         stijn.setLastname("Ergeerts");
         stijn.setGender(Gender.MALE);
         stijn.setUsername(usernameStijn);
+        stijn.setAuthId("321");
         users.add(stijn);
 
         User wout = new User();
@@ -93,6 +97,7 @@ public class InitializeTestdata {
         wout.setLastname("Lambreghts");
         wout.setGender(Gender.MALE);
         wout.setUsername(usernameWout);
+        wout.setAuthId("654");
         users.add(wout);
 
 
