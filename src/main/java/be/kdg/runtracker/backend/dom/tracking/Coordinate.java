@@ -11,8 +11,9 @@ import java.time.LocalTime;
 @Document
 public class Coordinate{
 
+    //SPEED IS OF TYPE LONG BECAUSE EASIER TO SAVE IN MONGODB (=SECOND OF DAY)
     @Id
-    private LocalTime time;
+    private long time;
 
     private double lat;
 
@@ -22,19 +23,31 @@ public class Coordinate{
 
     private double speed;
 
+    public Coordinate() {
+    }
+
     public Coordinate(double lat, double lon, long trackingId, double speed) {
         this.lat = lat;
         this.lon = lon;
         this.trackingId = trackingId;
         this.speed = speed;
-        time = LocalTime.now();
+        time = LocalTime.now().toSecondOfDay();
     }
 
     public Coordinate(double lat, double lon, LocalTime time, long trackingId, double speed) {
         this.lat = lat;
         this.lon = lon;
+        this.time = time.toSecondOfDay();
+        this.trackingId = trackingId;
+        this.speed = speed;
+    }
+
+    public Coordinate(double lat, double lon, long time, long trackingId, double speed) {
+        this.lat = lat;
+        this.lon = lon;
         this.time = time;
         this.trackingId = trackingId;
+        this.speed = speed;
     }
 
     public double getLat() {
@@ -53,11 +66,11 @@ public class Coordinate{
         this.lon = lon;
     }
 
-    public LocalTime getTime() {
-        return this.time;
+    public long getTime() {
+        return time;
     }
 
-    public void setTime(LocalTime time) {
+    public void setTime(long time) {
         this.time = time;
     }
 

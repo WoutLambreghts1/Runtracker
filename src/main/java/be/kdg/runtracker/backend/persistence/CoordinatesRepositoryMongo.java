@@ -7,7 +7,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.stereotype.Repository;
 
-import java.time.LocalTime;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -22,7 +21,9 @@ public class CoordinatesRepositoryMongo implements CoordinatesRepository {
 
     @Override
     public List<Coordinate> readCoordinatesByTrackingId(long trackingId) {
-
+        if(!mongoTemplate.collectionExists(String.valueOf(trackingId))){
+            return null;
+        }
         return  mongoTemplate.getCollection(String.valueOf(trackingId)).find().toArray().stream().map(d -> docToCoordinate(d)).sorted(Comparator.comparing(t -> t.getTime())).collect(Collectors.toList());
     }
 
@@ -50,7 +51,7 @@ public class CoordinatesRepositoryMongo implements CoordinatesRepository {
 
         basicDBObject.put("lat",coordinate.getLat());
         basicDBObject.put("lon",coordinate.getLon());
-        basicDBObject.put("time",coordinate.getTime().toSecondOfDay());
+        basicDBObject.put("time",coordinate.getTime());
         basicDBObject.put("trackingId",coordinate.getTrackingId());
         basicDBObject.put("speed",coordinate.getSpeed());
 
@@ -59,7 +60,7 @@ public class CoordinatesRepositoryMongo implements CoordinatesRepository {
 
     private Coordinate docToCoordinate(DBObject dbObject){
         BasicDBObject object = (BasicDBObject) dbObject;
-        Coordinate coordinate = new Coordinate(object.getDouble("lat"),object.getDouble("lon"), LocalTime.ofSecondOfDay(object.getInt("time")),object.getLong("trackingId"),object.getDouble("speed"));
+        Coordinate coordinate = new Coordinate(object.getDouble("lat"),object.getDouble("lon"), object.getLong("time"),object.getLong("trackingId"),object.getDouble("speed"));
         return coordinate;
     }
 }

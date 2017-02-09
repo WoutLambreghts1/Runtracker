@@ -58,6 +58,8 @@ public class TrackingRestController {
         }
 
         List<Tracking> trackings = user.getTrackings();
+        trackings.stream().forEach(t -> t.setCoordinates(this.coordinatesRepository.readCoordinatesByTrackingId(t.getTrackingId())));
+
         if (trackings.isEmpty()) {
             return new ResponseEntity(new CustomErrorType("No Trackings found for User with token " + token + "!"),
                     HttpStatus.NO_CONTENT);
@@ -92,6 +94,8 @@ public class TrackingRestController {
 
         // Vraag alle tracking op.
         List<Tracking> trackings = friend.getTrackings();
+        trackings.stream().forEach(t -> t.setCoordinates(this.coordinatesRepository.readCoordinatesByTrackingId(t.getTrackingId())));
+
         if (trackings.isEmpty()) {
             return new ResponseEntity(new CustomErrorType("No Trackings found for User with username " + friend.getUsername() + "!"),
                     HttpStatus.NO_CONTENT);
@@ -122,7 +126,7 @@ public class TrackingRestController {
             return new ResponseEntity(new CustomErrorType("No Tracking with id " + trackingId + " for User with token " + token + "!"),
                     HttpStatus.NO_CONTENT);
         }
-
+        tracking.setCoordinates(this.coordinatesRepository.readCoordinatesByTrackingId(trackingId));
         return new ResponseEntity<Tracking>(tracking, HttpStatus.OK);
     }
 
@@ -152,6 +156,8 @@ public class TrackingRestController {
         this.userRepository.save(user);
         // TODO: Performantere manier zoeken voor onderstaande functie.
         long trackingId = this.trackingRepository.findAll().get(this.trackingRepository.findAll().size() -1).getTrackingId();
+
+        tracking.getCoordinates().stream().forEach(t -> t.setTrackingId(trackingId));
         this.coordinatesRepository.createCoordinatesCollection(trackingId, tracking.getCoordinates());
 
         HttpHeaders headers = new HttpHeaders();
@@ -187,6 +193,7 @@ public class TrackingRestController {
 
         if (user.getTrackings().contains(tracking)) {
             user.getTrackings().remove(tracking);
+            this.coordinatesRepository.deleteCoordinatesCollection(trackingId);
             this.userRepository.save(user);
         } else {
             return new ResponseEntity(new CustomErrorType("User with token " + token + "does not have Tracking with trackingId " + trackingId + "."),
