@@ -57,7 +57,7 @@ public class UserRestController {
      * @param token authorization id
      * @return User
      */
-    @RequestMapping(value = "/getuser", method = RequestMethod.GET)
+    @RequestMapping(value = "/getUser", method = RequestMethod.GET)
     public ResponseEntity<?> getUser(@RequestHeader("token") String token) {
         logger.info("Fetching User with token " + token + ".");
 
@@ -81,7 +81,7 @@ public class UserRestController {
      * @param ucBuilder Uri Builder
      * @return HTTP status
      */
-    @RequestMapping(value = "/createuser",method = RequestMethod.POST)
+    @RequestMapping(value = "/createUser",method = RequestMethod.POST)
     public ResponseEntity<?> createUser(@RequestHeader("token") String token,@RequestBody User user, UriComponentsBuilder ucBuilder) {
         logger.info("Creating User: " + user + ".");
         user.setAuthId(JWT.decode(token).getSubject());
@@ -104,7 +104,7 @@ public class UserRestController {
      * @param user User from body
      * @return HTTP status
      */
-    @RequestMapping(value = "/updateuser", method = RequestMethod.PUT)
+    @RequestMapping(value = "/updateUser", method = RequestMethod.PUT)
     public ResponseEntity<?> updateUser(@RequestHeader("token") String token, @RequestBody User user) {
         logger.info("Updating User with token: " + token + ".");
 
@@ -142,7 +142,7 @@ public class UserRestController {
      * @param token authorization id
      * @return HTTP status
      */
-    @RequestMapping(value = "/deleteuser", method = RequestMethod.DELETE)
+    @RequestMapping(value = "/deleteUser", method = RequestMethod.DELETE)
     public ResponseEntity<?> deleteUser(@RequestHeader("token") String token) {
         logger.info("Fetching & Deleting User with token: " + token + ".");
 
@@ -172,7 +172,7 @@ public class UserRestController {
 
     // TODO: Create friendship with other User.
 
-    @RequestMapping(value = "/addfriend/{username}", method = RequestMethod.PUT)
+    @RequestMapping(value = "/addFriend/{username}", method = RequestMethod.PUT)
     public ResponseEntity<?> befriendUser(@RequestHeader("token") String token, @PathVariable("username") String username) {
         logger.info("Creating friendship between User with token: " + token + " and User with username " + username + ".");
 
@@ -207,7 +207,7 @@ public class UserRestController {
         return new ResponseEntity<User>(currentUser, HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/checkusername/{username}", method = RequestMethod.GET)
+    @RequestMapping(value = "/checkUsername/{username}", method = RequestMethod.GET)
     public ResponseEntity<?> checkUsernameAvailability(@PathVariable("username") String username) {
         logger.info("Checking if username " + username + " is available.");
 
