@@ -7,16 +7,14 @@ import be.kdg.runtracker.backend.persistence.CompetitionRepository;
 import be.kdg.runtracker.backend.persistence.TrackingRepository;
 import be.kdg.runtracker.backend.persistence.UserRepository;
 import be.kdg.runtracker.frontend.util.CustomErrorType;
+import com.auth0.jwt.JWT;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.rest.webmvc.RepositoryRestController;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.ArrayList;
@@ -56,16 +54,20 @@ public class UserRestController {
 
     /**
      * Get {@link User} by its authId.
-     * @param authId authorization id
+     * @param token authorization id
      * @return User
      */
-    @RequestMapping(value = "/{authId}", method = RequestMethod.GET)
-    public ResponseEntity<?> getUser(@PathVariable("authId") String authId) {
-        logger.info("Fetching User with authId " + authId + ".");
-        User user = userRepository.findUserByAuthId(authId);
+    @RequestMapping(value = "/getuser", method = RequestMethod.GET)
+    public ResponseEntity<?> getUser(@RequestHeader("token") String token) {
+        logger.info("Fetching User with token " + token + ".");
+
+
+        User user = userRepository.findUserByAuthId(JWT.decode(token).getSubject());
+
+
         if (user == null) {
-            logger.error("User with authId " + authId + "not found!");
-            return new ResponseEntity(new CustomErrorType("User with authId " + authId + " not found"),
+            logger.error("User with token " + token + "not found!");
+            return new ResponseEntity(new CustomErrorType("User with token " + token + " not found"),
                     HttpStatus.NOT_FOUND
             );
         }
@@ -79,10 +81,10 @@ public class UserRestController {
      * @param ucBuilder Uri Builder
      * @return HTTP status
      */
-    @RequestMapping(method = RequestMethod.POST)
-    public ResponseEntity<?> createUser(@RequestBody User user, UriComponentsBuilder ucBuilder) {
+    @RequestMapping(value = "/createuser",method = RequestMethod.POST)
+    public ResponseEntity<?> createUser(@RequestHeader("token") String token,@RequestBody User user, UriComponentsBuilder ucBuilder) {
         logger.info("Creating User: " + user + ".");
-
+        user.setAuthId(JWT.decode(token).getSubject());
         if (userRepository.findUserByAuthId(user.getAuthId()) != null) {
             logger.error("A User with name " + user.getFirstname() + " " + user.getLastname() + " already exists!");
             return new ResponseEntity("A User with name " + user.getFirstname() + " " + user.getLastname() + " already exists!",
@@ -92,25 +94,25 @@ public class UserRestController {
         userRepository.save(user);
 
         HttpHeaders headers = new HttpHeaders();
-        headers.setLocation(ucBuilder.path("/api/users/{authId}").buildAndExpand(user.getUserId()).toUri());
+        headers.setLocation(ucBuilder.path("/api/users/getuser").buildAndExpand(token).toUri());
         return new ResponseEntity<String>(headers, HttpStatus.CREATED);
     }
 
     /**
      * Update an existing {@link User}.
-     * @param authId authorization id
+     * @param token authorization id
      * @param user User from body
      * @return HTTP status
      */
-    @RequestMapping(value = "/{authId}", method = RequestMethod.PUT)
-    public ResponseEntity<?> updateUser(@PathVariable("authId") String authId, @RequestBody User user) {
-        logger.info("Updating User with authId: " + authId + ".");
+    @RequestMapping(value = "/updateuser", method = RequestMethod.PUT)
+    public ResponseEntity<?> updateUser(@RequestHeader("token") String token, @RequestBody User user) {
+        logger.info("Updating User with token: " + token + ".");
 
-        User currentUser = userRepository.findUserByAuthId(authId);
+        User currentUser = userRepository.findUserByAuthId(JWT.decode(token).getSubject());
 
         if (currentUser == null) {
-            logger.error("User with authId: " + authId + " not found!");
-            return new ResponseEntity(new CustomErrorType("User with authId: " + authId + " not found!"),
+            logger.error("User with token: " + token + " not found!");
+            return new ResponseEntity(new CustomErrorType("User with token: " + token + " not found!"),
                     HttpStatus.NOT_FOUND
             );
         }
@@ -137,17 +139,17 @@ public class UserRestController {
 
     /**
      * Delete an existing {@link User}.
-     * @param authId authorization id
+     * @param token authorization id
      * @return HTTP status
      */
-    @RequestMapping(value = "/{authId}", method = RequestMethod.DELETE)
-    public ResponseEntity<?> deleteUser(@PathVariable("authId") String authId) {
-        logger.info("Fetching & Deleting User with id: " + authId + ".");
+    @RequestMapping(value = "/deleteuser", method = RequestMethod.DELETE)
+    public ResponseEntity<?> deleteUser(@RequestHeader("token") String token) {
+        logger.info("Fetching & Deleting User with token: " + token + ".");
 
-        User user = userRepository.findUserByAuthId(authId);
+        User user = userRepository.findUserByAuthId(JWT.decode(token).getSubject());
         if (user == null) {
-            logger.error("User with id " + authId + " does not exist!");
-            return new ResponseEntity(new CustomErrorType("User with id " + authId + " does not exist!"),
+            logger.error("User with tokrn " + token + " does not exist!");
+            return new ResponseEntity(new CustomErrorType("User with token " + token + " does not exist!"),
                     HttpStatus.NOT_FOUND
             );
         }
@@ -157,10 +159,8 @@ public class UserRestController {
         if (trackings != null && !trackings.isEmpty()) this.trackingRepository.delete(trackings);
         List<Competition> competitionsRan = user.getCompetitionsRun();
         user.setCompetitionsRun(new ArrayList<>());
-        if (competitionsRan != null && !competitionsRan.isEmpty()) this.competitionRepository.delete(competitionsRan);
         List<Competition> competitionsWon = user.getCompetitionsWon();
         user.setCompetitionsWon(new ArrayList<>());
-        if (competitionsWon != null && !competitionsWon.isEmpty()) this.competitionRepository.delete(competitionsWon);
         List<Competition> competitionsCreated = user.getCompetitionsCreated();
         user.setCompetitionsCreated(new ArrayList<>());
         if (competitionsCreated != null && !competitionsCreated.isEmpty()) this.competitionRepository.delete(competitionsCreated);
@@ -172,15 +172,15 @@ public class UserRestController {
 
     // TODO: Create friendship with other User.
 
-    @RequestMapping(value = "/{authId}/{username}", method = RequestMethod.PUT)
-    public ResponseEntity<?> befriendUser(@PathVariable("authId") String authId, @PathVariable("username") String username) {
-        logger.info("Creating friendship between User with authId: " + authId + " and User with username " + username + ".");
+    @RequestMapping(value = "/addfriend/{username}", method = RequestMethod.PUT)
+    public ResponseEntity<?> befriendUser(@RequestHeader("token") String token, @PathVariable("username") String username) {
+        logger.info("Creating friendship between User with token: " + token + " and User with username " + username + ".");
 
-        User currentUser = userRepository.findUserByAuthId(authId);
+        User currentUser = userRepository.findUserByAuthId(JWT.decode(token).getSubject());
 
         if (currentUser == null) {
-            logger.error("User with authId: " + authId + " not found!");
-            return new ResponseEntity(new CustomErrorType("User with authId: " + authId + " not found!"),
+            logger.error("User with token: " + token + " not found!");
+            return new ResponseEntity(new CustomErrorType("User with token: " + token + " not found!"),
                     HttpStatus.NOT_FOUND
             );
         }
@@ -209,7 +209,7 @@ public class UserRestController {
 
     // TODO: Check if username exists.
 
-    @RequestMapping(value = "/check/{username}", method = RequestMethod.GET)
+    @RequestMapping(value = "/checkusername/{username}", method = RequestMethod.GET)
     public ResponseEntity<?> checkUsernameAvailability(@PathVariable("username") String username) {
         logger.info("Checking if username " + username + " is available.");
 
