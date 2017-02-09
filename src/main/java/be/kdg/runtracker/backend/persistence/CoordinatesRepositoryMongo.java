@@ -29,8 +29,10 @@ public class CoordinatesRepositoryMongo implements CoordinatesRepository {
     @Override
     public void createCoordinatesCollection(long trackingId, List<Coordinate> coordinates) {
         mongoTemplate.createCollection(String.valueOf(trackingId));
-        List<DBObject> objects = coordinates.stream().map(c -> coordinateToDoc(c)).collect(Collectors.toList());
-        mongoTemplate.getCollection(String.valueOf(trackingId)).insert(objects);
+        if(coordinates != null){
+            List<DBObject> objects = coordinates.stream().map(c -> coordinateToDoc(c)).collect(Collectors.toList());
+            mongoTemplate.getCollection(String.valueOf(trackingId)).insert(objects);
+        }
     }
 
     @Override

@@ -71,7 +71,7 @@ public class TrackingRestController {
      * @param token Token
      * @return List of Trackings
      */
-    @RequestMapping(value = "/{username}", method = RequestMethod.GET)
+    @RequestMapping(value = "/getAllTrackings/{username}", method = RequestMethod.GET)
     public ResponseEntity<List<Tracking>> getAllTrackingsOfFriend(@RequestHeader("token") String token, @PathVariable("username") String username) {
         logger.info("Fetching all Trackings for User with token " + token + ".");
 
@@ -106,7 +106,7 @@ public class TrackingRestController {
      * @param trackingId Tracking id
      * @return Tracking
      */
-    @RequestMapping(value = "/{trackingId}", method = RequestMethod.GET)
+    @RequestMapping(value = "getTracking/{trackingId}", method = RequestMethod.GET)
     public ResponseEntity<Tracking> getTrackingFromUser(@RequestHeader("token") String token, @PathVariable("trackingId") long trackingId) {
         logger.info("Fetching a Tracking with id " + trackingId + " for User with token " + token + ".");
 
@@ -133,7 +133,7 @@ public class TrackingRestController {
      * @param ucBuilder Uri Builder
      * @return HTTP Status Created
      */
-    @RequestMapping(method = RequestMethod.POST)
+    @RequestMapping(value = "/createTracking",method = RequestMethod.POST)
     public ResponseEntity<?> createTracking(@RequestHeader("token") String token, @RequestBody Tracking tracking, UriComponentsBuilder ucBuilder) {
         logger.info("Creating a Tracking " + tracking + " for User with token " + token + ".");
 
@@ -148,8 +148,8 @@ public class TrackingRestController {
         tracking.setUser(user);
         user.addTracking(tracking);
 
-        this.userRepository.save(user);
         this.trackingRepository.save(tracking);
+        this.userRepository.save(user);
         // TODO: Performantere manier zoeken voor onderstaande functie.
         long trackingId = this.trackingRepository.findAll().get(this.trackingRepository.findAll().size() -1).getTrackingId();
         this.coordinatesRepository.createCoordinatesCollection(trackingId, tracking.getCoordinates());
@@ -165,8 +165,8 @@ public class TrackingRestController {
      * @param trackingId Tracking id
      * @return HTTP status
      */
-    @RequestMapping(value = "/{trackingId}", method = RequestMethod.DELETE)
-    public ResponseEntity<?> deleteTrackingFromUser(@PathVariable("token") String token, @PathVariable("trackingId") long trackingId) {
+    @RequestMapping(value = "deleteTracking/{trackingId}", method = RequestMethod.DELETE)
+    public ResponseEntity<?> deleteTrackingFromUser(@RequestHeader("token") String token, @PathVariable("trackingId") long trackingId) {
         logger.info("Deleting a Tracking with id " + trackingId + " for User with token " + token + ".");
 
         User user = userRepository.findUserByAuthId(JWT.decode(token).getSubject());
