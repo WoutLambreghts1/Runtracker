@@ -1,26 +1,11 @@
 package be.kdg.runtracker.backend.persistence;
 
-import be.kdg.runtracker.backend.dom.competition.Competition;
-import be.kdg.runtracker.backend.dom.competition.CompetitionType;
-import be.kdg.runtracker.backend.dom.competition.Goal;
-import be.kdg.runtracker.backend.dom.profile.Gender;
-import be.kdg.runtracker.backend.dom.profile.User;
-import be.kdg.runtracker.backend.dom.tracking.Coordinate;
-import be.kdg.runtracker.backend.dom.tracking.Tracking;
 import org.junit.FixMethodOrder;
-import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.MethodSorters;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.test.context.junit4.SpringRunner;
-
-import java.time.LocalTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
 
 /**
  * Created by Wout on 6/02/2017.
@@ -30,6 +15,7 @@ import java.util.Random;
 @ComponentScan("be.kdg.runtracker")
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class InitializeTestdata {
+    /*
     @Autowired
     UserRepository userRepository;
     @Autowired
@@ -217,7 +203,7 @@ public class InitializeTestdata {
         }
 
     }
-
+*/
     //DELETE EVERYTHING
 
     /*

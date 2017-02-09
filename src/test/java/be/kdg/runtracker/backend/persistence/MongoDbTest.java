@@ -74,8 +74,7 @@ public class MongoDbTest {
     @Test
     public void deleteCollection() {
         coordinatesRepository.deleteCoordinatesCollection(trackingId);
-        System.out.println(coordinatesRepository.readCoordinatesByTrackingId(trackingId).size());
-        assertEquals(coordinatesRepository.readCoordinatesByTrackingId(trackingId).size(), 0);
+        assertNull(coordinatesRepository.readCoordinatesByTrackingId(trackingId));
     }
 
 
