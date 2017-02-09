@@ -266,15 +266,14 @@ public class UserRestControllerTest {
     }
 
     // TODO: Test voor username afwerken.
-    /*
     @Test
     public void checkAvailableUsername() throws Exception {
         String username = "testuser";
-        this.mockMvc.perform(get("/check/" + username).contentType(MediaType.APPLICATION_JSON))
+        this.mockMvc.perform(get("/check/" + username).contentType(MediaType.TEXT_PLAIN))
                 .andDo(print())
                 .andExpect(status().isOk());
     }
-    */
+
 
     @After
     public void removeTestUsers() {

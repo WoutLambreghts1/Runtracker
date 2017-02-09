@@ -1,5 +1,6 @@
 package be.kdg.runtracker.backend.dom.tracking;
 
+import be.kdg.runtracker.backend.dom.competition.Competition;
 import be.kdg.runtracker.backend.dom.profile.User;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
@@ -42,6 +43,9 @@ public class Tracking implements Serializable {
     @ManyToOne(targetEntity = User.class)
     private User user;
 
+    @ManyToOne(targetEntity = Competition.class)
+    private Competition competition;
+
     @Transient
     List<Coordinate> coordinates;
 
@@ -63,6 +67,16 @@ public class Tracking implements Serializable {
         this.maxSpeed = maxSpeed;
         this.avgSpeed = avgSpeed;
         this.coordinates = coordinates;
+    }
+
+    public Tracking(long totalDuration, long totalDistance, double maxSpeed, double avgSpeed, List<Coordinate> coordinates, Competition competition) {
+        this.time = Timestamp.valueOf(LocalDateTime.now());
+        this.totalDuration = totalDuration;
+        this.totalDistance = totalDistance;
+        this.maxSpeed = maxSpeed;
+        this.avgSpeed = avgSpeed;
+        this.coordinates = coordinates;
+        this.competition = competition;
     }
 
     public Long getTrackingId() {
@@ -129,4 +143,11 @@ public class Tracking implements Serializable {
         this.coordinates = coordinates;
     }
 
+    public Competition getCompetition() {
+        return competition;
+    }
+
+    public void setCompetition(Competition competition) {
+        this.competition = competition;
+    }
 }
