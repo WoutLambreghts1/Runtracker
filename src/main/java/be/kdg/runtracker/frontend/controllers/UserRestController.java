@@ -207,8 +207,6 @@ public class UserRestController {
         return new ResponseEntity<User>(currentUser, HttpStatus.OK);
     }
 
-    // TODO: Check if username exists.
-
     @RequestMapping(value = "/checkusername/{username}", method = RequestMethod.GET)
     public ResponseEntity<?> checkUsernameAvailability(@PathVariable("username") String username) {
         logger.info("Checking if username " + username + " is available.");
