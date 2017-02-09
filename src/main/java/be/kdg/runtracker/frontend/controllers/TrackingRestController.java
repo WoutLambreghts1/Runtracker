@@ -2,6 +2,7 @@ package be.kdg.runtracker.frontend.controllers;
 
 import be.kdg.runtracker.backend.dom.competition.Competition;
 import be.kdg.runtracker.backend.dom.profile.User;
+import be.kdg.runtracker.backend.dom.tracking.Coordinate;
 import be.kdg.runtracker.backend.dom.tracking.Tracking;
 import be.kdg.runtracker.backend.persistence.CompetitionRepository;
 import be.kdg.runtracker.backend.persistence.CoordinatesRepository;
@@ -133,7 +134,7 @@ public class TrackingRestController {
     /**
      * Create a {@link Tracking}.
      * @param token Token
-     * @param tracking Tracking id
+     * @param tracking Tracking
      * @param ucBuilder Uri Builder
      * @return HTTP Status Created
      */
@@ -159,6 +160,35 @@ public class TrackingRestController {
 
         tracking.getCoordinates().stream().forEach(t -> t.setTrackingId(trackingId));
         this.coordinatesRepository.createCoordinatesCollection(trackingId, tracking.getCoordinates());
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setLocation(ucBuilder.path("/api/users/getuser").buildAndExpand(user.getAuthId()).toUri());
+        return new ResponseEntity<String>(headers, HttpStatus.CREATED);
+    }
+
+    /**
+     * Create a {@link Tracking}.
+     * @param token Token
+     * @param coordinate coordinate
+     * @param trackingId tracking id
+     * @param ucBuilder Uri Builder
+     * @return HTTP Status Created
+     */
+    @RequestMapping(value = "/addCoordinateToTracking/{trackingId}",method = RequestMethod.POST)
+    public ResponseEntity<?> addCoordinateToTracking(@RequestHeader("token") String token,@PathVariable long trackingId, @RequestBody Coordinate coordinate, UriComponentsBuilder ucBuilder) {
+        logger.info("Creating a Coordinate " + coordinate + " for User with token " + token + ".");
+
+        User user = userRepository.findUserByAuthId(JWT.decode(token).getSubject());
+
+        if (user == null) {
+            logger.error("User with token " + token + "not found!");
+            return new ResponseEntity(new CustomErrorType("User with token " + token + " not found"),
+                    HttpStatus.NOT_FOUND);
+        }
+
+
+        coordinate.setTrackingId(trackingId);
+        this.coordinatesRepository.addCoordinateToCollection(trackingId, coordinate);
 
         HttpHeaders headers = new HttpHeaders();
         headers.setLocation(ucBuilder.path("/api/users/getuser").buildAndExpand(user.getAuthId()).toUri());
