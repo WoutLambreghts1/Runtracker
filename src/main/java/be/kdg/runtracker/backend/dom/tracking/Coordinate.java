@@ -11,7 +11,6 @@ import java.time.LocalTime;
 @Document
 public class Coordinate{
 
-    //SPEED IS OF TYPE LONG BECAUSE EASIER TO SAVE IN MONGODB (=SECOND OF DAY)
     @Id
     private long time;
 
