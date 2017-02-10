@@ -288,6 +288,8 @@ public class User implements Serializable {
     }
 
     public void addTracking(Tracking tracking) {
+
+        if(trackings == null) trackings = new ArrayList<>();
         if (!trackings.contains(tracking)) trackings.add(tracking);
     }
 
