@@ -33,13 +33,6 @@ public class Coordinate{
         time = LocalTime.now().toSecondOfDay();
     }
 
-    public Coordinate(double lat, double lon, LocalTime time, long trackingId, double speed) {
-        this.lat = lat;
-        this.lon = lon;
-        this.time = time.toSecondOfDay();
-        this.trackingId = trackingId;
-        this.speed = speed;
-    }
 
     public Coordinate(double lat, double lon, long time, long trackingId, double speed) {
         this.lat = lat;
