@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @RepositoryRestController
+@CrossOrigin
 @RequestMapping("/competitions/")
 public class CompetitionRestController {
 

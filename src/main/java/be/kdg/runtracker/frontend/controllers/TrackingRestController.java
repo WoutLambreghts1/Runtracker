@@ -22,6 +22,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 import java.util.List;
 
 @RepositoryRestController
+@CrossOrigin
 @RequestMapping("/trackings/")
 public class TrackingRestController {
 

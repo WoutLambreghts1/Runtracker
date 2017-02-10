@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @RepositoryRestController
+@CrossOrigin
 @RequestMapping("/users/")
 public class UserRestController {
 
@@ -57,6 +58,7 @@ public class UserRestController {
      * @param token authorization id
      * @return User
      */
+
     @RequestMapping(value = "/getUser", method = RequestMethod.GET)
     public ResponseEntity<?> getUser(@RequestHeader("token") String token) {
         logger.info("Fetching User with token " + token + ".");
@@ -222,7 +224,7 @@ public class UserRestController {
     private void updateUserPrestations(String authid){
         User user = userRepository.findUserByAuthId(authid);
 
-        if(user.getTrackings() != null){
+        if(user.getTrackings() != null && user.getTrackings().size() > 0){
             //Calculate avg speed
             double avgSpeed = user.getTrackings().stream().map(t -> t.getAvgSpeed() * t.getTotalDuration()).mapToDouble(Number::doubleValue).sum() /
                     user.getTrackings().stream().map(tt -> tt.getTotalDuration()).mapToLong(Number::longValue).sum();
