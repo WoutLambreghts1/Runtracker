@@ -222,48 +222,51 @@ public class UserRestController {
     private void updateUserPrestations(String authid){
         User user = userRepository.findUserByAuthId(authid);
 
-        //Calculate avg speed
-        double avgSpeed = user.getTrackings().stream().map(t -> t.getAvgSpeed() * t.getTotalDuration()).mapToDouble(Number::doubleValue).sum() /
-                user.getTrackings().stream().map(tt -> tt.getTotalDuration()).mapToLong(Number::longValue).sum();
-        user.setAvgSpeed(avgSpeed);
+        if(user.getTrackings() != null){
+            //Calculate avg speed
+            double avgSpeed = user.getTrackings().stream().map(t -> t.getAvgSpeed() * t.getTotalDuration()).mapToDouble(Number::doubleValue).sum() /
+                    user.getTrackings().stream().map(tt -> tt.getTotalDuration()).mapToLong(Number::longValue).sum();
+            user.setAvgSpeed(avgSpeed);
 
-        //Calculate avg distance
-        double avgDistance = user.getTrackings().stream().map(t -> t.getTotalDistance()).mapToDouble(Number::doubleValue).average().getAsDouble();
-        user.setAvgDistance(avgDistance);
+            //Calculate avg distance
+            double avgDistance = user.getTrackings().stream().map(t -> t.getTotalDistance()).mapToDouble(Number::doubleValue).average().getAsDouble();
+            user.setAvgDistance(avgDistance);
 
-        //Calculate total distance
-        double totalDistance = user.getTrackings().stream().map(t -> t.getTotalDistance()).mapToDouble(Number::doubleValue).sum();
-        user.setTotalDistance((long) totalDistance);
+            //Calculate total distance
+            double totalDistance = user.getTrackings().stream().map(t -> t.getTotalDistance()).mapToDouble(Number::doubleValue).sum();
+            user.setTotalDistance((long) totalDistance);
 
-        //Calculate max distance
-        double maxDistance = user.getTrackings().stream().map(t -> t.getTotalDistance()).mapToDouble(Number::doubleValue).max().getAsDouble();
-        user.setMaxDistance((long) maxDistance);
+            //Calculate max distance
+            double maxDistance = user.getTrackings().stream().map(t -> t.getTotalDistance()).mapToDouble(Number::doubleValue).max().getAsDouble();
+            user.setMaxDistance((long) maxDistance);
 
-        //Calculate max speed
-        double maxSpeed = user.getTrackings().stream().map(t -> t.getMaxSpeed()).mapToDouble(Number::doubleValue).max().getAsDouble();
-        user.setMaxSpeed(maxSpeed);
+            //Calculate max speed
+            double maxSpeed = user.getTrackings().stream().map(t -> t.getMaxSpeed()).mapToDouble(Number::doubleValue).max().getAsDouble();
+            user.setMaxSpeed(maxSpeed);
 
-        //Calculate nr of wins
-        int nrOfWins = user.getCompetitionsWon().size();
-        user.setNrOfCompetitionsWon(nrOfWins);
+            //Calculate nr of wins
+            int nrOfWins = user.getCompetitionsWon().size();
+            user.setNrOfCompetitionsWon(nrOfWins);
 
-        //Calculate ran MARATHON
-        boolean ranMarathon = false;
-        if (user.getTrackings().stream().map(t -> t.getTotalDistance()).mapToDouble(Number::doubleValue).max().getAsDouble() > 42195) ranMarathon = true;
-        user.setRanMarathon(ranMarathon);
+            //Calculate ran MARATHON
+            boolean ranMarathon = false;
+            if (user.getTrackings().stream().map(t -> t.getTotalDistance()).mapToDouble(Number::doubleValue).max().getAsDouble() > 42195) ranMarathon = true;
+            user.setRanMarathon(ranMarathon);
 
-        //Calculate ran 10KM
-        boolean ran10 = false;
-        if (user.getTrackings().stream().map(t -> t.getTotalDistance()).mapToDouble(Number::doubleValue).max().getAsDouble() > 10000) ran10 = true;
-        user.setRanTenKm(ran10);
+            //Calculate ran 10KM
+            boolean ran10 = false;
+            if (user.getTrackings().stream().map(t -> t.getTotalDistance()).mapToDouble(Number::doubleValue).max().getAsDouble() > 10000) ran10 = true;
+            user.setRanTenKm(ran10);
 
-        //Calculate ran 20KM
-        boolean ran20 = false;
-        if (user.getTrackings().stream().map(t -> t.getTotalDistance()).mapToDouble(Number::doubleValue).max().getAsDouble() > 20000) ran20 = true;
-        user.setRanTwentyKm(ran20);
+            //Calculate ran 20KM
+            boolean ran20 = false;
+            if (user.getTrackings().stream().map(t -> t.getTotalDistance()).mapToDouble(Number::doubleValue).max().getAsDouble() > 20000) ran20 = true;
+            user.setRanTwentyKm(ran20);
 
-        //Update user
-        userRepository.save(user);
+            //Update user
+            userRepository.save(user);
+        }
+
 
     }
 
