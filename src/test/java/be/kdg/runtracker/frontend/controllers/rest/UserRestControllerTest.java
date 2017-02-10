@@ -2,6 +2,7 @@ package be.kdg.runtracker.frontend.controllers.rest;
 
 import be.kdg.runtracker.backend.dom.profile.User;
 import be.kdg.runtracker.backend.persistence.UserRepository;
+import com.auth0.jwt.JWT;
 import com.google.gson.Gson;
 import org.junit.After;
 import org.junit.Before;
@@ -44,34 +45,37 @@ public class UserRestControllerTest {
     private User stijn;
     private User jens;
 
+    private String token;
+
     @Before
     public void setup() {
+        token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWV9.TJVA95OrM7E2cBab30RMHrHDcEfxjoYZgeFONFh7HgQ";
         this.alexander = new User();
-        this.alexander.setAuthId("123");
+        this.alexander.setAuthId(JWT.decode(token).getSubject());
         this.alexander.setFirstname("Alexander");
         this.alexander.setLastname("van Ravestyn");
         this.alexander.setUsername("alexvr");
 
         this.wout = new User();
-        this.wout.setAuthId("234");
+        this.wout.setAuthId(JWT.decode(token).getSubject());
         this.wout.setFirstname("Wout");
         this.wout.setLastname("Lambreghts");
         this.wout.setUsername("woutl");
 
         this.jelle = new User();
-        this.jelle.setAuthId("345");
+        this.jelle.setAuthId(JWT.decode(token).getSubject());
         this.jelle.setFirstname("Jelle");
         this.jelle.setLastname("Mannaerts");
         this.jelle.setUsername("jellem");
 
         this.stijn = new User();
-        this.stijn.setAuthId("456");
+        this.stijn.setAuthId(JWT.decode(token).getSubject());
         this.stijn.setFirstname("Stijn");
         this.stijn.setLastname("Ergeerts");
         this.stijn.setUsername("stijne");
 
         this.jens = new User();
-        this.jens.setAuthId("567");
+        this.jens.setAuthId(JWT.decode(token).getSubject());
         this.jens.setFirstname("Jens");
         this.jens.setLastname("Schadron");
         this.jens.setUsername("jenss");
@@ -105,40 +109,41 @@ public class UserRestControllerTest {
     }
 
     private void removeAllUsers() {
-        this.userRepository.delete(userRepository.findUserByAuthId("123").getUserId());
-        this.userRepository.delete(userRepository.findUserByAuthId("234").getUserId());
-        this.userRepository.delete(userRepository.findUserByAuthId("345").getUserId());
-        this.userRepository.delete(userRepository.findUserByAuthId("456").getUserId());
-        this.userRepository.delete(userRepository.findUserByAuthId("567").getUserId());
+        this.userRepository.delete(userRepository.findUserByUsername("alexvr").getUserId());
+        this.userRepository.delete(userRepository.findUserByUsername("jellem").getUserId());
+        this.userRepository.delete(userRepository.findUserByUsername("jenss").getUserId());
+        this.userRepository.delete(userRepository.findUserByUsername("stijne").getUserId());
+        this.userRepository.delete(userRepository.findUserByUsername("woutl").getUserId());
     }
 
     private void addAllUsers() {
+        token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWV9.TJVA95OrM7E2cBab30RMHrHDcEfxjoYZgeFONFh7HgQ";
         this.alexander = new User();
-        this.alexander.setAuthId("123");
+        this.alexander.setAuthId(JWT.decode(token).getSubject());
         this.alexander.setFirstname("Alexander");
         this.alexander.setLastname("van Ravestyn");
         this.alexander.setUsername("alexvr");
 
         this.wout = new User();
-        this.wout.setAuthId("234");
+        this.wout.setAuthId(JWT.decode(token).getSubject());
         this.wout.setFirstname("Wout");
         this.wout.setLastname("Lambreghts");
         this.wout.setUsername("woutl");
 
         this.jelle = new User();
-        this.jelle.setAuthId("345");
+        this.jelle.setAuthId(JWT.decode(token).getSubject());
         this.jelle.setFirstname("Jelle");
         this.jelle.setLastname("Mannaerts");
         this.jelle.setUsername("jellem");
 
         this.stijn = new User();
-        this.stijn.setAuthId("456");
+        this.stijn.setAuthId(JWT.decode(token).getSubject());
         this.stijn.setFirstname("Stijn");
         this.stijn.setLastname("Ergeerts");
         this.stijn.setUsername("stijne");
 
         this.jens = new User();
-        this.jens.setAuthId("567");
+        this.jens.setAuthId(JWT.decode(token).getSubject());
         this.jens.setFirstname("Jens");
         this.jens.setLastname("Schadron");
         this.jens.setUsername("jenss");
@@ -152,10 +157,10 @@ public class UserRestControllerTest {
 
     @Test
     public void testGetUserByAuthId() throws Exception {
-        String authId = "123";
+        String authId = JWT.decode(token).getSubject();
         this.mockMvc.perform(get("/users/" + authId).contentType(MediaType.APPLICATION_JSON))
                 .andDo(print())
-                .andExpect(jsonPath("$.authId", is("123")))
+                .andExpect(jsonPath("$.authId", is(JWT.decode(token).getSubject())))
                 .andExpect(status().isOk());
     }
 
@@ -169,7 +174,7 @@ public class UserRestControllerTest {
     @Test
     public void testCreateUser() throws Exception {
         User testUser = new User();
-        testUser.setAuthId("100");
+        testUser.setAuthId(JWT.decode(token).getSubject());
         testUser.setFirstname("Test");
         testUser.setLastname("User");
         testUser.setUsername("TestUser");
@@ -178,13 +183,13 @@ public class UserRestControllerTest {
                 .andDo(print())
                 .andExpect(status().isCreated());
 
-        this.userRepository.delete(userRepository.findUserByAuthId("100").getUserId());
+        this.userRepository.delete(userRepository.findUserByAuthId(JWT.decode(token).getSubject()).getUserId());
     }
 
     @Test
     public void testCreateAlreadyExistingUser() throws Exception {
         User testUser = new User();
-        testUser.setAuthId("123");
+        testUser.setAuthId(JWT.decode(token).getSubject());
         testUser.setFirstname("Test");
         testUser.setLastname("User");
         testUser.setUsername("TestUser");
@@ -195,7 +200,7 @@ public class UserRestControllerTest {
 
     @Test
     public void testUpdateUser() throws Exception {
-        User updateAlexander = userRepository.findUserByAuthId("123");
+        User updateAlexander = userRepository.findUserByUsername("alexvr");
         updateAlexander.setFirstname("Alex");
 
         this.mockMvc.perform(put("/users/" + updateAlexander.getAuthId()).content(gson.toJson(updateAlexander)).contentType(MediaType.APPLICATION_JSON))
@@ -219,7 +224,7 @@ public class UserRestControllerTest {
     @Test
     public void testDeleteUser() throws Exception {
         String authId = "123";
-        this.mockMvc.perform(delete("/users/" + authId).contentType(MediaType.APPLICATION_JSON))
+        this.mockMvc.perform(delete("/users/").contentType(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isNoContent());
 

@@ -248,7 +248,7 @@ public class UserRestController {
             int nrOfWins = user.getCompetitionsWon().size();
             user.setNrOfCompetitionsWon(nrOfWins);
 
-            //Calculate ran MARATHON
+            //Calculate ran marathon
             boolean ranMarathon = false;
             if (user.getTrackings().stream().map(t -> t.getTotalDistance()).mapToDouble(Number::doubleValue).max().getAsDouble() > 42195) ranMarathon = true;
             user.setRanMarathon(ranMarathon);

@@ -50,6 +50,7 @@ public class TrackingRestController {
     public ResponseEntity<List<Tracking>> getAllTrackingsOfUser(@RequestHeader("token") String token) {
         logger.info("Fetching all Trackings for User with authId " + token + ".");
 
+        System.out.println(JWT.decode(token).getSubject());
         User user = userRepository.findUserByAuthId(JWT.decode(token).getSubject());
 
         if (user == null) {

@@ -4,6 +4,7 @@ import be.kdg.runtracker.backend.dom.profile.User;
 import be.kdg.runtracker.backend.dom.tracking.Tracking;
 import be.kdg.runtracker.backend.persistence.TrackingRepository;
 import be.kdg.runtracker.backend.persistence.UserRepository;
+import com.auth0.jwt.JWT;
 import com.google.gson.Gson;
 import org.junit.After;
 import org.junit.Before;
@@ -19,11 +20,9 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.WebApplicationContext;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.setup.MockMvcBuilders.webAppContextSetup;
-
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -45,10 +44,14 @@ public class TrackingRestControllerTest {
     private Tracking tracking1;
     private Tracking tracking2;
 
+    private String token;
+
     @Before
     public void setup() {
+        token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWV9.TJVA95OrM7E2cBab30RMHrHDcEfxjoYZgeFONFh7HgQ";
         this.alexander = new User();
-        this.alexander.setAuthId("123");
+        this.alexander.setAuthId(JWT.decode(token).getSubject());
+        System.out.println(this.alexander.getAuthId());
         this.alexander.setFirstname("Alexander");
         this.alexander.setLastname("van Ravestyn");
         this.alexander.setUsername("alexvr");
@@ -71,8 +74,7 @@ public class TrackingRestControllerTest {
 
     @Test
     public void testGetAllTrackingsForUser() throws Exception {
-        String authId = "123";
-        this.mockMvc.perform(get("/api/trackings/" + authId).contentType(MediaType.APPLICATION_JSON))
+        this.mockMvc.perform(get("/trackings/getAllTrackings").header("token",token).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andDo(print());
     }
