@@ -63,9 +63,7 @@ public class UserRestController {
     public ResponseEntity<?> getUser(@RequestHeader("token") String token) {
         logger.info("Fetching User with token " + token + ".");
 
-        updateUserPrestations(JWT.decode(token).getSubject());
         User user = userRepository.findUserByAuthId(JWT.decode(token).getSubject());
-
 
         if (user == null) {
             logger.error("User with token " + token + "not found!");
@@ -73,6 +71,8 @@ public class UserRestController {
                     HttpStatus.NOT_FOUND
             );
         }
+
+        updateUserPrestations(JWT.decode(token).getSubject());
 
         return new ResponseEntity<User>(user, HttpStatus.OK);
     }
@@ -171,8 +171,6 @@ public class UserRestController {
 
         return new ResponseEntity<User>(HttpStatus.NO_CONTENT);
     }
-
-    // TODO: Create friendship with other User.
 
     @RequestMapping(value = "/addFriend/{username}", method = RequestMethod.PUT)
     public ResponseEntity<?> befriendUser(@RequestHeader("token") String token, @PathVariable("username") String username) {
