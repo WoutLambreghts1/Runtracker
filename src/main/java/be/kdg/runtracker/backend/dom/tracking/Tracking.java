@@ -2,6 +2,7 @@ package be.kdg.runtracker.backend.dom.tracking;
 
 import be.kdg.runtracker.backend.dom.competition.Competition;
 import be.kdg.runtracker.backend.dom.profile.User;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
@@ -26,6 +27,7 @@ public class Tracking implements Serializable {
     private Long trackingId;
 
     @Basic
+    @JsonFormat(shape=JsonFormat.Shape.STRING, pattern="yyyy-MM-dd HH:mm:ss")
     private Timestamp time;
 
     @Basic

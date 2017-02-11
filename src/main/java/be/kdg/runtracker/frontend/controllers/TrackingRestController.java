@@ -61,9 +61,9 @@ public class TrackingRestController {
         }
 
         List<Tracking> trackings = user.getTrackings();
-        trackings.stream().forEach(t -> t.setCoordinates(this.coordinatesRepository.readCoordinatesByTrackingId(t.getTrackingId())));
+        if (trackings != null && !trackings.isEmpty()) trackings.stream().forEach(tracking -> tracking.setCoordinates(this.coordinatesRepository.readCoordinatesByTrackingId(tracking.getTrackingId())));
 
-        if (trackings.isEmpty()) {
+        if (trackings == null || trackings.isEmpty()) {
             return new ResponseEntity(new CustomErrorType("No Trackings found for User with token " + token + "!"),
                     HttpStatus.NO_CONTENT);
         }
@@ -97,9 +97,9 @@ public class TrackingRestController {
 
         // Vraag alle tracking op.
         List<Tracking> trackings = friend.getTrackings();
-        trackings.stream().forEach(t -> t.setCoordinates(this.coordinatesRepository.readCoordinatesByTrackingId(t.getTrackingId())));
+        if (trackings != null && !trackings.isEmpty()) trackings.stream().forEach(t -> t.setCoordinates(this.coordinatesRepository.readCoordinatesByTrackingId(t.getTrackingId())));
 
-        if (trackings.isEmpty()) {
+        if (trackings == null || trackings.isEmpty()) {
             return new ResponseEntity(new CustomErrorType("No Trackings found for User with username " + friend.getUsername() + "!"),
                     HttpStatus.NO_CONTENT);
         }
@@ -177,7 +177,7 @@ public class TrackingRestController {
      * @return HTTP Status Created
      */
     @RequestMapping(value = "/addCoordinateToTracking/{trackingId}",method = RequestMethod.POST)
-    public ResponseEntity<?> addCoordinateToTracking(@RequestHeader("token") String token,@PathVariable long trackingId, @RequestBody Coordinate coordinate, UriComponentsBuilder ucBuilder) {
+    public ResponseEntity<?> addCoordinateToTracking(@RequestHeader("token") String token, @PathVariable long trackingId, @RequestBody Coordinate coordinate, UriComponentsBuilder ucBuilder) {
         logger.info("Creating a Coordinate " + coordinate + " for User with token " + token + ".");
 
         User user = userRepository.findUserByAuthId(JWT.decode(token).getSubject());
@@ -188,6 +188,11 @@ public class TrackingRestController {
                     HttpStatus.NOT_FOUND);
         }
 
+        if (this.trackingRepository.findTrackingByTrackingId(trackingId) == null) {
+            logger.error("Tracking with id " + trackingId + "not found!");
+            return new ResponseEntity(new CustomErrorType("Tracking with id " + trackingId + "not found!"),
+                    HttpStatus.NOT_FOUND);
+        }
 
         coordinate.setTrackingId(trackingId);
         this.coordinatesRepository.addCoordinateToCollection(trackingId, coordinate);
@@ -209,15 +214,16 @@ public class TrackingRestController {
 
         User user = userRepository.findUserByAuthId(JWT.decode(token).getSubject());
         Tracking tracking = trackingRepository.findTrackingByTrackingId(trackingId);
-        Competition competition = tracking.getCompetition();
+        Competition competition = null;
+        if (tracking != null) competition = tracking.getCompetition();
 
         if (user == null) {
-            logger.error("User with token " + token + "not found!");
+            logger.error("\nUser with token " + token + " not found!\n");
             return new ResponseEntity(new CustomErrorType("User with token " + token + " not found"),
                     HttpStatus.NOT_FOUND);
         }
 
-        if (tracking.getTrackingId() == 0) {
+        if (tracking == null) {
             logger.error("No Tracking with id " + trackingId + " for User with token " + token + "!");
             return new ResponseEntity(new CustomErrorType("No Tracking with id " + trackingId + " for User with token " + token + "!"),
                     HttpStatus.NOT_FOUND);

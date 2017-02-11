@@ -202,8 +202,10 @@ public class UserRestController {
         }
 
         currentUser.addFriend(friend);
+        friend.addFriend(currentUser);
 
         userRepository.save(currentUser);
+        userRepository.save(friend);
         return new ResponseEntity<User>(currentUser, HttpStatus.OK);
     }
 
