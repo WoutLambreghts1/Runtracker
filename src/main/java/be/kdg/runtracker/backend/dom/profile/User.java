@@ -294,14 +294,23 @@ public class User implements Serializable {
     }
 
     public void addCompetitionsCreated(Competition competition) {
+        if (this.competitionsCreated == null) {
+            this.competitionsCreated = new ArrayList<>();
+        }
         this.competitionsCreated.add(competition);
     }
 
     public void addCompetitionsRan(Competition competition) {
-        if (!competitionsRun.contains(competition)) this.competitionsRun.add(competition);
+        if (this.competitionsRun == null) {
+            this.competitionsRun = new ArrayList<>();
+        }
+        this.competitionsRun.add(competition);
     }
 
     public void addCompetitionsWon(Competition competition) {
+        if (this.competitionsWon == null) {
+            this.competitionsWon = new ArrayList<>();
+        }
         this.competitionsWon.add(competition);
     }
 

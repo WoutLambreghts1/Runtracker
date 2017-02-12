@@ -45,11 +45,11 @@ public class UserRestControllerTest {
     private User stijn;
     private User jens;
 
-    String token1;
-    String token2;
-    String token3;
-    String token4;
-    String token5;
+    private String token1;
+    private String token2;
+    private String token3;
+    private String token4;
+    private String token5;
 
     @Before
     public void setup() {
@@ -100,28 +100,22 @@ public class UserRestControllerTest {
 
     @Test
     public void testGetAllUsers() throws Exception {
-        this.mockMvc.perform(get("/users/").contentType(MediaType.APPLICATION_JSON))
+        this.mockMvc.perform(get("/users/").header("token", token1).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andDo(print());
     }
 
     @Test
-    public void testGetNoUsers() throws Exception {
-        removeAllUsers();
+    public void testGetAllUsersUnauthorized() throws Exception {
+        String wrongToken = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJPbmxpbmUgSldUIEJ1aWxkZXIiLCJpYXQiOjE0ODY3MzE5MzgsImV4cCI6MTUxODI2NzkzOCwiYXVkIjoid3d3LmV4YW1wbGUuY29tIiwic3ViIjoidGVzdDYifQ.X8l82QUd7sXLuqNxiTJaQZDhU9V7_4fIi3MKNxYHOQU";
 
-        this.mockMvc.perform(get("/users/").contentType(MediaType.APPLICATION_JSON))
-                .andDo(print())
-                .andExpect(status().isNoContent());
-
-        addAllUsers();
+        this.mockMvc.perform(get("/users/").header("token", wrongToken).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isUnauthorized())
+                .andDo(print());
     }
 
     private void removeAllUsers() {
-        this.userRepository.delete(userRepository.findUserByUsername("alexvr").getUserId());
-        this.userRepository.delete(userRepository.findUserByUsername("jellem").getUserId());
-        this.userRepository.delete(userRepository.findUserByUsername("jenss").getUserId());
-        this.userRepository.delete(userRepository.findUserByUsername("stijne").getUserId());
-        this.userRepository.delete(userRepository.findUserByUsername("woutl").getUserId());
+        this.userRepository.findAll().stream().forEach(user -> this.userRepository.delete(user.getUserId()));
     }
 
     private void addAllUsers() {
@@ -299,15 +293,7 @@ public class UserRestControllerTest {
 
     @After
     public void removeTestUsers() {
-        if (this.userRepository.findUserByUsername("alexvr") != null) {
-            this.userRepository.delete(alexander.getUserId());
-        }
-        if (!this.userRepository.findAll().isEmpty()) {
-            this.userRepository.delete(wout.getUserId());
-            this.userRepository.delete(jelle.getUserId());
-            this.userRepository.delete(stijn.getUserId());
-            this.userRepository.delete(jens.getUserId());
-        }
+        this.userRepository.findAll().stream().forEach(user -> this.userRepository.delete(user.getUserId()));
     }
 
 }

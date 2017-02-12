@@ -40,10 +40,20 @@ public class UserRestController {
     protected UserRestController() { }
 
     @RequestMapping(method = RequestMethod.GET)
-    public ResponseEntity<?> getAllUsers() {
+    public ResponseEntity<?> getAllUsers(@RequestHeader("token") String token) {
         logger.info("Fetching all Users.");
+
+        User user = userRepository.findUserByAuthId(JWT.decode(token).getSubject());
+
+        if (user == null) {
+            logger.error("User with token " + token + "not found, cannot fetch all Users!");
+            return new ResponseEntity(new CustomErrorType("User with token " + token + " not found, cannot fetch all Users!"),
+                    HttpStatus.UNAUTHORIZED
+            );
+        }
+
         List<User> users = userRepository.findAll();
-        if (users.isEmpty()) {
+        if (users == null || users.isEmpty()) {
             logger.error("No Users were found!");
             return new ResponseEntity(new CustomErrorType("No Users were found!"),
                     HttpStatus.NO_CONTENT
