@@ -1,9 +1,11 @@
 package be.kdg.runtracker.frontend.controllers;
 
 import be.kdg.runtracker.backend.dom.competition.Competition;
+import be.kdg.runtracker.backend.dom.competition.Goal;
 import be.kdg.runtracker.backend.dom.profile.User;
 import be.kdg.runtracker.backend.dom.tracking.Tracking;
 import be.kdg.runtracker.backend.persistence.CompetitionRepository;
+import be.kdg.runtracker.backend.persistence.GoalRepository;
 import be.kdg.runtracker.backend.persistence.TrackingRepository;
 import be.kdg.runtracker.backend.persistence.UserRepository;
 import be.kdg.runtracker.frontend.util.CustomErrorType;
@@ -29,12 +31,14 @@ public class UserRestController {
     private UserRepository userRepository;
     private TrackingRepository trackingRepository;
     private CompetitionRepository competitionRepository;
+    private GoalRepository goalRepository;
 
     @Autowired
-    public UserRestController(UserRepository userRepository, TrackingRepository trackingRepository, CompetitionRepository competitionRepository) {
+    public UserRestController(UserRepository userRepository, TrackingRepository trackingRepository, CompetitionRepository competitionRepository, GoalRepository goalRepository) {
         this.userRepository = userRepository;
         this.trackingRepository = trackingRepository;
         this.competitionRepository = competitionRepository;
+        this.goalRepository = goalRepository;
     }
 
     protected UserRestController() { }
@@ -159,23 +163,36 @@ public class UserRestController {
         logger.info("Fetching & Deleting User with token: " + token + ".");
 
         User user = userRepository.findUserByAuthId(JWT.decode(token).getSubject());
+
         if (user == null) {
-            logger.error("User with tokrn " + token + " does not exist!");
+            logger.error("User with token " + token + " does not exist!");
             return new ResponseEntity(new CustomErrorType("User with token " + token + " does not exist!"),
-                    HttpStatus.NOT_FOUND
-            );
+                    HttpStatus.NOT_FOUND);
         }
 
-        List<Tracking> trackings = user.getTrackings();
-        user.setTrackings(new ArrayList<>());
-        if (trackings != null && !trackings.isEmpty()) this.trackingRepository.delete(trackings);
-        List<Competition> competitionsRan = user.getCompetitionsRun();
-        user.setCompetitionsRun(new ArrayList<>());
-        List<Competition> competitionsWon = user.getCompetitionsWon();
-        user.setCompetitionsWon(new ArrayList<>());
         List<Competition> competitionsCreated = user.getCompetitionsCreated();
+        List<Tracking> trackings = user.getTrackings();
+
+        user.setCompetitionsRun(new ArrayList<>());
+        user.setCompetitionsWon(new ArrayList<>());
         user.setCompetitionsCreated(new ArrayList<>());
-        if (competitionsCreated != null && !competitionsCreated.isEmpty()) this.competitionRepository.delete(competitionsCreated);
+        user.setTrackings(new ArrayList<>());
+        this.userRepository.save(user);
+
+        if (trackings != null && !trackings.isEmpty()) this.trackingRepository.delete(trackings);
+
+        if (competitionsCreated != null && !competitionsCreated.isEmpty()) {
+            List<Goal> goals = new ArrayList<>();
+            for (Competition competition : competitionsCreated) {
+                competition.setUserCreated(null);
+                competition.setUsersRun(null);
+                competition.setUserWon(null);
+                goals.add(competition.getGoal());
+                this.competitionRepository.save(competition);
+                this.competitionRepository.delete(competition.getCompetitionId());
+            }
+            if (!goals.isEmpty()) this.goalRepository.delete(goals);
+        }
 
         this.userRepository.delete(user.getUserId());
 

@@ -1,8 +1,14 @@
 package be.kdg.runtracker.frontend.controllers.rest;
 
+import be.kdg.runtracker.backend.dom.competition.Competition;
+import be.kdg.runtracker.backend.dom.competition.CompetitionType;
+import be.kdg.runtracker.backend.dom.competition.Goal;
 import be.kdg.runtracker.backend.dom.profile.User;
+import be.kdg.runtracker.backend.persistence.CompetitionRepository;
+import be.kdg.runtracker.backend.persistence.GoalRepository;
 import be.kdg.runtracker.backend.persistence.UserRepository;
 import com.auth0.jwt.JWT;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import org.junit.After;
 import org.junit.Before;
@@ -16,6 +22,9 @@ import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.WebApplicationContext;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.setup.MockMvcBuilders.webAppContextSetup;
@@ -36,14 +45,22 @@ public class UserRestControllerTest {
     private WebApplicationContext webApplicationContext;
     @Autowired
     private UserRepository userRepository;
+    @Autowired
+    private CompetitionRepository competitionRepository;
+    @Autowired
+    private GoalRepository goalRepository;
+
     private MockMvc mockMvc;
-    private Gson gson;
+    private ObjectMapper mapper;
 
     private User alexander;
     private User wout;
     private User jelle;
     private User stijn;
     private User jens;
+
+    private Goal goalAlex;
+    private Competition competitionAlex;
 
     private String token1;
     private String token2;
@@ -88,6 +105,22 @@ public class UserRestControllerTest {
         this.jens.setLastname("Schadron");
         this.jens.setUsername("jenss");
 
+        this.goalAlex = new Goal();
+        this.goalAlex.setName("Goal1");
+        this.goalAlex.setDistance(10);
+
+        this.competitionAlex = new Competition(alexander, goalAlex, CompetitionType.NOT_REALTIME, 10, 5);
+        this.competitionAlex.addRunner(alexander);
+        this.alexander.addCompetitionsCreated(competitionAlex);
+        this.alexander.addCompetitionsRan(competitionAlex);
+        this.competitionAlex.addRunner(wout);
+        this.wout.addCompetitionsRan(competitionAlex);
+        this.competitionAlex.setUserWon(wout);
+        this.wout.addCompetitionsWon(competitionAlex);
+
+        this.competitionRepository.save(competitionAlex);
+        this.goalRepository.save(goalAlex);
+
         this.userRepository.save(alexander);
         this.userRepository.save(wout);
         this.userRepository.save(jelle);
@@ -95,7 +128,7 @@ public class UserRestControllerTest {
         this.userRepository.save(jens);
 
         this.mockMvc = webAppContextSetup(webApplicationContext).build();
-        this.gson = new Gson();
+        this.mapper = new ObjectMapper();
     }
 
     @Test
@@ -159,6 +192,8 @@ public class UserRestControllerTest {
         this.userRepository.save(jelle);
         this.userRepository.save(stijn);
         this.userRepository.save(jens);
+
+        this.mapper = new ObjectMapper();
     }
 
     @Test
@@ -186,7 +221,7 @@ public class UserRestControllerTest {
         testUser.setLastname("User");
         testUser.setUsername("TestUser");
 
-        this.mockMvc.perform(post("/users/createUser").content(gson.toJson(testUser)).header("token", testToken).contentType(MediaType.APPLICATION_JSON))
+        this.mockMvc.perform(post("/users/createUser").content(mapper.writeValueAsString(testUser)).header("token", testToken).contentType(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isCreated());
 
@@ -201,7 +236,7 @@ public class UserRestControllerTest {
         testUser.setLastname("User");
         testUser.setUsername("TestUser");
 
-        this.mockMvc.perform(post("/users/createUser").header("token", token1).content(gson.toJson(testUser)).contentType(MediaType.APPLICATION_JSON))
+        this.mockMvc.perform(post("/users/createUser").header("token", token1).content(mapper.writeValueAsString(testUser)).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isConflict());
     }
 
@@ -210,7 +245,7 @@ public class UserRestControllerTest {
         User updateAlexander = userRepository.findUserByUsername("alexvr");
         updateAlexander.setFirstname("Alex");
 
-        this.mockMvc.perform(put("/users/updateUser").header("token", token1).content(gson.toJson(updateAlexander)).contentType(MediaType.APPLICATION_JSON))
+        this.mockMvc.perform(put("/users/updateUser").header("token", token1).content(mapper.writeValueAsString(updateAlexander)).contentType(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.firstname", is("Alex")));
@@ -225,7 +260,7 @@ public class UserRestControllerTest {
         testUser.setLastname("User");
         testUser.setUsername("TestUser");
 
-        this.mockMvc.perform(put("/users/updateUser").header("token", testToken).content(gson.toJson(testUser)).contentType(MediaType.APPLICATION_JSON))
+        this.mockMvc.perform(put("/users/updateUser").header("token", testToken).content(mapper.writeValueAsString(testUser)).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound());
     }
 
@@ -274,7 +309,6 @@ public class UserRestControllerTest {
                 .andExpect(status().isNotFound());
     }
 
-    // TODO: Test voor username afwerken.
     @Test
     public void checkAvailableUsername() throws Exception {
         String username = "testuser";
@@ -293,6 +327,16 @@ public class UserRestControllerTest {
 
     @After
     public void removeTestUsers() {
+        this.alexander.setCompetitionsCreated(new ArrayList<>());
+        this.alexander.setCompetitionsRun(new ArrayList<>());
+        this.alexander.setCompetitionsWon(new ArrayList<>());
+        this.userRepository.save(alexander);
+
+        this.wout.setCompetitionsCreated(new ArrayList<>());
+        this.wout.setCompetitionsRun(new ArrayList<>());
+        this.wout.setCompetitionsWon(new ArrayList<>());
+        this.userRepository.save(wout);
+
         this.userRepository.findAll().stream().forEach(user -> this.userRepository.delete(user.getUserId()));
     }
 

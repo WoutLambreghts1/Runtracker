@@ -279,6 +279,7 @@ public class CompetitionRestController {
                     HttpStatus.UNAUTHORIZED);
         }
 
+        /*
         List<Tracking> trackings = competition.getTrackings();
         Goal goal = competition.getGoal();
         competition.setTrackings(new ArrayList<>());
@@ -290,7 +291,25 @@ public class CompetitionRestController {
         if (trackings != null && !trackings.isEmpty()) trackings.stream().forEach(tracking -> this.coordinatesRepository.deleteCoordinatesCollection(tracking.getTrackingId()));
         if (trackings != null && !trackings.isEmpty()) this.trackingRepository.delete(trackings);
         if (goal != null) this.goalRepository.delete(goal.getGoalId());
-        competitionRepository.delete(competition.getCompetitionId());
+        */
+        if (user.getCompetitionsCreated() != null && user.getCompetitionsCreated().contains(competition)) user.getCompetitionsCreated().remove(competition);
+        if (user.getCompetitionsRun() != null && user.getCompetitionsRun().contains(competition)) user.getCompetitionsRun().remove(competition);
+        if (user.getCompetitionsWon() != null && user.getCompetitionsWon().contains(competition)) user.getCompetitionsWon().remove(competition);
+        this.userRepository.save(user);
+
+        competition.setUserCreated(null);
+        competition.setUsersRun(null);
+        competition.setUserWon(null);
+        this.competitionRepository.save(competition);
+
+        List<Tracking> trackings = competition.getTrackings();
+        if (trackings != null && !trackings.isEmpty()) trackings.stream().forEach(tracking -> this.coordinatesRepository.deleteCoordinatesCollection(tracking.getTrackingId()));
+        if (trackings != null && !trackings.isEmpty()) this.trackingRepository.delete(trackings);
+
+        Goal goal = competition.getGoal();
+        if (goal != null) this.goalRepository.delete(goal.getGoalId());
+
+        this.competitionRepository.delete(competition.getCompetitionId());
 
         return new ResponseEntity<User>(HttpStatus.NO_CONTENT);
     }

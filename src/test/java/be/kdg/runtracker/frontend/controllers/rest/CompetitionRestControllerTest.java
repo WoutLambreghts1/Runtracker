@@ -52,7 +52,6 @@ public class CompetitionRestControllerTest {
     @Autowired
     private GoalRepository goalRepository;
     private MockMvc mockMvc;
-    private Gson gson;
     private ObjectMapper mapper;
 
     private User alexander;
@@ -122,7 +121,6 @@ public class CompetitionRestControllerTest {
         this.competitionRepository.save(competition2);
 
         this.mockMvc = webAppContextSetup(webApplicationContext).build();
-        this.gson = new Gson();
         this.mapper = new ObjectMapper();
     }
 
@@ -345,7 +343,7 @@ public class CompetitionRestControllerTest {
         long competitionId = 1111111111;
 
         this.mockMvc.perform(delete("/competitions/delete/" + competitionId).header("token", token1).contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isUnauthorized())
+                .andExpect(status().isNotFound())
                 .andDo(print());
     }
 
@@ -360,9 +358,26 @@ public class CompetitionRestControllerTest {
 
     @After
     public void removeTestObjects() {
+        List<User> users = this.userRepository.findAll();
+        for (User user : users) {
+            user.setCompetitionsRun(new ArrayList<>());
+            user.setCompetitionsWon(new ArrayList<>());
+            user.setCompetitionsCreated(new ArrayList<>());
+            this.userRepository.save(user);
+        }
+
+        List<Competition> competitions = this.competitionRepository.findAll();
+        for (Competition competition : competitions) {
+            competition.setUserWon(null);
+            competition.setUsersRun(new ArrayList<>());
+            competition.setUserCreated(null);
+            competition.setGoal(null);
+            this.competitionRepository.save(competition);
+        }
+
+        this.userRepository.findAll().stream().forEach(user -> this.userRepository.delete(user.getUserId()));
         this.competitionRepository.findAll().stream().forEach(competition -> this.competitionRepository.delete(competition.getCompetitionId()));
         this.goalRepository.findAll().stream().forEach(goal -> this.goalRepository.delete(goal.getGoalId()));
-        this.userRepository.findAll().stream().forEach(user -> this.userRepository.delete(user.getUserId()));
     }
 
 }
