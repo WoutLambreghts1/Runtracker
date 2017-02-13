@@ -253,44 +253,83 @@ public class UserRestController {
 
         if(user.getTrackings() != null && user.getTrackings().size() > 0){
             //Calculate avg speed
-            double avgSpeed = user.getTrackings().stream().map(t -> t.getAvgSpeed() * t.getTotalDuration()).mapToDouble(Number::doubleValue).sum() /
-                    user.getTrackings().stream().map(tt -> tt.getTotalDuration()).mapToLong(Number::longValue).sum();
-            user.setAvgSpeed(avgSpeed);
+            if (user.getTrackings() != null) {
+                double avgSpeed = user.getTrackings().stream().map(t -> t.getAvgSpeed() * t.getTotalDuration()).mapToDouble(Number::doubleValue).sum() /
+                        user.getTrackings().stream().map(tt -> tt.getTotalDuration()).mapToLong(Number::longValue).sum();
+                user.setAvgSpeed(avgSpeed);
+            } else {
+                user.setAvgSpeed(0);
+            }
 
             //Calculate avg distance
-            double avgDistance = user.getTrackings().stream().map(t -> t.getTotalDistance()).mapToDouble(Number::doubleValue).average().getAsDouble();
-            user.setAvgDistance(avgDistance);
+            if (user.getTrackings() != null) {
+                double avgDistance = user.getTrackings().stream().map(t -> t.getTotalDistance()).mapToDouble(Number::doubleValue).average().getAsDouble();
+                user.setAvgDistance(avgDistance);
+            } else {
+                user.setAvgDistance(0);
+            }
 
             //Calculate total distance
-            double totalDistance = user.getTrackings().stream().map(t -> t.getTotalDistance()).mapToDouble(Number::doubleValue).sum();
-            user.setTotalDistance((long) totalDistance);
+            if (user.getTrackings() != null) {
+                double totalDistance = user.getTrackings().stream().map(t -> t.getTotalDistance()).mapToDouble(Number::doubleValue).sum();
+                user.setTotalDistance((long) totalDistance);
+            } else {
+                user.setTotalDistance(0);
+            }
 
             //Calculate max distance
-            double maxDistance = user.getTrackings().stream().map(t -> t.getTotalDistance()).mapToDouble(Number::doubleValue).max().getAsDouble();
-            user.setMaxDistance((long) maxDistance);
+            if (user.getTrackings() != null) {
+                double maxDistance = user.getTrackings().stream().map(t -> t.getTotalDistance()).mapToDouble(Number::doubleValue).max().getAsDouble();
+                user.setMaxDistance((long) maxDistance);
+            } else {
+                user.setMaxDistance(0);
+            }
 
             //Calculate max speed
-            double maxSpeed = user.getTrackings().stream().map(t -> t.getMaxSpeed()).mapToDouble(Number::doubleValue).max().getAsDouble();
-            user.setMaxSpeed(maxSpeed);
+            if (user.getTrackings() != null) {
+                double maxSpeed = user.getTrackings().stream().map(t -> t.getMaxSpeed()).mapToDouble(Number::doubleValue).max().getAsDouble();
+                user.setMaxSpeed(maxSpeed);
+            } else {
+                user.setMaxSpeed(0);
+            }
 
             //Calculate nr of wins
-            int nrOfWins = user.getCompetitionsWon().size();
-            user.setNrOfCompetitionsWon(nrOfWins);
+            if (user.getCompetitionsWon() != null) {
+                int nrOfWins = user.getCompetitionsWon().size();
+                user.setNrOfCompetitionsWon(nrOfWins);
+            } else {
+                user.setNrOfCompetitionsWon(0);
+            }
 
             //Calculate ran marathon
             boolean ranMarathon = false;
-            if (user.getTrackings().stream().map(t -> t.getTotalDistance()).mapToDouble(Number::doubleValue).max().getAsDouble() > 42195) ranMarathon = true;
-            user.setRanMarathon(ranMarathon);
+            if (user.getCompetitionsWon() != null) {
+                if (user.getTrackings().stream().map(t -> t.getTotalDistance()).mapToDouble(Number::doubleValue).max().getAsDouble() > 42195)
+                    ranMarathon = true;
+                user.setRanMarathon(ranMarathon);
+            } else {
+                user.setRanMarathon(false);
+            }
 
             //Calculate ran 10KM
             boolean ran10 = false;
-            if (user.getTrackings().stream().map(t -> t.getTotalDistance()).mapToDouble(Number::doubleValue).max().getAsDouble() > 10000) ran10 = true;
-            user.setRanTenKm(ran10);
+            if (user.getCompetitionsWon() != null) {
+                if (user.getTrackings().stream().map(t -> t.getTotalDistance()).mapToDouble(Number::doubleValue).max().getAsDouble() > 10000)
+                    ran10 = true;
+                user.setRanTenKm(ran10);
+            } else {
+                user.setRanTenKm(false);
+            }
 
             //Calculate ran 20KM
             boolean ran20 = false;
-            if (user.getTrackings().stream().map(t -> t.getTotalDistance()).mapToDouble(Number::doubleValue).max().getAsDouble() > 20000) ran20 = true;
-            user.setRanTwentyKm(ran20);
+            if (user.getCompetitionsWon() != null) {
+                if (user.getTrackings().stream().map(t -> t.getTotalDistance()).mapToDouble(Number::doubleValue).max().getAsDouble() > 20000)
+                    ran20 = true;
+                user.setRanTwentyKm(ran20);
+            } else {
+                user.setRanTwentyKm(false);
+            }
 
             //Update user
             userRepository.save(user);

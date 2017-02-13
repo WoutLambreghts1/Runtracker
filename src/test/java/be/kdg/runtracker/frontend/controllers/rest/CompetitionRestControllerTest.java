@@ -4,8 +4,10 @@ import be.kdg.runtracker.backend.dom.competition.Competition;
 import be.kdg.runtracker.backend.dom.competition.CompetitionType;
 import be.kdg.runtracker.backend.dom.competition.Goal;
 import be.kdg.runtracker.backend.dom.profile.User;
+import be.kdg.runtracker.backend.dom.tracking.Tracking;
 import be.kdg.runtracker.backend.persistence.CompetitionRepository;
 import be.kdg.runtracker.backend.persistence.GoalRepository;
+import be.kdg.runtracker.backend.persistence.TrackingRepository;
 import be.kdg.runtracker.backend.persistence.UserRepository;
 import com.auth0.jwt.JWT;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -51,6 +53,8 @@ public class CompetitionRestControllerTest {
     private CompetitionRepository competitionRepository;
     @Autowired
     private GoalRepository goalRepository;
+    @Autowired
+    private TrackingRepository trackingRepository;
     private MockMvc mockMvc;
     private ObjectMapper mapper;
 
@@ -65,6 +69,8 @@ public class CompetitionRestControllerTest {
     private Competition competition2;
     private Goal goal1;
     private Goal goal2;
+
+    private Tracking trackingAlex;
 
     @Before
     public void setup() {
@@ -102,6 +108,10 @@ public class CompetitionRestControllerTest {
         this.competition1.setUserWon(wout);
         this.wout.addCompetitionsWon(competition1);
 
+        this.trackingAlex = new Tracking(10, 10, 10,10);
+        this.trackingAlex.setCompetition(competition1);
+        this.alexander.addTracking(trackingAlex);
+
         this.goal2 = new Goal();
         this.goal2.setName("Goal2");
         this.goal2.setDistance(10);
@@ -109,6 +119,8 @@ public class CompetitionRestControllerTest {
         this.competition2 = new Competition(wout, goal2, CompetitionType.NOT_REALTIME, 10, 5);
         this.wout.addCompetitionsCreated(competition2);
         this.competition2.addRunner(wout);
+
+        this.trackingRepository.save(trackingAlex);
 
         this.userRepository.save(alexander);
         this.userRepository.save(wout);
@@ -129,28 +141,6 @@ public class CompetitionRestControllerTest {
         this.mockMvc.perform(get("/competitions/").header("token", token1).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andDo(print());
-    }
-
-    @Test
-    public void testGetNoCompetitions() throws Exception {
-        removeCompetitions();
-
-        this.mockMvc.perform(get("/competitions/").header("token", token1).contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isNoContent())
-                .andDo(print());
-
-        addCompetitions();
-    }
-
-    private void removeCompetitions() {
-        List<User> users = this.userRepository.findAll();
-        for (User user : users) {
-            user.setCompetitionsCreated(new ArrayList<>());
-            user.setCompetitionsWon(new ArrayList<>());
-            user.setCompetitionsRun(new ArrayList<>());
-        }
-        users.stream().forEach(user -> this.userRepository.save(user));
-        this.competitionRepository.findAll().stream().forEach(competition -> this.competitionRepository.delete(competition.getCompetitionId()));
     }
 
     private void addCompetitions() {
@@ -356,8 +346,17 @@ public class CompetitionRestControllerTest {
                 .andDo(print());
     }
 
+    // TODO: test add tracking to competition.
+
     @After
     public void removeTestObjects() {
+        List<Tracking> trackings = this.trackingRepository.findAll();
+        for (Tracking tracking : trackings) {
+            tracking.setUser(null);
+            tracking.setCompetition(null);
+            this.trackingRepository.save(tracking);
+        }
+
         List<User> users = this.userRepository.findAll();
         for (User user : users) {
             user.setCompetitionsRun(new ArrayList<>());
@@ -375,6 +374,7 @@ public class CompetitionRestControllerTest {
             this.competitionRepository.save(competition);
         }
 
+        this.trackingRepository.findAll().stream().forEach(tracking -> this.trackingRepository.delete(tracking.getTrackingId()));
         this.userRepository.findAll().stream().forEach(user -> this.userRepository.delete(user.getUserId()));
         this.competitionRepository.findAll().stream().forEach(competition -> this.competitionRepository.delete(competition.getCompetitionId()));
         this.goalRepository.findAll().stream().forEach(goal -> this.goalRepository.delete(goal.getGoalId()));

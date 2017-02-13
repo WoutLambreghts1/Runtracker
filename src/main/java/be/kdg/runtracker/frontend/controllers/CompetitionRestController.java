@@ -279,32 +279,29 @@ public class CompetitionRestController {
                     HttpStatus.UNAUTHORIZED);
         }
 
-        /*
         List<Tracking> trackings = competition.getTrackings();
-        Goal goal = competition.getGoal();
-        competition.setTrackings(new ArrayList<>());
-        competition.setUsersRun(new ArrayList<>());
-        competition.setUserWon(null);
-        competition.setUserCreated(null);
-        competition.setGoal(null);
+        if (trackings != null && !trackings.isEmpty()) {
+            for (Tracking tracking : trackings) {
+                tracking.setCompetition(null);
+                tracking.setUser(null);
+                this.trackingRepository.save(tracking);
+                this.trackingRepository.delete(tracking.getTrackingId());
+            }
+        }
 
-        if (trackings != null && !trackings.isEmpty()) trackings.stream().forEach(tracking -> this.coordinatesRepository.deleteCoordinatesCollection(tracking.getTrackingId()));
-        if (trackings != null && !trackings.isEmpty()) this.trackingRepository.delete(trackings);
-        if (goal != null) this.goalRepository.delete(goal.getGoalId());
-        */
-        if (user.getCompetitionsCreated() != null && user.getCompetitionsCreated().contains(competition)) user.getCompetitionsCreated().remove(competition);
-        if (user.getCompetitionsRun() != null && user.getCompetitionsRun().contains(competition)) user.getCompetitionsRun().remove(competition);
-        if (user.getCompetitionsWon() != null && user.getCompetitionsWon().contains(competition)) user.getCompetitionsWon().remove(competition);
+        if (user.getCompetitionsCreated() != null && user.getCompetitionsCreated().contains(competition))
+            user.getCompetitionsCreated().remove(competition);
+        if (user.getCompetitionsRun() != null && user.getCompetitionsRun().contains(competition))
+            user.getCompetitionsRun().remove(competition);
+        if (user.getCompetitionsWon() != null && user.getCompetitionsWon().contains(competition))
+            user.getCompetitionsWon().remove(competition);
         this.userRepository.save(user);
 
         competition.setUserCreated(null);
         competition.setUsersRun(null);
         competition.setUserWon(null);
+        competition.setTrackings(null);
         this.competitionRepository.save(competition);
-
-        List<Tracking> trackings = competition.getTrackings();
-        if (trackings != null && !trackings.isEmpty()) trackings.stream().forEach(tracking -> this.coordinatesRepository.deleteCoordinatesCollection(tracking.getTrackingId()));
-        if (trackings != null && !trackings.isEmpty()) this.trackingRepository.delete(trackings);
 
         Goal goal = competition.getGoal();
         if (goal != null) this.goalRepository.delete(goal.getGoalId());
@@ -312,6 +309,36 @@ public class CompetitionRestController {
         this.competitionRepository.delete(competition.getCompetitionId());
 
         return new ResponseEntity<User>(HttpStatus.NO_CONTENT);
+    }
+
+    @RequestMapping(value = "/addTracking/{competitionId}", method = RequestMethod.POST)
+    public ResponseEntity<?> addTrackingToCompetition(@RequestHeader("token") String token, @PathVariable("competitionId") long competitionId, @RequestBody Tracking tracking, UriComponentsBuilder ucBuilder) {
+        logger.info("Adding Tracking to Competition with id: " + competitionId + ".");
+
+        User user = userRepository.findUserByAuthId(JWT.decode(token).getSubject());
+        if (user == null) {
+            logger.error("User with token " + token + " does not exist!");
+            return new ResponseEntity(new CustomErrorType("User with token " + token + " does not exist!"),
+                    HttpStatus.NOT_FOUND);
+        }
+
+        Competition competition = competitionRepository.findCompetitionByCompetitionId(competitionId);
+        if (competition == null) {
+            logger.error("Competition with id " + competitionId + " does not exist!");
+            return new ResponseEntity(new CustomErrorType("Competition with id " + competitionId + " does not exist!"),
+                    HttpStatus.NOT_FOUND);
+        }
+
+        competition.addTracking(tracking);
+        user.addTracking(tracking);
+
+        this.trackingRepository.save(tracking);
+        this.competitionRepository.save(competition);
+        this.userRepository.save(user);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setLocation(ucBuilder.path("/api/users/getUser").buildAndExpand(user.getAuthId()).toUri());
+        return new ResponseEntity<String>(headers, HttpStatus.CREATED);
     }
 
 }
