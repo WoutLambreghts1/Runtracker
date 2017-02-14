@@ -237,12 +237,12 @@ public class UserRestController {
     }
 
     @RequestMapping(value = "/checkUsername/{username}", method = RequestMethod.GET)
-    public ResponseEntity<?> checkUsernameAvailability(@PathVariable("username") String username) {
+    public ResponseEntity<?> checkUsernameAvailability(@RequestHeader("token") String token,@PathVariable("username") String username) {
         logger.info("Checking if username " + username + " is available.");
 
         boolean available = false;
 
-        if (this.userRepository.findUserByUsername(username) == null) available = true;
+        if (this.userRepository.findUserByUsername(username) == null || this.userRepository.findUserByAuthId(JWT.decode(token).getSubject()).getUsername().equals(username)) available = true;
 
         return new ResponseEntity<Boolean>(available, HttpStatus.OK);
     }
