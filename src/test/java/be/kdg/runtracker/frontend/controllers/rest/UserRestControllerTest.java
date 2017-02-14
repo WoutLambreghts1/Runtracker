@@ -4,8 +4,10 @@ import be.kdg.runtracker.backend.dom.competition.Competition;
 import be.kdg.runtracker.backend.dom.competition.CompetitionType;
 import be.kdg.runtracker.backend.dom.competition.Goal;
 import be.kdg.runtracker.backend.dom.profile.User;
+import be.kdg.runtracker.backend.dom.tracking.Tracking;
 import be.kdg.runtracker.backend.persistence.CompetitionRepository;
 import be.kdg.runtracker.backend.persistence.GoalRepository;
+import be.kdg.runtracker.backend.persistence.TrackingRepository;
 import be.kdg.runtracker.backend.persistence.UserRepository;
 import com.auth0.jwt.JWT;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -49,6 +51,8 @@ public class UserRestControllerTest {
     private CompetitionRepository competitionRepository;
     @Autowired
     private GoalRepository goalRepository;
+    @Autowired
+    private TrackingRepository trackingRepository;
 
     private MockMvc mockMvc;
     private ObjectMapper mapper;
@@ -61,6 +65,7 @@ public class UserRestControllerTest {
 
     private Goal goalAlex;
     private Competition competitionAlex;
+    private Tracking trackingAlex;
 
     private String token1;
     private String token2;
@@ -118,6 +123,13 @@ public class UserRestControllerTest {
         this.competitionAlex.setUserWon(wout);
         this.wout.addCompetitionsWon(competitionAlex);
 
+        this.trackingAlex = new Tracking(10, 10, 10,10);
+        this.trackingAlex.setCompetition(competitionAlex);
+        this.alexander.addTracking(trackingAlex);
+
+        this.competitionAlex.addTracking(trackingAlex);
+
+        this.trackingRepository.save(trackingAlex);
         this.competitionRepository.save(competitionAlex);
         this.goalRepository.save(goalAlex);
 
@@ -145,55 +157,6 @@ public class UserRestControllerTest {
         this.mockMvc.perform(get("/users/").header("token", wrongToken).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isUnauthorized())
                 .andDo(print());
-    }
-
-    private void removeAllUsers() {
-        this.userRepository.findAll().stream().forEach(user -> this.userRepository.delete(user.getUserId()));
-    }
-
-    private void addAllUsers() {
-        token1 = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWV9.TJVA95OrM7E2cBab30RMHrHDcEfxjoYZgeFONFh7HgQ";
-        this.alexander = new User();
-        this.alexander.setAuthId(JWT.decode(token1).getSubject());
-        this.alexander.setFirstname("Alexander");
-        this.alexander.setLastname("van Ravestyn");
-        this.alexander.setUsername("alexvr");
-
-        token2 = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJPbmxpbmUgSldUIEJ1aWxkZXIiLCJpYXQiOjE0ODY3MzE5MzgsImV4cCI6MTUxODI2NzkzOCwiYXVkIjoid3d3LmV4YW1wbGUuY29tIiwic3ViIjoidGVzdDIifQ.gbIlCFTC5tyyLg8UqvxcoUUmhgUTdstZnHWNzEO1jVM";
-        this.wout = new User();
-        this.wout.setAuthId(JWT.decode(token2).getSubject());
-        this.wout.setFirstname("Wout");
-        this.wout.setLastname("Lambreghts");
-        this.wout.setUsername("woutl");
-
-        token3 = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJPbmxpbmUgSldUIEJ1aWxkZXIiLCJpYXQiOjE0ODY3MzE5MzgsImV4cCI6MTUxODI2NzkzOCwiYXVkIjoid3d3LmV4YW1wbGUuY29tIiwic3ViIjoidGVzdDMifQ._Am34giuNzroHLmI482DV46DFq7UuNTdpzQ01aQdyio";
-        this.jelle = new User();
-        this.jelle.setAuthId(JWT.decode(token3).getSubject());
-        this.jelle.setFirstname("Jelle");
-        this.jelle.setLastname("Mannaerts");
-        this.jelle.setUsername("jellem");
-
-        token4 = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJPbmxpbmUgSldUIEJ1aWxkZXIiLCJpYXQiOjE0ODY3MzE5MzgsImV4cCI6MTUxODI2NzkzOCwiYXVkIjoid3d3LmV4YW1wbGUuY29tIiwic3ViIjoidGVzdDQifQ.HmBSbppuUKbIo2M4ZKgfbcBzrmIb2nE9AThoTfJXCaY";
-        this.stijn = new User();
-        this.stijn.setAuthId(JWT.decode(token4).getSubject());
-        this.stijn.setFirstname("Stijn");
-        this.stijn.setLastname("Ergeerts");
-        this.stijn.setUsername("stijne");
-
-        token5 = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJPbmxpbmUgSldUIEJ1aWxkZXIiLCJpYXQiOjE0ODY3MzE5MzgsImV4cCI6MTUxODI2NzkzOCwiYXVkIjoid3d3LmV4YW1wbGUuY29tIiwic3ViIjoidGVzdDUifQ.mmEMpKfNaBlkvd-mGpbDDeJOAxU9ASiq0F_mBMckrLw";
-        this.jens = new User();
-        this.jens.setAuthId(JWT.decode(token5).getSubject());
-        this.jens.setFirstname("Jens");
-        this.jens.setLastname("Schadron");
-        this.jens.setUsername("jenss");
-
-        this.userRepository.save(alexander);
-        this.userRepository.save(wout);
-        this.userRepository.save(jelle);
-        this.userRepository.save(stijn);
-        this.userRepository.save(jens);
-
-        this.mapper = new ObjectMapper();
     }
 
     @Test
