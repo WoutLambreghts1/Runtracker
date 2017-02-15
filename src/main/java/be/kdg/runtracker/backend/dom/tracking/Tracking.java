@@ -17,7 +17,7 @@ import java.util.List;
  */
 
 @Entity
-@JsonIdentityInfo(generator=ObjectIdGenerators.PropertyGenerator.class, property="trackingId")
+@JsonIdentityInfo(generator=ObjectIdGenerators.PropertyGenerator.class, property="trackingId", scope = Tracking.class)
 @Table(name="Tracking")
 public class Tracking implements Serializable {
 

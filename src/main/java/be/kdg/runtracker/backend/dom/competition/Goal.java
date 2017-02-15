@@ -12,7 +12,7 @@ import java.io.Serializable;
  */
 
 @Entity
-@JsonIdentityInfo(generator=ObjectIdGenerators.PropertyGenerator.class, property="goalId")
+@JsonIdentityInfo(generator=ObjectIdGenerators.PropertyGenerator.class, property="goalId", scope = Goal.class)
 @Table(name="Goal")
 public class Goal implements Serializable {
 

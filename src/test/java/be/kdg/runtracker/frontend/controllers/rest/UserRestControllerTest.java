@@ -208,6 +208,8 @@ public class UserRestControllerTest {
         User updateAlexander = userRepository.findUserByUsername("alexvr");
         updateAlexander.setFirstname("Alex");
 
+        System.err.println("\n" + mapper.writeValueAsString(updateAlexander) + "\n");
+
         this.mockMvc.perform(put("/users/updateUser").header("token", token1).content(mapper.writeValueAsString(updateAlexander)).contentType(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isOk())

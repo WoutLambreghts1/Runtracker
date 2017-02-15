@@ -20,7 +20,7 @@ import java.util.List;
  */
 
 @Entity
-@JsonIdentityInfo(generator=ObjectIdGenerators.PropertyGenerator.class, property="competitionId")
+@JsonIdentityInfo(generator=ObjectIdGenerators.PropertyGenerator.class, property="competitionId", scope = Competition.class)
 @Table(name="Competition")
 public class Competition implements Serializable {
 

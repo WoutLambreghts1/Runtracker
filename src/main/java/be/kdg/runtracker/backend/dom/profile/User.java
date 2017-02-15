@@ -19,7 +19,7 @@ import java.util.List;
  */
 
 @Entity
-@JsonIdentityInfo(generator=ObjectIdGenerators.PropertyGenerator.class, property="userId")
+@JsonIdentityInfo(generator=ObjectIdGenerators.PropertyGenerator.class, property="userId", scope = User.class)
 @Table(name="User")
 public class User implements Serializable { 
 
