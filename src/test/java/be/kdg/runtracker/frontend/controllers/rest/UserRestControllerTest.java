@@ -275,7 +275,7 @@ public class UserRestControllerTest {
     @Test
     public void checkAvailableUsername() throws Exception {
         String username = "testuser";
-        this.mockMvc.perform(get("/users/checkUsername/" + username).contentType(MediaType.APPLICATION_JSON))
+        this.mockMvc.perform(get("/users/checkUsername/" + username).header("token", token1).contentType(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isOk());
     }
@@ -283,7 +283,7 @@ public class UserRestControllerTest {
     @Test
     public void checkNonAvailableUsername() throws Exception {
         String username = "alexvr";
-        this.mockMvc.perform(get("/users/checkUsername/" + username).contentType(MediaType.APPLICATION_JSON))
+        this.mockMvc.perform(get("/users/checkUsername/" + username).header("token", token2).contentType(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isOk());
     }
