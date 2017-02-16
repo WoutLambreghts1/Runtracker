@@ -4,6 +4,9 @@ import be.kdg.runtracker.backend.dom.competition.Competition;
 import be.kdg.runtracker.backend.dom.competition.Goal;
 import be.kdg.runtracker.backend.dom.profile.User;
 import be.kdg.runtracker.backend.dom.tracking.Tracking;
+import be.kdg.runtracker.backend.exceptions.NoContentException;
+import be.kdg.runtracker.backend.exceptions.UnauthorizedUserException;
+import be.kdg.runtracker.backend.exceptions.UserNotFoundException;
 import be.kdg.runtracker.backend.persistence.CompetitionRepository;
 import be.kdg.runtracker.backend.persistence.GoalRepository;
 import be.kdg.runtracker.backend.persistence.TrackingRepository;
@@ -45,24 +48,11 @@ public class UserRestController {
 
     @RequestMapping(method = RequestMethod.GET)
     public ResponseEntity<?> getAllUsers(@RequestHeader("token") String token) {
-        logger.info("Fetching all Users.");
-
         User user = userRepository.findUserByAuthId(JWT.decode(token).getSubject());
-
-        if (user == null) {
-            logger.error("User with token " + token + "not found, cannot fetch all Users!");
-            return new ResponseEntity(new CustomErrorType("User with token " + token + " not found, cannot fetch all Users!"),
-                    HttpStatus.UNAUTHORIZED
-            );
-        }
+        if (user == null) throw new UnauthorizedUserException("User with token " + token + " not found, cannot fetch all Users!");
 
         List<User> users = userRepository.findAll();
-        if (users == null || users.isEmpty()) {
-            logger.error("No Users were found!");
-            return new ResponseEntity(new CustomErrorType("No Users were found!"),
-                    HttpStatus.NO_CONTENT
-            );
-        }
+        if (users == null || users.isEmpty()) throw new NoContentException("No Users were found!");
 
         return new ResponseEntity<List<User>>(users, HttpStatus.OK);
     }
@@ -75,16 +65,8 @@ public class UserRestController {
 
     @RequestMapping(value = "/getUser", method = RequestMethod.GET)
     public ResponseEntity<?> getUser(@RequestHeader("token") String token) {
-        logger.info("Fetching User with token " + token + ".");
-
         User user = userRepository.findUserByAuthId(JWT.decode(token).getSubject());
-
-        if (user == null) {
-            logger.error("User with token " + token + "not found!");
-            return new ResponseEntity(new CustomErrorType("User with token " + token + " not found"),
-                    HttpStatus.NOT_FOUND
-            );
-        }
+        if (user == null) throw new UserNotFoundException("User with token " + token + " not found!");
 
         updateUserPrestations(JWT.decode(token).getSubject());
 
@@ -99,7 +81,6 @@ public class UserRestController {
      */
     @RequestMapping(value = "/createUser",method = RequestMethod.POST)
     public ResponseEntity<?> createUser(@RequestHeader("token") String token,@RequestBody User user, UriComponentsBuilder ucBuilder) {
-        logger.info("Creating User: " + user + ".");
         user.setAuthId(JWT.decode(token).getSubject());
         if (userRepository.findUserByAuthId(user.getAuthId()) != null) {
             logger.error("A User with name " + user.getFirstname() + " " + user.getLastname() + " already exists!");
@@ -122,20 +103,11 @@ public class UserRestController {
      */
     @RequestMapping(value = "/updateUser", method = RequestMethod.PUT)
     public ResponseEntity<?> updateUser(@RequestHeader("token") String token, @RequestBody User user) {
-        logger.info("Updating User with token: " + token + ".");
-
         User currentUser = userRepository.findUserByAuthId(JWT.decode(token).getSubject());
-
-        if (currentUser == null) {
-            logger.error("User with token: " + token + " not found!");
-            return new ResponseEntity(new CustomErrorType("User with token: " + token + " not found!"),
-                    HttpStatus.NOT_FOUND
-            );
-        }
+        if (currentUser == null) throw new UserNotFoundException("User with token " + token + " not found, cannot update User!");
 
         if (!user.getUsername().equals(currentUser.getUsername())) {
             if (this.userRepository.findUserByUsername(user.getUsername()) != null) {
-                logger.error("Could not update User! Username " + user.getUsername() + " already exists!");
                 return new ResponseEntity(new CustomErrorType("Could not update User! Username " + user.getUsername() + " already exists!"),
                         HttpStatus.UNAUTHORIZED
                 );
@@ -160,15 +132,8 @@ public class UserRestController {
      */
     @RequestMapping(value = "/deleteUser", method = RequestMethod.DELETE)
     public ResponseEntity<?> deleteUser(@RequestHeader("token") String token) {
-        logger.info("Fetching & Deleting User with token: " + token + ".");
-
         User user = userRepository.findUserByAuthId(JWT.decode(token).getSubject());
-
-        if (user == null) {
-            logger.error("User with token " + token + " does not exist!");
-            return new ResponseEntity(new CustomErrorType("User with token " + token + " does not exist!"),
-                    HttpStatus.NOT_FOUND);
-        }
+        if (user == null) throw new UserNotFoundException("User with token " + token + " not found, cannot delete User!");
 
         List<Competition> competitionsCreated = user.getCompetitionsCreated();
         List<Tracking> trackings = user.getTrackings();
@@ -201,16 +166,8 @@ public class UserRestController {
 
     @RequestMapping(value = "/addFriend/{username}", method = RequestMethod.PUT)
     public ResponseEntity<?> befriendUser(@RequestHeader("token") String token, @PathVariable("username") String username) {
-        logger.info("Creating friendship between User with token: " + token + " and User with username " + username + ".");
-
         User currentUser = userRepository.findUserByAuthId(JWT.decode(token).getSubject());
-
-        if (currentUser == null) {
-            logger.error("User with token: " + token + " not found!");
-            return new ResponseEntity(new CustomErrorType("User with token: " + token + " not found!"),
-                    HttpStatus.NOT_FOUND
-            );
-        }
+        if (currentUser == null) throw new UnauthorizedUserException("User with token " + token + " not found, cannot add friend!");
 
         if (currentUser.getUsername().equals(username)) {
             logger.error("A User can't befriend itself!");
@@ -220,13 +177,7 @@ public class UserRestController {
         }
 
         User friend = userRepository.findUserByUsername(username);
-
-        if (friend == null) {
-            logger.error("User with username: " + username + " not found!");
-            return new ResponseEntity(new CustomErrorType("User with username: " + username + " not found!"),
-                    HttpStatus.NOT_FOUND
-            );
-        }
+        if (friend == null) throw new UserNotFoundException("User with username " + username + " not found, cannot add friend!");
 
         currentUser.addFriend(friend);
         friend.addFriend(currentUser);

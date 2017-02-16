@@ -141,7 +141,7 @@ public class TrackingRestControllerTest {
     @Test
     public void testGetAllTrackingsForNonExistingUser() throws Exception {
         this.mockMvc.perform(get("/trackings/getAllTrackings").header("token", wrongToken).contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isNotFound())
+                .andExpect(status().isUnauthorized())
                 .andDo(print());
     }
 
@@ -190,7 +190,7 @@ public class TrackingRestControllerTest {
         String localDateTimeNow = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
         String testTrackingJSON = "{\"time\":\"" + localDateTimeNow + "\",\"totalDuration\":10,\"totalDistance\":10,\"maxSpeed\":10.0,\"avgSpeed\":10.0,\"coordinates\":[{\"time\":10,\"lat\":10.0,\"lon\":10.0,\"trackingId\":0,\"speed\":10.0}]}";
         this.mockMvc.perform(post("/trackings/createTracking").content(testTrackingJSON).header("token", wrongToken).contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isNotFound())
+                .andExpect(status().isUnauthorized())
                 .andDo(print());
     }
 
@@ -212,7 +212,7 @@ public class TrackingRestControllerTest {
         long trackingId = 1;
         Coordinate coordinate = new Coordinate();
         this.mockMvc.perform(post("/trackings/addCoordinateToTracking/" + trackingId).content(gson.toJson(coordinate)).header("token", wrongToken).contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isNotFound())
+                .andExpect(status().isUnauthorized())
                 .andDo(print());
     }
 
@@ -237,7 +237,7 @@ public class TrackingRestControllerTest {
     public void testDeleteTrackingFromNonExistingUser() throws Exception {
         long trackingId = 1;
         this.mockMvc.perform(delete("/trackings/deleteTracking/" + trackingId).header("token", wrongToken).contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isNotFound())
+                .andExpect(status().isUnauthorized())
                 .andDo(print());
     }
 

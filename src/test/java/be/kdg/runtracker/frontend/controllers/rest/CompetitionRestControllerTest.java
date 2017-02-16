@@ -268,7 +268,7 @@ public class CompetitionRestControllerTest {
         long competitionId = this.competitionRepository.findCompetitionByUserCreated(alexander).get(0).getCompetitionId();
 
         this.mockMvc.perform(post("/competitions/running/" + competitionId).header("token", wrongToken).contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isNotFound())
+                .andExpect(status().isUnauthorized())
                 .andDo(print());
     }
 
@@ -296,7 +296,7 @@ public class CompetitionRestControllerTest {
         long competitionId = this.competitionRepository.findCompetitionByUserCreated(alexander).get(0).getCompetitionId();
 
         this.mockMvc.perform(post("/competitions/wins/" + competitionId).header("token", wrongToken).contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isNotFound())
+                .andExpect(status().isUnauthorized())
                 .andDo(print());
     }
 
@@ -324,7 +324,7 @@ public class CompetitionRestControllerTest {
         long competitionId = this.competitionRepository.findCompetitionByUserCreated(alexander).get(0).getCompetitionId();
 
         this.mockMvc.perform(delete("/competitions/delete/" + competitionId).header("token", wrongToken).contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isNotFound())
+                .andExpect(status().isUnauthorized())
                 .andDo(print());
     }
 

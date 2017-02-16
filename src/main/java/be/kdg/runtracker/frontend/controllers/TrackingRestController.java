@@ -4,6 +4,9 @@ import be.kdg.runtracker.backend.dom.competition.Competition;
 import be.kdg.runtracker.backend.dom.profile.User;
 import be.kdg.runtracker.backend.dom.tracking.Coordinate;
 import be.kdg.runtracker.backend.dom.tracking.Tracking;
+import be.kdg.runtracker.backend.exceptions.NoContentException;
+import be.kdg.runtracker.backend.exceptions.NotFoundException;
+import be.kdg.runtracker.backend.exceptions.UnauthorizedUserException;
 import be.kdg.runtracker.backend.persistence.CompetitionRepository;
 import be.kdg.runtracker.backend.persistence.CoordinatesRepository;
 import be.kdg.runtracker.backend.persistence.TrackingRepository;
@@ -26,7 +29,6 @@ import java.util.List;
 @RequestMapping("/trackings/")
 public class TrackingRestController {
 
-    public static final Logger logger = Logger.getLogger(TrackingRestController.class);
     private TrackingRepository trackingRepository;
     private UserRepository userRepository;
     private CoordinatesRepository coordinatesRepository;
@@ -49,24 +51,12 @@ public class TrackingRestController {
      */
     @RequestMapping(value = "/getAllTrackings", method = RequestMethod.GET)
     public ResponseEntity<List<Tracking>> getAllTrackingsOfUser(@RequestHeader("token") String token) {
-        logger.info("Fetching all Trackings for User with authId " + token + ".");
-
-        System.out.println(JWT.decode(token).getSubject());
         User user = userRepository.findUserByAuthId(JWT.decode(token).getSubject());
-
-        if (user == null) {
-            logger.error("User with authId " + token + "not found!");
-            return new ResponseEntity(new CustomErrorType("User with token " + token + " not found"),
-                    HttpStatus.NOT_FOUND);
-        }
+        if (user == null) throw new UnauthorizedUserException("User with token " + token + " not found, cannot fetch Trackings!");
 
         List<Tracking> trackings = user.getTrackings();
+        if (trackings == null || trackings.isEmpty()) throw new NoContentException("No Trackings found for User with token " + token + "!");
         if (trackings != null && !trackings.isEmpty()) trackings.stream().forEach(tracking -> tracking.setCoordinates(this.coordinatesRepository.readCoordinatesByTrackingId(tracking.getTrackingId())));
-
-        if (trackings == null || trackings.isEmpty()) {
-            return new ResponseEntity(new CustomErrorType("No Trackings found for User with token " + token + "!"),
-                    HttpStatus.NO_CONTENT);
-        }
 
         return new ResponseEntity<List<Tracking>>(trackings, HttpStatus.OK);
     }
@@ -78,31 +68,20 @@ public class TrackingRestController {
      */
     @RequestMapping(value = "/getAllTrackings/{username}", method = RequestMethod.GET)
     public ResponseEntity<List<Tracking>> getAllTrackingsOfFriend(@RequestHeader("token") String token, @PathVariable("username") String username) {
-        logger.info("Fetching all Trackings for User with token " + token + ".");
 
         User user = userRepository.findUserByAuthId(JWT.decode(token).getSubject());
-
-        if (user == null) {
-            logger.error("User with token " + token + "not found!");
-            return new ResponseEntity(new CustomErrorType("User with token " + token + " not found"),
-                    HttpStatus.NOT_FOUND);
-        }
+        if (user == null) throw new UnauthorizedUserException("User with token " + token + " not found");
 
         User friend = userRepository.findUserByUsername(username);
+        if (friend == null) throw new UnauthorizedUserException("User with username " + username + " not found, cannot fetch Trackings!");
         if (!user.getFriends().contains(friend)) {
-            logger.error("Not friends with User with token " + token + "!");
-            return new ResponseEntity(new CustomErrorType("Not friends with User with token " + token + "!"),
+            return new ResponseEntity(new CustomErrorType("Not friends with User with username " + username + "!"),
                     HttpStatus.UNAUTHORIZED);
         }
 
-        // Vraag alle tracking op.
         List<Tracking> trackings = friend.getTrackings();
+        if (trackings == null || trackings.isEmpty()) throw new NoContentException("No Trackings found for User with username " + friend.getUsername() + "!");
         if (trackings != null && !trackings.isEmpty()) trackings.stream().forEach(t -> t.setCoordinates(this.coordinatesRepository.readCoordinatesByTrackingId(t.getTrackingId())));
-
-        if (trackings == null || trackings.isEmpty()) {
-            return new ResponseEntity(new CustomErrorType("No Trackings found for User with username " + friend.getUsername() + "!"),
-                    HttpStatus.NO_CONTENT);
-        }
 
         return new ResponseEntity<List<Tracking>>(trackings, HttpStatus.OK);
     }
@@ -115,21 +94,13 @@ public class TrackingRestController {
      */
     @RequestMapping(value = "getTracking/{trackingId}", method = RequestMethod.GET)
     public ResponseEntity<Tracking> getTrackingFromUser(@RequestHeader("token") String token, @PathVariable("trackingId") long trackingId) {
-        logger.info("Fetching a Tracking with id " + trackingId + " for User with token " + token + ".");
-
         User user = userRepository.findUserByAuthId(JWT.decode(token).getSubject());
-        if (user == null) {
-            logger.error("User with token " + token + "not found!");
-            return new ResponseEntity(new CustomErrorType("User with token " + token + " not found"),
-                    HttpStatus.NOT_FOUND);
-        }
+        if (user == null) throw new UnauthorizedUserException("User with token " + token + " not found, cannot fetch Trackings!");
 
         Tracking tracking = this.trackingRepository.findTrackingByTrackingId(trackingId);
-        if (tracking == null) {
-            return new ResponseEntity(new CustomErrorType("No Tracking with id " + trackingId + " for User with token " + token + "!"),
-                    HttpStatus.NO_CONTENT);
-        }
+        if (tracking == null) throw new NoContentException("No Tracking with id " + trackingId + " for User with token " + token + "!");
         tracking.setCoordinates(this.coordinatesRepository.readCoordinatesByTrackingId(trackingId));
+
         return new ResponseEntity<Tracking>(tracking, HttpStatus.OK);
     }
 
@@ -142,22 +113,14 @@ public class TrackingRestController {
      */
     @RequestMapping(value = "/createTracking",method = RequestMethod.POST)
     public ResponseEntity<?> createTracking(@RequestHeader("token") String token, @RequestBody Tracking tracking, UriComponentsBuilder ucBuilder) {
-        logger.info("Creating a Tracking " + tracking + " for User with token " + token + ".");
-
         User user = userRepository.findUserByAuthId(JWT.decode(token).getSubject());
-
-        if (user == null) {
-            logger.error("User with token " + token + "not found!");
-            return new ResponseEntity(new CustomErrorType("User with token " + token + " not found"),
-                    HttpStatus.NOT_FOUND);
-        }
+        if (user == null) throw new UnauthorizedUserException("User with token " + token + " not found, cannot fetch Trackings!");
 
         tracking.setUser(user);
         user.addTracking(tracking);
 
         this.trackingRepository.save(tracking);
         this.userRepository.save(user);
-        // TODO: Performantere manier zoeken voor onderstaande functie.
         long trackingId = this.trackingRepository.findAll().get(this.trackingRepository.findAll().size() -1).getTrackingId();
 
         tracking.getCoordinates().stream().forEach(t -> t.setTrackingId(trackingId));
@@ -178,21 +141,14 @@ public class TrackingRestController {
      */
     @RequestMapping(value = "/addCoordinateToTracking/{trackingId}",method = RequestMethod.POST)
     public ResponseEntity<?> addCoordinateToTracking(@RequestHeader("token") String token, @PathVariable long trackingId, @RequestBody Coordinate coordinate, UriComponentsBuilder ucBuilder) {
-        logger.info("Creating a Coordinate " + coordinate + " for User with token " + token + ".");
-
         User user = userRepository.findUserByAuthId(JWT.decode(token).getSubject());
+        if (user == null) throw new UnauthorizedUserException("User with token " + token + " not found, cannot fetch Trackings!");
 
-        if (user == null) {
-            logger.error("User with token " + token + "not found!");
-            return new ResponseEntity(new CustomErrorType("User with token " + token + " not found"),
-                    HttpStatus.NOT_FOUND);
-        }
+        Tracking tracking = this.trackingRepository.findTrackingByTrackingId(trackingId);
+        if (tracking == null) throw new NotFoundException("Tracking with id " + trackingId + "not found!");
 
-        if (this.trackingRepository.findTrackingByTrackingId(trackingId) == null) {
-            logger.error("Tracking with id " + trackingId + "not found!");
-            return new ResponseEntity(new CustomErrorType("Tracking with id " + trackingId + "not found!"),
-                    HttpStatus.NOT_FOUND);
-        }
+        tracking.addCoordinate(coordinate);
+        this.trackingRepository.save(tracking);
 
         coordinate.setTrackingId(trackingId);
         this.coordinatesRepository.addCoordinateToCollection(trackingId, coordinate);
@@ -210,32 +166,21 @@ public class TrackingRestController {
      */
     @RequestMapping(value = "deleteTracking/{trackingId}", method = RequestMethod.DELETE)
     public ResponseEntity<?> deleteTrackingFromUser(@RequestHeader("token") String token, @PathVariable("trackingId") long trackingId) {
-        logger.info("Deleting a Tracking with id " + trackingId + " for User with token " + token + ".");
-
         User user = userRepository.findUserByAuthId(JWT.decode(token).getSubject());
-        Tracking tracking = trackingRepository.findTrackingByTrackingId(trackingId);
+        if (user == null) throw new UnauthorizedUserException("User with token " + token + " not found, cannot fetch Trackings!");
+
+        Tracking tracking = this.trackingRepository.findTrackingByTrackingId(trackingId);
+        if (tracking == null) throw new NotFoundException("Tracking with id " + trackingId + "not found!");
+
         Competition competition = null;
         if (tracking != null) competition = tracking.getCompetition();
-
-        if (user == null) {
-            logger.error("\nUser with token " + token + " not found!\n");
-            return new ResponseEntity(new CustomErrorType("User with token " + token + " not found"),
-                    HttpStatus.NOT_FOUND);
-        }
-
-        if (tracking == null) {
-            logger.error("No Tracking with id " + trackingId + " for User with token " + token + "!");
-            return new ResponseEntity(new CustomErrorType("No Tracking with id " + trackingId + " for User with token " + token + "!"),
-                    HttpStatus.NOT_FOUND);
-        }
 
         if (user.getTrackings().contains(tracking)) {
             user.getTrackings().remove(tracking);
             this.coordinatesRepository.deleteCoordinatesCollection(trackingId);
             this.userRepository.save(user);
         } else {
-            return new ResponseEntity(new CustomErrorType("User with token " + token + "does not have Tracking with trackingId " + trackingId + "."),
-                    HttpStatus.NOT_FOUND);
+            throw new NotFoundException("User with token " + token + "does not have Tracking with trackingId " + trackingId + ".");
         }
 
         if (competition != null) {

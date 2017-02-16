@@ -10,6 +10,7 @@ import javax.persistence.*;
 import java.io.Serializable;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -151,5 +152,10 @@ public class Tracking implements Serializable {
 
     public void setCompetition(Competition competition) {
         this.competition = competition;
+    }
+
+    public void addCoordinate(Coordinate coordinate) {
+        if (this.coordinates == null) this.coordinates = new ArrayList<>();
+        this.coordinates.add(coordinate);
     }
 }
