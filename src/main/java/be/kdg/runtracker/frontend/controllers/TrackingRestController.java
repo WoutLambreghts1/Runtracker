@@ -7,13 +7,12 @@ import be.kdg.runtracker.backend.dom.tracking.Tracking;
 import be.kdg.runtracker.backend.exceptions.NoContentException;
 import be.kdg.runtracker.backend.exceptions.NotFoundException;
 import be.kdg.runtracker.backend.exceptions.UnauthorizedUserException;
-import be.kdg.runtracker.backend.persistence.CompetitionRepository;
-import be.kdg.runtracker.backend.persistence.CoordinatesRepository;
-import be.kdg.runtracker.backend.persistence.TrackingRepository;
-import be.kdg.runtracker.backend.persistence.UserRepository;
+import be.kdg.runtracker.backend.persistence.api.CompetitionRepository;
+import be.kdg.runtracker.backend.persistence.api.CoordinatesRepository;
+import be.kdg.runtracker.backend.persistence.api.TrackingRepository;
+import be.kdg.runtracker.backend.persistence.api.UserRepository;
 import be.kdg.runtracker.frontend.util.CustomErrorType;
 import com.auth0.jwt.JWT;
-import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.rest.webmvc.RepositoryRestController;
 import org.springframework.http.HttpHeaders;
@@ -49,7 +48,7 @@ public class TrackingRestController {
      * @param token Token
      * @return List of Trackings
      */
-    @RequestMapping(value = "/getAllTrackings", method = RequestMethod.GET)
+    @RequestMapping(method = RequestMethod.GET)
     public ResponseEntity<List<Tracking>> getAllTrackingsOfUser(@RequestHeader("token") String token) {
         User user = userRepository.findUserByAuthId(JWT.decode(token).getSubject());
         if (user == null) throw new UnauthorizedUserException("User with token " + token + " not found, cannot fetch Trackings!");
@@ -164,7 +163,7 @@ public class TrackingRestController {
      * @param trackingId Tracking id
      * @return HTTP status
      */
-    @RequestMapping(value = "deleteTracking/{trackingId}", method = RequestMethod.DELETE)
+    @RequestMapping(value = "/deleteTracking/{trackingId}", method = RequestMethod.DELETE)
     public ResponseEntity<?> deleteTrackingFromUser(@RequestHeader("token") String token, @PathVariable("trackingId") long trackingId) {
         User user = userRepository.findUserByAuthId(JWT.decode(token).getSubject());
         if (user == null) throw new UnauthorizedUserException("User with token " + token + " not found, cannot fetch Trackings!");

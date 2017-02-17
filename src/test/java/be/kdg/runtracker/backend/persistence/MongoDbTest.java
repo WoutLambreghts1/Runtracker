@@ -1,6 +1,7 @@
 package be.kdg.runtracker.backend.persistence;
 
 import be.kdg.runtracker.backend.dom.tracking.Coordinate;
+import be.kdg.runtracker.backend.persistence.api.CoordinatesRepository;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runner.RunWith;

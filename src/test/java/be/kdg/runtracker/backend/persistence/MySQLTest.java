@@ -6,6 +6,7 @@ package be.kdg.runtracker.backend.persistence;
 
 import be.kdg.runtracker.backend.dom.profile.Gender;
 import be.kdg.runtracker.backend.dom.profile.User;
+import be.kdg.runtracker.backend.persistence.api.UserRepository;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runner.RunWith;

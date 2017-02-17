@@ -1,16 +1,16 @@
 package be.kdg.runtracker.frontend.controllers;
 
 import be.kdg.runtracker.backend.dom.competition.Competition;
-import be.kdg.runtracker.backend.dom.competition.Goal;
 import be.kdg.runtracker.backend.dom.profile.User;
 import be.kdg.runtracker.backend.dom.tracking.Tracking;
 import be.kdg.runtracker.backend.exceptions.NoContentException;
 import be.kdg.runtracker.backend.exceptions.NotFoundException;
 import be.kdg.runtracker.backend.exceptions.UnauthorizedUserException;
-import be.kdg.runtracker.backend.persistence.*;
+import be.kdg.runtracker.backend.persistence.api.TrackingRepository;
+import be.kdg.runtracker.backend.persistence.api.UserRepository;
+import be.kdg.runtracker.backend.services.api.CompetitionService;
 import be.kdg.runtracker.frontend.util.CustomErrorType;
 import com.auth0.jwt.JWT;
-import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.rest.webmvc.RepositoryRestController;
 import org.springframework.http.HttpHeaders;
@@ -19,6 +19,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import java.util.Date;
 import java.util.List;
 
 @RepositoryRestController
@@ -26,20 +27,15 @@ import java.util.List;
 @RequestMapping("/competitions/")
 public class CompetitionRestController {
 
-    public static final Logger logger = Logger.getLogger(CompetitionRestController.class);
-    private CompetitionRepository competitionRepository;
+    private CompetitionService competitionService;
     private UserRepository userRepository;
     private TrackingRepository trackingRepository;
-    private CoordinatesRepository coordinatesRepository;
-    private GoalRepository goalRepository;
 
     @Autowired
-    public CompetitionRestController(CompetitionRepository competitionRepository, UserRepository userRepository, TrackingRepository trackingRepository, CoordinatesRepository coordinatesRepository, GoalRepository goalRepository) {
-        this.competitionRepository = competitionRepository;
+    public CompetitionRestController(CompetitionService competitionService, UserRepository userRepository, TrackingRepository trackingRepository) {
+        this.competitionService = competitionService;
         this.userRepository = userRepository;
         this.trackingRepository = trackingRepository;
-        this.coordinatesRepository = coordinatesRepository;
-        this.goalRepository = goalRepository;
     }
 
     protected CompetitionRestController() { }
@@ -53,7 +49,7 @@ public class CompetitionRestController {
         User user = userRepository.findUserByAuthId(JWT.decode(token).getSubject());
         if (user == null) throw new UnauthorizedUserException("User with token " + token + " not found, cannot fetch Competitions!");
 
-        List<Competition> competitions = this.competitionRepository.findAll();
+        List<Competition> competitions = this.competitionService.findAllCompetitions();
         if (competitions == null || competitions.isEmpty()) throw new NoContentException("No Competitions were found!");
 
         return new ResponseEntity<List<Competition>>(competitions, HttpStatus.OK);
@@ -122,7 +118,7 @@ public class CompetitionRestController {
         competition.setUserCreated(user);
         user.addCompetitionsCreated(competition);
 
-        competitionRepository.save(competition);
+        competitionService.saveCompetition(competition);
         userRepository.save(user);
 
         HttpHeaders headers = new HttpHeaders();
@@ -142,13 +138,36 @@ public class CompetitionRestController {
         User user = userRepository.findUserByAuthId(JWT.decode(token).getSubject());
         if (user == null) throw new UnauthorizedUserException("User with token " + token + " not found, cannot fetch ran Competitions!");
 
-        Competition competition = this.competitionRepository.findCompetitionByCompetitionId(competitionId);
+        System.err.println("\nUser with authId " + JWT.decode(token).getSubject() + " not found, cannot fetch ran Competitions!\n");
+
+        Competition competition = this.competitionService.findCompetitionByCompetitionId(competitionId);
         if (competition == null) throw new NotFoundException("Competition with id " + competitionId + " not found!");
+
+        // TODO: Testen of een user nog kan deelnemen aan een competitie die vol zit of voorbij is.
+
+        if (competition.isFinished()) {
+            System.err.println("Competition with id " + competitionId + " has finished!");
+            return new ResponseEntity(new CustomErrorType("Competition with id " + competitionId + " has finished!"),
+                    HttpStatus.UNAUTHORIZED);
+        }
+
+        if (competition.getDeadline().before(new Date())) {
+            System.err.println("Deadline for Competition with id " + competitionId + " has passed!");
+            if (competition.isFinished() == false) competition.isFinished();
+            return new ResponseEntity(new CustomErrorType("Deadline for Competition with id " + competitionId + " has passed!"),
+                    HttpStatus.UNAUTHORIZED);
+        }
+
+        if (competition.getMaxParticipants() <= competition.getUsersRun().size()) {
+            System.err.println("Max participants reached for Competition with id " + competitionId + "!");
+            return new ResponseEntity(new CustomErrorType("Max participants reached for Competition with id " + competitionId + "!"),
+                    HttpStatus.UNAUTHORIZED);
+        }
 
         competition.addRunner(user);
         user.addCompetitionsRan(competition);
 
-        competitionRepository.save(competition);
+        competitionService.saveCompetition(competition);
         userRepository.save(user);
 
         HttpHeaders headers = new HttpHeaders();
@@ -168,13 +187,13 @@ public class CompetitionRestController {
         User user = userRepository.findUserByAuthId(JWT.decode(token).getSubject());
         if (user == null) throw new UnauthorizedUserException("User with token " + token + " not found, User cannot win Competition!");
 
-        Competition competition = this.competitionRepository.findCompetitionByCompetitionId(competitionId);
+        Competition competition = this.competitionService.findCompetitionByCompetitionId(competitionId);
         if (competition == null) throw new NotFoundException("Competition with id " + competitionId + " not found!");
 
         competition.setUserWon(user);
         user.addCompetitionsWon(competition);
 
-        competitionRepository.save(competition);
+        competitionService.saveCompetition(competition);
         userRepository.save(user);
 
         HttpHeaders headers = new HttpHeaders();
@@ -193,43 +212,15 @@ public class CompetitionRestController {
         User user = userRepository.findUserByAuthId(JWT.decode(token).getSubject());
         if (user == null) throw new UnauthorizedUserException("User with token " + token + " not found, cannot delete Competition!");
 
-        Competition competition = this.competitionRepository.findCompetitionByCompetitionId(competitionId);
+        Competition competition = this.competitionService.findCompetitionByCompetitionId(competitionId);
         if (competition == null) throw new NotFoundException("Competition with id " + competitionId + " not found!");
 
         if (!user.getCompetitionsCreated().contains(competition)) {
-            logger.error("Cannot delete Competition that User did not create!");
             return new ResponseEntity(new CustomErrorType("Cannot delete Competition that User did not create!"),
                     HttpStatus.UNAUTHORIZED);
         }
 
-        List<Tracking> trackings = competition.getTrackings();
-        if (trackings != null && !trackings.isEmpty()) {
-            for (Tracking tracking : trackings) {
-                tracking.setCompetition(null);
-                tracking.setUser(null);
-                this.trackingRepository.save(tracking);
-                this.trackingRepository.delete(tracking.getTrackingId());
-            }
-        }
-
-        if (user.getCompetitionsCreated() != null && user.getCompetitionsCreated().contains(competition))
-            user.getCompetitionsCreated().remove(competition);
-        if (user.getCompetitionsRun() != null && user.getCompetitionsRun().contains(competition))
-            user.getCompetitionsRun().remove(competition);
-        if (user.getCompetitionsWon() != null && user.getCompetitionsWon().contains(competition))
-            user.getCompetitionsWon().remove(competition);
-        this.userRepository.save(user);
-
-        competition.setUserCreated(null);
-        competition.setUsersRun(null);
-        competition.setUserWon(null);
-        competition.setTrackings(null);
-        this.competitionRepository.save(competition);
-
-        Goal goal = competition.getGoal();
-        if (goal != null) this.goalRepository.delete(goal.getGoalId());
-
-        this.competitionRepository.delete(competition.getCompetitionId());
+        this.competitionService.deleteCompetition(user, competition);
 
         return new ResponseEntity<User>(HttpStatus.NO_CONTENT);
     }
@@ -239,19 +230,35 @@ public class CompetitionRestController {
         User user = userRepository.findUserByAuthId(JWT.decode(token).getSubject());
         if (user == null) throw new UnauthorizedUserException("User with token " + token + " not found, cannot add Tracking to Competition!");
 
-        Competition competition = this.competitionRepository.findCompetitionByCompetitionId(competitionId);
+        Competition competition = this.competitionService.findCompetitionByCompetitionId(competitionId);
         if (competition == null) throw new NoContentException("Competition with id " + competitionId + " not found!");
+
+        if (competition.isFinished() || (competition.getMaxParticipants() <= competition.getUsersRun().size())) {
+            return new ResponseEntity(new CustomErrorType("Cannot add tracking to Competition because it is finished or because the max participants have been reached!"),
+                    HttpStatus.UNAUTHORIZED);
+        }
 
         competition.addTracking(tracking);
         user.addTracking(tracking);
 
         this.trackingRepository.save(tracking);
-        this.competitionRepository.save(competition);
+        this.competitionService.saveCompetition(competition);
         this.userRepository.save(user);
 
         HttpHeaders headers = new HttpHeaders();
         headers.setLocation(ucBuilder.path("/api/users/getUser").buildAndExpand(user.getAuthId()).toUri());
         return new ResponseEntity<String>(headers, HttpStatus.CREATED);
+    }
+
+    @RequestMapping(value = "/getAvailableCompetitions", method = RequestMethod.GET)
+    public ResponseEntity<List<Competition>> getAvailableCompetitions(@RequestHeader("token") String token) {
+        User user = userRepository.findUserByAuthId(JWT.decode(token).getSubject());
+        if (user == null) throw new UnauthorizedUserException("User with token " + token + " not found, cannot fetch available Competitions!");
+
+        List<Competition> availableCompetitions = this.competitionService.findAvailableCompetitions();
+        if (availableCompetitions.isEmpty()) throw new NoContentException("No available Competitions!");
+
+        return new ResponseEntity<List<Competition>>(availableCompetitions, HttpStatus.OK);
     }
 
 }

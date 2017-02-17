@@ -1,6 +1,7 @@
-package be.kdg.runtracker.backend.persistence;
+package be.kdg.runtracker.backend.persistence.impl;
 
 import be.kdg.runtracker.backend.dom.tracking.Coordinate;
+import be.kdg.runtracker.backend.persistence.api.CoordinatesRepository;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
 import org.springframework.beans.factory.annotation.Autowired;

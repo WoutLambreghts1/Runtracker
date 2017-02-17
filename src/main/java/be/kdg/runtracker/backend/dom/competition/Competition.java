@@ -14,6 +14,7 @@ import java.sql.Date;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
+import java.util.TimeZone;
 
 /**
  * @author Wout
@@ -41,6 +42,10 @@ public class Competition implements Serializable {
     @NotNull
     private int maxParticipants;
 
+    @Basic
+    @NotNull
+    private boolean isFinished;
+
     @ManyToOne(targetEntity = Goal.class,fetch = FetchType.EAGER)
     private Goal goal;
 
@@ -58,12 +63,17 @@ public class Competition implements Serializable {
     @LazyCollection(LazyCollectionOption.FALSE)
     private List<User> usersRun;
 
-    public Competition(User userCreated, Goal goal, CompetitionType competitionType,int deadlineInAmountOfDays,int maxParticipants) {
+    public Competition(User userCreated, Goal goal, CompetitionType competitionType, int deadlineInAmountOfDays, int maxParticipants) {
         this.userCreated = userCreated;
         this.goal = goal;
         this.competitionType = competitionType;
-        this.deadline = new Date(Calendar.getInstance().getTime().getTime() + deadlineInAmountOfDays);
         this.maxParticipants = maxParticipants;
+        this.isFinished = false;
+
+        Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("Europe/Brussels"));
+        calendar.add(Calendar.DATE, deadlineInAmountOfDays);
+        this.deadline = new Date(calendar.getTimeInMillis());
+
         addRunner(userCreated);
     }
 
@@ -175,6 +185,13 @@ public class Competition implements Serializable {
         }
     }
 
+    public boolean isFinished() {
+        return isFinished;
+    }
+
+    public void setFinished() {
+        this.isFinished = true;
+    }
 
     @Override
     public boolean equals(Object o) {

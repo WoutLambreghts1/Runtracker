@@ -1,4 +1,4 @@
-package be.kdg.runtracker.backend.persistence;
+package be.kdg.runtracker.backend.persistence.api;
 
 import be.kdg.runtracker.backend.dom.tracking.Coordinate;
 

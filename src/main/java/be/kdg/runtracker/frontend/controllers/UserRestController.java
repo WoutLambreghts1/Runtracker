@@ -7,13 +7,12 @@ import be.kdg.runtracker.backend.dom.tracking.Tracking;
 import be.kdg.runtracker.backend.exceptions.NoContentException;
 import be.kdg.runtracker.backend.exceptions.UnauthorizedUserException;
 import be.kdg.runtracker.backend.exceptions.UserNotFoundException;
-import be.kdg.runtracker.backend.persistence.CompetitionRepository;
-import be.kdg.runtracker.backend.persistence.GoalRepository;
-import be.kdg.runtracker.backend.persistence.TrackingRepository;
-import be.kdg.runtracker.backend.persistence.UserRepository;
+import be.kdg.runtracker.backend.persistence.api.CompetitionRepository;
+import be.kdg.runtracker.backend.persistence.api.GoalRepository;
+import be.kdg.runtracker.backend.persistence.api.TrackingRepository;
+import be.kdg.runtracker.backend.persistence.api.UserRepository;
 import be.kdg.runtracker.frontend.util.CustomErrorType;
 import com.auth0.jwt.JWT;
-import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.rest.webmvc.RepositoryRestController;
 import org.springframework.http.HttpHeaders;
@@ -30,7 +29,6 @@ import java.util.List;
 @RequestMapping("/users/")
 public class UserRestController {
 
-    public static final Logger logger = Logger.getLogger(UserRestController.class);
     private UserRepository userRepository;
     private TrackingRepository trackingRepository;
     private CompetitionRepository competitionRepository;
@@ -83,7 +81,6 @@ public class UserRestController {
     public ResponseEntity<?> createUser(@RequestHeader("token") String token,@RequestBody User user, UriComponentsBuilder ucBuilder) {
         user.setAuthId(JWT.decode(token).getSubject());
         if (userRepository.findUserByAuthId(user.getAuthId()) != null) {
-            logger.error("A User with name " + user.getFirstname() + " " + user.getLastname() + " already exists!");
             return new ResponseEntity("A User with name " + user.getFirstname() + " " + user.getLastname() + " already exists!",
                     HttpStatus.CONFLICT
             );
@@ -170,7 +167,6 @@ public class UserRestController {
         if (currentUser == null) throw new UnauthorizedUserException("User with token " + token + " not found, cannot add friend!");
 
         if (currentUser.getUsername().equals(username)) {
-            logger.error("A User can't befriend itself!");
             return new ResponseEntity(new CustomErrorType("A User can't befriend itself!"),
                     HttpStatus.UNAUTHORIZED
             );
@@ -188,9 +184,7 @@ public class UserRestController {
     }
 
     @RequestMapping(value = "/checkUsername/{username}", method = RequestMethod.GET)
-    public ResponseEntity<?> checkUsernameAvailability(@RequestHeader("token") String token,@PathVariable("username") String username) {
-        logger.info("Checking if username " + username + " is available.");
-
+    public ResponseEntity<?> checkUsernameAvailability(@RequestHeader("token") String token, @PathVariable("username") String username) {
         boolean available = false;
 
         if (this.userRepository.findUserByUsername(username) == null || this.userRepository.findUserByAuthId(JWT.decode(token).getSubject()).getUsername().equals(username)) available = true;
