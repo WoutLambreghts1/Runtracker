@@ -98,4 +98,9 @@ public class CompetitionServiceImpl implements CompetitionService {
 
         this.competitionRepository.delete(competition.getCompetitionId());
     }
+
+    public void deleteCompetition(long competitionId) {
+        this.competitionRepository.delete(competitionId);
+    }
+
 }

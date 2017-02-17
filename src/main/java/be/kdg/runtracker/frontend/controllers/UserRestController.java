@@ -11,6 +11,8 @@ import be.kdg.runtracker.backend.persistence.api.CompetitionRepository;
 import be.kdg.runtracker.backend.persistence.api.GoalRepository;
 import be.kdg.runtracker.backend.persistence.api.TrackingRepository;
 import be.kdg.runtracker.backend.persistence.api.UserRepository;
+import be.kdg.runtracker.backend.services.api.CompetitionService;
+import be.kdg.runtracker.backend.services.api.GoalService;
 import be.kdg.runtracker.frontend.util.CustomErrorType;
 import com.auth0.jwt.JWT;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,15 +33,15 @@ public class UserRestController {
 
     private UserRepository userRepository;
     private TrackingRepository trackingRepository;
-    private CompetitionRepository competitionRepository;
-    private GoalRepository goalRepository;
+    private CompetitionService competitionService;
+    private GoalService goalService;
 
     @Autowired
-    public UserRestController(UserRepository userRepository, TrackingRepository trackingRepository, CompetitionRepository competitionRepository, GoalRepository goalRepository) {
+    public UserRestController(UserRepository userRepository, TrackingRepository trackingRepository, CompetitionService competitionService, GoalService goalService) {
         this.userRepository = userRepository;
         this.trackingRepository = trackingRepository;
-        this.competitionRepository = competitionRepository;
-        this.goalRepository = goalRepository;
+        this.competitionService = competitionService;
+        this.goalService = goalService;
     }
 
     protected UserRestController() { }
@@ -150,10 +152,10 @@ public class UserRestController {
                 competition.setUsersRun(null);
                 competition.setUserWon(null);
                 goals.add(competition.getGoal());
-                this.competitionRepository.save(competition);
-                this.competitionRepository.delete(competition.getCompetitionId());
+                this.competitionService.saveCompetition(competition);
+                this.competitionService.deleteCompetition(competition.getCompetitionId());
             }
-            if (!goals.isEmpty()) this.goalRepository.delete(goals);
+            if (!goals.isEmpty()) this.goalService.deleteGoals(goals);
         }
 
         this.userRepository.delete(user.getUserId());

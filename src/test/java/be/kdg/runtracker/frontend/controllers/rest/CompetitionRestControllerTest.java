@@ -11,6 +11,8 @@ import be.kdg.runtracker.backend.persistence.api.TrackingRepository;
 import be.kdg.runtracker.backend.persistence.api.UserRepository;
 import com.auth0.jwt.JWT;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -71,6 +73,9 @@ public class CompetitionRestControllerTest {
 
     @Before
     public void setup() {
+        Logger log = Logger.getLogger("org.hibernate");
+        log.setLevel(Level.WARN);
+
         tokenAlexander = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWV9.TJVA95OrM7E2cBab30RMHrHDcEfxjoYZgeFONFh7HgQ";
         this.alexander = new User();
         this.alexander.setAuthId(JWT.decode(tokenAlexander).getSubject());

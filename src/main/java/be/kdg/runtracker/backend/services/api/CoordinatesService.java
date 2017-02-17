@@ -8,10 +8,10 @@ public interface CoordinatesService {
 
     List<Coordinate> readCoordinatesByTrackingId(long trackingId);
 
-    void createCoordinatesCollection(long trackingId, List<Coordinate> coordinates);
-
-    void addCoordinateToCollection(long trackingId, Coordinate coordinate);
+    void createCoordinatesCollection(long trackingId,List<Coordinate> coordinates);
 
     void deleteCoordinatesCollection(long trackingId);
+
+    void addCoordinateToCollection(long trackingId,Coordinate coordinate);
 
 }

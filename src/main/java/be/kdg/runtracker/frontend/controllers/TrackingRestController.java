@@ -11,6 +11,7 @@ import be.kdg.runtracker.backend.persistence.api.CompetitionRepository;
 import be.kdg.runtracker.backend.persistence.api.CoordinatesRepository;
 import be.kdg.runtracker.backend.persistence.api.TrackingRepository;
 import be.kdg.runtracker.backend.persistence.api.UserRepository;
+import be.kdg.runtracker.backend.services.api.CoordinatesService;
 import be.kdg.runtracker.frontend.util.CustomErrorType;
 import com.auth0.jwt.JWT;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,14 +31,14 @@ public class TrackingRestController {
 
     private TrackingRepository trackingRepository;
     private UserRepository userRepository;
-    private CoordinatesRepository coordinatesRepository;
+    private CoordinatesService coordinatesService;
     private CompetitionRepository competitionRepository;
 
     @Autowired
-    public TrackingRestController(TrackingRepository trackingRepository, UserRepository userRepository, CoordinatesRepository coordinatesRepository, CompetitionRepository competitionRepository) {
+    public TrackingRestController(TrackingRepository trackingRepository, UserRepository userRepository, CoordinatesService coordinatesService, CompetitionRepository competitionRepository) {
         this.trackingRepository = trackingRepository;
         this.userRepository = userRepository;
-        this.coordinatesRepository = coordinatesRepository;
+        this.coordinatesService = coordinatesService;
         this.competitionRepository = competitionRepository;
     }
 
@@ -55,7 +56,7 @@ public class TrackingRestController {
 
         List<Tracking> trackings = user.getTrackings();
         if (trackings == null || trackings.isEmpty()) throw new NoContentException("No Trackings found for User with token " + token + "!");
-        if (trackings != null && !trackings.isEmpty()) trackings.stream().forEach(tracking -> tracking.setCoordinates(this.coordinatesRepository.readCoordinatesByTrackingId(tracking.getTrackingId())));
+        if (trackings != null && !trackings.isEmpty()) trackings.stream().forEach(tracking -> tracking.setCoordinates(this.coordinatesService.readCoordinatesByTrackingId(tracking.getTrackingId())));
 
         return new ResponseEntity<List<Tracking>>(trackings, HttpStatus.OK);
     }
@@ -80,7 +81,7 @@ public class TrackingRestController {
 
         List<Tracking> trackings = friend.getTrackings();
         if (trackings == null || trackings.isEmpty()) throw new NoContentException("No Trackings found for User with username " + friend.getUsername() + "!");
-        if (trackings != null && !trackings.isEmpty()) trackings.stream().forEach(t -> t.setCoordinates(this.coordinatesRepository.readCoordinatesByTrackingId(t.getTrackingId())));
+        if (trackings != null && !trackings.isEmpty()) trackings.stream().forEach(t -> t.setCoordinates(this.coordinatesService.readCoordinatesByTrackingId(t.getTrackingId())));
 
         return new ResponseEntity<List<Tracking>>(trackings, HttpStatus.OK);
     }
@@ -98,7 +99,7 @@ public class TrackingRestController {
 
         Tracking tracking = this.trackingRepository.findTrackingByTrackingId(trackingId);
         if (tracking == null) throw new NoContentException("No Tracking with id " + trackingId + " for User with token " + token + "!");
-        tracking.setCoordinates(this.coordinatesRepository.readCoordinatesByTrackingId(trackingId));
+        tracking.setCoordinates(this.coordinatesService.readCoordinatesByTrackingId(trackingId));
 
         return new ResponseEntity<Tracking>(tracking, HttpStatus.OK);
     }
@@ -123,7 +124,7 @@ public class TrackingRestController {
         long trackingId = this.trackingRepository.findAll().get(this.trackingRepository.findAll().size() -1).getTrackingId();
 
         tracking.getCoordinates().stream().forEach(t -> t.setTrackingId(trackingId));
-        this.coordinatesRepository.createCoordinatesCollection(trackingId, tracking.getCoordinates());
+        this.coordinatesService.createCoordinatesCollection(trackingId, tracking.getCoordinates());
 
         HttpHeaders headers = new HttpHeaders();
         headers.setLocation(ucBuilder.path("/api/users/getuser").buildAndExpand(user.getAuthId()).toUri());
@@ -150,7 +151,7 @@ public class TrackingRestController {
         this.trackingRepository.save(tracking);
 
         coordinate.setTrackingId(trackingId);
-        this.coordinatesRepository.addCoordinateToCollection(trackingId, coordinate);
+        this.coordinatesService.addCoordinateToCollection(trackingId, coordinate);
 
         HttpHeaders headers = new HttpHeaders();
         headers.setLocation(ucBuilder.path("/api/users/getuser").buildAndExpand(user.getAuthId()).toUri());
@@ -176,7 +177,7 @@ public class TrackingRestController {
 
         if (user.getTrackings().contains(tracking)) {
             user.getTrackings().remove(tracking);
-            this.coordinatesRepository.deleteCoordinatesCollection(trackingId);
+            this.coordinatesService.deleteCoordinatesCollection(trackingId);
             this.userRepository.save(user);
         } else {
             throw new NotFoundException("User with token " + token + "does not have Tracking with trackingId " + trackingId + ".");
@@ -187,7 +188,7 @@ public class TrackingRestController {
             this.competitionRepository.save(competition);
         }
 
-        this.coordinatesRepository.deleteCoordinatesCollection(trackingId);
+        this.coordinatesService.deleteCoordinatesCollection(trackingId);
         this.trackingRepository.delete(trackingId);
 
         return new ResponseEntity<Tracking>(HttpStatus.NO_CONTENT);
