@@ -8,6 +8,7 @@ import be.kdg.runtracker.backend.persistence.api.CompetitionRepository;
 import be.kdg.runtracker.backend.persistence.api.GoalRepository;
 import be.kdg.runtracker.backend.persistence.api.TrackingRepository;
 import be.kdg.runtracker.backend.persistence.api.UserRepository;
+import be.kdg.runtracker.backend.persistence.impl.CoordinatesRepositoryMongo;
 import be.kdg.runtracker.backend.services.api.CompetitionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -23,17 +24,18 @@ public class CompetitionServiceImpl implements CompetitionService {
 
     private CompetitionRepository competitionRepository;
     private TrackingRepository trackingRepository;
+    private CoordinatesRepositoryMongo coordinatesRepositoryMongo;
     private GoalRepository goalRepository;
     private UserRepository userRepository;
 
     @Autowired
-    public CompetitionServiceImpl(CompetitionRepository competitionRepository, TrackingRepository trackingRepository, UserRepository userRepository, GoalRepository goalRepository) {
+    public CompetitionServiceImpl(CompetitionRepository competitionRepository, TrackingRepository trackingRepository, CoordinatesRepositoryMongo coordinatesRepositoryMongo, UserRepository userRepository, GoalRepository goalRepository) {
         this.competitionRepository = competitionRepository;
         this.trackingRepository = trackingRepository;
+        this.coordinatesRepositoryMongo = coordinatesRepositoryMongo;
         this.goalRepository = goalRepository;
         this.userRepository = userRepository;
     }
-
 
     @Override
     public List<Competition> findAllCompetitions() {
@@ -75,9 +77,19 @@ public class CompetitionServiceImpl implements CompetitionService {
                 tracking.setCompetition(null);
                 tracking.setUser(null);
                 this.trackingRepository.save(tracking);
+                this.coordinatesRepositoryMongo.deleteCoordinatesCollection(tracking.getTrackingId());
                 this.trackingRepository.delete(tracking.getTrackingId());
             }
         }
+
+        Goal goal = competition.getGoal();
+        if (goal != null) this.goalRepository.delete(goal.getGoalId());
+
+        competition.setUserCreated(null);
+        competition.setUsersRun(null);
+        competition.setUserWon(null);
+        competition.setTrackings(null);
+        this.competitionRepository.save(competition);
 
         if (user.getCompetitionsCreated() != null && user.getCompetitionsCreated().contains(competition))
             user.getCompetitionsCreated().remove(competition);
@@ -87,20 +99,7 @@ public class CompetitionServiceImpl implements CompetitionService {
             user.getCompetitionsWon().remove(competition);
         this.userRepository.save(user);
 
-        competition.setUserCreated(null);
-        competition.setUsersRun(null);
-        competition.setUserWon(null);
-        competition.setTrackings(null);
-        this.competitionRepository.save(competition);
-
-        Goal goal = competition.getGoal();
-        if (goal != null) this.goalRepository.delete(goal.getGoalId());
-
         this.competitionRepository.delete(competition.getCompetitionId());
-    }
-
-    public void deleteCompetition(long competitionId) {
-        this.competitionRepository.delete(competitionId);
     }
 
 }

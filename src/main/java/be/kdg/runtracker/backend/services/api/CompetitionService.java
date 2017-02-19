@@ -17,6 +17,4 @@ public interface CompetitionService {
 
     void deleteCompetition(User user, Competition competition);
 
-    void deleteCompetition(long competionId);
-
 }

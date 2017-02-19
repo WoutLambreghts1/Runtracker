@@ -6,13 +6,12 @@ import be.kdg.runtracker.backend.dom.tracking.Tracking;
 import be.kdg.runtracker.backend.exceptions.NoContentException;
 import be.kdg.runtracker.backend.exceptions.NotFoundException;
 import be.kdg.runtracker.backend.exceptions.UnauthorizedUserException;
-import be.kdg.runtracker.backend.persistence.api.TrackingRepository;
-import be.kdg.runtracker.backend.persistence.api.UserRepository;
 import be.kdg.runtracker.backend.services.api.CompetitionService;
+import be.kdg.runtracker.backend.services.api.TrackingService;
+import be.kdg.runtracker.backend.services.api.UserService;
 import be.kdg.runtracker.frontend.util.CustomErrorType;
 import com.auth0.jwt.JWT;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.rest.webmvc.RepositoryRestController;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,20 +21,20 @@ import org.springframework.web.util.UriComponentsBuilder;
 import java.util.Date;
 import java.util.List;
 
-@RepositoryRestController
+@RestController
 @CrossOrigin
 @RequestMapping("/competitions/")
 public class CompetitionRestController {
 
     private CompetitionService competitionService;
-    private UserRepository userRepository;
-    private TrackingRepository trackingRepository;
+    private UserService userService;
+    private TrackingService trackingService;
 
     @Autowired
-    public CompetitionRestController(CompetitionService competitionService, UserRepository userRepository, TrackingRepository trackingRepository) {
+    public CompetitionRestController(CompetitionService competitionService, UserService userService, TrackingService trackingService) {
         this.competitionService = competitionService;
-        this.userRepository = userRepository;
-        this.trackingRepository = trackingRepository;
+        this.userService = userService;
+        this.trackingService = trackingService;
     }
 
     protected CompetitionRestController() { }
@@ -46,7 +45,7 @@ public class CompetitionRestController {
      */
     @RequestMapping(method = RequestMethod.GET)
     public ResponseEntity<List<Competition>> getAllCompetitions(@RequestHeader("token") String token) {
-        User user = userRepository.findUserByAuthId(JWT.decode(token).getSubject());
+        User user = userService.findUserByAuthId(JWT.decode(token).getSubject());
         if (user == null) throw new UnauthorizedUserException("User with token " + token + " not found, cannot fetch Competitions!");
 
         List<Competition> competitions = this.competitionService.findAllCompetitions();
@@ -62,7 +61,7 @@ public class CompetitionRestController {
      */
     @RequestMapping(value = "/getCreatedCompetitions", method = RequestMethod.GET)
     public ResponseEntity<List<Competition>> getAllCreatedCompetitionsFromUser(@RequestHeader("token") String token) {
-        User user = userRepository.findUserByAuthId(JWT.decode(token).getSubject());
+        User user = userService.findUserByAuthId(JWT.decode(token).getSubject());
         if (user == null) throw new UnauthorizedUserException("User with token " + token + " not found, cannot fetch created Competitions!");
 
         List<Competition> competitions = user.getCompetitionsCreated();
@@ -78,7 +77,7 @@ public class CompetitionRestController {
      */
     @RequestMapping(value = "/getWonCompetitions", method = RequestMethod.GET)
     public ResponseEntity<List<Competition>> getAllWonCompetitionsFromUser(@RequestHeader("token") String token) {
-        User user = userRepository.findUserByAuthId(JWT.decode(token).getSubject());
+        User user = userService.findUserByAuthId(JWT.decode(token).getSubject());
         if (user == null) throw new UnauthorizedUserException("User with token " + token + " not found, cannot fetch won Competitions!");
 
         List<Competition> competitions = user.getCompetitionsWon();
@@ -94,7 +93,7 @@ public class CompetitionRestController {
      */
     @RequestMapping(value = "/getRanCompetitions", method = RequestMethod.GET)
     public ResponseEntity<List<Competition>> getAllRunCompetitionsFromUser(@RequestHeader("token") String token) {
-        User user = userRepository.findUserByAuthId(JWT.decode(token).getSubject());
+        User user = userService.findUserByAuthId(JWT.decode(token).getSubject());
         if (user == null) throw new UnauthorizedUserException("User with token " + token + " not found, cannot fetch ran Competitions!");
 
         List<Competition> competitions = user.getCompetitionsRun();
@@ -112,14 +111,14 @@ public class CompetitionRestController {
      */
     @RequestMapping(value = "/createCompetition", method = RequestMethod.POST)
     public ResponseEntity<?> createCompetition(@RequestHeader("token") String token, @RequestBody Competition competition, UriComponentsBuilder ucBuilder) {
-        User user = userRepository.findUserByAuthId(JWT.decode(token).getSubject());
+        User user = userService.findUserByAuthId(JWT.decode(token).getSubject());
         if (user == null) throw new UnauthorizedUserException("User with token " + token + " not found, cannot create Competitions!");
 
         competition.setUserCreated(user);
         user.addCompetitionsCreated(competition);
 
         competitionService.saveCompetition(competition);
-        userRepository.save(user);
+        userService.saveUser(user);
 
         HttpHeaders headers = new HttpHeaders();
         headers.setLocation(ucBuilder.path("/api/users/getUser").buildAndExpand(user.getAuthId()).toUri());
@@ -135,10 +134,8 @@ public class CompetitionRestController {
      */
     @RequestMapping(value = "/running/{competitionId}", method = RequestMethod.POST)
     public ResponseEntity<?> runCompetition(@RequestHeader("token") String token, @PathVariable("competitionId") long competitionId, UriComponentsBuilder ucBuilder) {
-        User user = userRepository.findUserByAuthId(JWT.decode(token).getSubject());
+        User user = userService.findUserByAuthId(JWT.decode(token).getSubject());
         if (user == null) throw new UnauthorizedUserException("User with token " + token + " not found, cannot fetch ran Competitions!");
-
-        System.err.println("\nUser with authId " + JWT.decode(token).getSubject() + " not found, cannot fetch ran Competitions!\n");
 
         Competition competition = this.competitionService.findCompetitionByCompetitionId(competitionId);
         if (competition == null) throw new NotFoundException("Competition with id " + competitionId + " not found!");
@@ -168,7 +165,7 @@ public class CompetitionRestController {
         user.addCompetitionsRan(competition);
 
         competitionService.saveCompetition(competition);
-        userRepository.save(user);
+        userService.saveUser(user);
 
         HttpHeaders headers = new HttpHeaders();
         headers.setLocation(ucBuilder.path("/api/users/getUser").buildAndExpand(user.getAuthId()).toUri());
@@ -184,7 +181,7 @@ public class CompetitionRestController {
      */
     @RequestMapping(value = "/wins/{competitionId}", method = RequestMethod.POST)
     public ResponseEntity<?> wonCompetition(@RequestHeader("token") String token, @PathVariable("competitionId") long competitionId, UriComponentsBuilder ucBuilder) {
-        User user = userRepository.findUserByAuthId(JWT.decode(token).getSubject());
+        User user = userService.findUserByAuthId(JWT.decode(token).getSubject());
         if (user == null) throw new UnauthorizedUserException("User with token " + token + " not found, User cannot win Competition!");
 
         Competition competition = this.competitionService.findCompetitionByCompetitionId(competitionId);
@@ -194,7 +191,7 @@ public class CompetitionRestController {
         user.addCompetitionsWon(competition);
 
         competitionService.saveCompetition(competition);
-        userRepository.save(user);
+        userService.saveUser(user);
 
         HttpHeaders headers = new HttpHeaders();
         headers.setLocation(ucBuilder.path("/api/users/getUser").buildAndExpand(user.getAuthId()).toUri());
@@ -209,7 +206,7 @@ public class CompetitionRestController {
      */
     @RequestMapping(value = "/delete/{competitionId}", method = RequestMethod.DELETE)
     public ResponseEntity<?> deleteCompetition(@RequestHeader("token") String token, @PathVariable("competitionId") long competitionId) {
-        User user = userRepository.findUserByAuthId(JWT.decode(token).getSubject());
+        User user = userService.findUserByAuthId(JWT.decode(token).getSubject());
         if (user == null) throw new UnauthorizedUserException("User with token " + token + " not found, cannot delete Competition!");
 
         Competition competition = this.competitionService.findCompetitionByCompetitionId(competitionId);
@@ -227,7 +224,7 @@ public class CompetitionRestController {
 
     @RequestMapping(value = "/addTracking/{competitionId}", method = RequestMethod.POST)
     public ResponseEntity<?> addTrackingToCompetition(@RequestHeader("token") String token, @PathVariable("competitionId") long competitionId, @RequestBody Tracking tracking, UriComponentsBuilder ucBuilder) {
-        User user = userRepository.findUserByAuthId(JWT.decode(token).getSubject());
+        User user = userService.findUserByAuthId(JWT.decode(token).getSubject());
         if (user == null) throw new UnauthorizedUserException("User with token " + token + " not found, cannot add Tracking to Competition!");
 
         Competition competition = this.competitionService.findCompetitionByCompetitionId(competitionId);
@@ -241,9 +238,9 @@ public class CompetitionRestController {
         competition.addTracking(tracking);
         user.addTracking(tracking);
 
-        this.trackingRepository.save(tracking);
+        this.trackingService.saveTracking(tracking, user);
         this.competitionService.saveCompetition(competition);
-        this.userRepository.save(user);
+        this.userService.saveUser(user);
 
         HttpHeaders headers = new HttpHeaders();
         headers.setLocation(ucBuilder.path("/api/users/getUser").buildAndExpand(user.getAuthId()).toUri());
@@ -252,7 +249,7 @@ public class CompetitionRestController {
 
     @RequestMapping(value = "/getAvailableCompetitions", method = RequestMethod.GET)
     public ResponseEntity<List<Competition>> getAvailableCompetitions(@RequestHeader("token") String token) {
-        User user = userRepository.findUserByAuthId(JWT.decode(token).getSubject());
+        User user = userService.findUserByAuthId(JWT.decode(token).getSubject());
         if (user == null) throw new UnauthorizedUserException("User with token " + token + " not found, cannot fetch available Competitions!");
 
         List<Competition> availableCompetitions = this.competitionService.findAvailableCompetitions();

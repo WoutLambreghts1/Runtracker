@@ -352,33 +352,54 @@ public class CompetitionRestControllerTest {
 
     @After
     public void removeTestObjects() {
-        List<Tracking> trackings = this.trackingRepository.findAll();
-        for (Tracking tracking : trackings) {
-            tracking.setUser(null);
-            tracking.setCompetition(null);
-            this.trackingRepository.save(tracking);
-        }
+        /*System.err.println("\n" + this.competitionRepository.findCompetitionByUserCreated(alexander) + "\n");
+        if (this.competitionRepository.findCompetitionByUserCreated(alexander) != null && !this.competitionRepository.findCompetitionByUserCreated(alexander).isEmpty()) {
+            this.competition1.setTrackings(new ArrayList<>());
+            this.competition1.setUsersRun(new ArrayList<>());
+            this.competition1.setUserWon(null);
+            this.competition1.setUserCreated(null);
+            this.competition1.setGoal(null);
+            this.competitionRepository.save(competition1);
+        }*/
 
-        List<User> users = this.userRepository.findAll();
-        for (User user : users) {
-            user.setCompetitionsRun(new ArrayList<>());
-            user.setCompetitionsWon(new ArrayList<>());
-            user.setCompetitionsCreated(new ArrayList<>());
-            this.userRepository.save(user);
-        }
+        this.competition2.setTrackings(new ArrayList<>());
+        this.competition2.setUsersRun(new ArrayList<>());
+        this.competition2.setUserWon(null);
+        this.competition2.setUserCreated(null);
+        this.competition2.setGoal(null);
+        this.competitionRepository.save(competition2);
 
-        List<Competition> competitions = this.competitionRepository.findAll();
-        for (Competition competition : competitions) {
-            competition.setUserWon(null);
-            competition.setUsersRun(new ArrayList<>());
-            competition.setUserCreated(null);
-            competition.setGoal(null);
-            this.competitionRepository.save(competition);
-        }
+        this.alexander.setCompetitionsRun(new ArrayList<>());
+        this.alexander.setCompetitionsCreated(new ArrayList<>());
+        this.alexander.setCompetitionsWon(new ArrayList<>());
+        this.alexander.setTrackings(new ArrayList<>());
+        this.alexander.setFriends(new ArrayList<>());
+        this.userRepository.save(alexander);
+
+        this.wout.setCompetitionsRun(new ArrayList<>());
+        this.wout.setCompetitionsCreated(new ArrayList<>());
+        this.wout.setCompetitionsWon(new ArrayList<>());
+        this.wout.setTrackings(new ArrayList<>());
+        this.wout.setFriends(new ArrayList<>());
+        this.userRepository.save(wout);
+
+        this.jelle.setCompetitionsRun(new ArrayList<>());
+        this.jelle.setCompetitionsCreated(new ArrayList<>());
+        this.jelle.setCompetitionsWon(new ArrayList<>());
+        this.jelle.setTrackings(new ArrayList<>());
+        this.jelle.setFriends(new ArrayList<>());
+        this.userRepository.save(jelle);
+
+        this.trackingAlex.setCompetition(null);
+        this.trackingAlex.setUser(null);
+        this.trackingAlex.setCoordinates(new ArrayList<>());
+        this.trackingRepository.save(trackingAlex);
 
         this.trackingRepository.findAll().stream().forEach(tracking -> this.trackingRepository.delete(tracking.getTrackingId()));
         this.userRepository.findAll().stream().forEach(user -> this.userRepository.delete(user.getUserId()));
-        this.competitionRepository.findAll().stream().forEach(competition -> this.competitionRepository.delete(competition.getCompetitionId()));
+        //if (this.competitionRepository.findCompetitionByUserCreated(alexander) != null && !this.competitionRepository.findCompetitionByUserCreated(alexander).isEmpty())
+            //this.competitionRepository.delete(competition1);
+        this.competitionRepository.delete(competition2);
         this.goalRepository.findAll().stream().forEach(goal -> this.goalRepository.delete(goal.getGoalId()));
     }
 
