@@ -1,6 +1,7 @@
 package be.kdg.runtracker.frontend.controllers;
 
 import be.kdg.runtracker.backend.dom.competition.Competition;
+import be.kdg.runtracker.backend.dom.competition.Goal;
 import be.kdg.runtracker.backend.dom.profile.User;
 import be.kdg.runtracker.backend.dom.tracking.Tracking;
 import be.kdg.runtracker.backend.exceptions.NoContentException;
@@ -222,6 +223,14 @@ public class CompetitionRestController {
         return new ResponseEntity<User>(HttpStatus.NO_CONTENT);
     }
 
+    /**
+     * Add a {@link Tracking} to a {@link Competition}.
+     * @param token authorization id
+     * @param competitionId competition id
+     * @param tracking Tracking object
+     * @param ucBuilder URI builder
+     * @return HTTP status
+     */
     @RequestMapping(value = "/addTracking/{competitionId}", method = RequestMethod.POST)
     public ResponseEntity<?> addTrackingToCompetition(@RequestHeader("token") String token, @PathVariable("competitionId") long competitionId, @RequestBody Tracking tracking, UriComponentsBuilder ucBuilder) {
         User user = userService.findUserByAuthId(JWT.decode(token).getSubject());
@@ -247,6 +256,11 @@ public class CompetitionRestController {
         return new ResponseEntity<String>(headers, HttpStatus.CREATED);
     }
 
+    /**
+     * Get all available {@link Competition}s.
+     * @param token authorization id
+     * @return List of Competitions
+     */
     @RequestMapping(value = "/getAvailableCompetitions", method = RequestMethod.GET)
     public ResponseEntity<List<Competition>> getAvailableCompetitions(@RequestHeader("token") String token) {
         User user = userService.findUserByAuthId(JWT.decode(token).getSubject());
@@ -256,6 +270,29 @@ public class CompetitionRestController {
         if (availableCompetitions.isEmpty()) throw new NoContentException("No available Competitions!");
 
         return new ResponseEntity<List<Competition>>(availableCompetitions, HttpStatus.OK);
+    }
+
+    /**
+     * Get the {@link Goal} from a {@link Competition}.
+     * @param token authorization id
+     * @param competitionId competition id
+     * @return Goal
+     */
+    @RequestMapping(value = "/{competitionId}/getGoal", method = RequestMethod.GET)
+    public ResponseEntity<?> getGoalFromCompetition(@RequestHeader("token") String token, @PathVariable("competitionId") long competitionId) {
+        User user = userService.findUserByAuthId(JWT.decode(token).getSubject());
+        if (user == null) throw new UnauthorizedUserException("User with token " + token + " not found, cannot fetch available Competitions!");
+        System.err.println("\nUser with token " + token + " not found, cannot fetch available Competitions!\n");
+
+        Competition competition = this.competitionService.findCompetitionByCompetitionId(competitionId);
+        if (competition == null) throw new NoContentException("Competition with id " + competitionId + " not found!");
+        System.err.println("\nCompetition with id " + competitionId + " not found!\n");
+
+        Goal goal = competition.getGoal();
+        if (goal == null) throw new NoContentException("Goal for Competition with id " + competitionId + " not found!");
+        System.err.println("\nGoal for Competition with id " + competitionId + " not found!\n");
+
+        return new ResponseEntity<>(null, HttpStatus.OK);
     }
 
 }

@@ -4,6 +4,7 @@ import be.kdg.runtracker.backend.dom.competition.Competition;
 import be.kdg.runtracker.backend.dom.competition.CompetitionType;
 import be.kdg.runtracker.backend.dom.competition.Goal;
 import be.kdg.runtracker.backend.dom.profile.User;
+import be.kdg.runtracker.backend.dom.tracking.Coordinate;
 import be.kdg.runtracker.backend.dom.tracking.Tracking;
 import be.kdg.runtracker.backend.persistence.api.CompetitionRepository;
 import be.kdg.runtracker.backend.persistence.api.GoalRepository;
@@ -73,9 +74,6 @@ public class CompetitionRestControllerTest {
 
     @Before
     public void setup() {
-        Logger log = Logger.getLogger("org.hibernate");
-        log.setLevel(Level.WARN);
-
         tokenAlexander = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWV9.TJVA95OrM7E2cBab30RMHrHDcEfxjoYZgeFONFh7HgQ";
         this.alexander = new User();
         this.alexander.setAuthId(JWT.decode(tokenAlexander).getSubject());
@@ -143,19 +141,6 @@ public class CompetitionRestControllerTest {
         this.mockMvc.perform(get("/competitions/").header("token", tokenAlexander).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andDo(print());
-    }
-
-    private void addCompetitions() {
-        this.competition1 = new Competition(alexander, goal1, CompetitionType.NOT_REALTIME, 10, 5);
-        this.competition1.addRunner(alexander);
-        this.competition1.addRunner(wout);
-        this.competition1.addRunner(jelle);
-        this.competition1.setUserWon(wout);
-        this.competition2 = new Competition(wout, goal2, CompetitionType.NOT_REALTIME, 10, 5);
-        this.competition2.addRunner(wout);
-
-        this.competitionRepository.save(competition1);
-        this.competitionRepository.save(competition2);
     }
 
     @Test
@@ -348,20 +333,36 @@ public class CompetitionRestControllerTest {
                 .andDo(print());
     }
 
-    // TODO: test add tracking to competition.
+    @Test
+    public void testAddTrackingToCompetition() throws Exception {
+        List<Coordinate> coordinates = new ArrayList<>();
+        Coordinate coordinate = new Coordinate();
+        coordinate.setLat(10);
+        coordinate.setLon(10);
+        coordinate.setSpeed(10);
+        coordinate.setTime(10);
+        coordinates.add(coordinate);
+        Tracking testTracking = new Tracking(10, 10, 10, 10, coordinates);
+        long competitionId = this.competitionRepository.findCompetitionByUserCreated(alexander).get(0).getCompetitionId();
+
+        this.mockMvc.perform(post("/competitions/addTracking/" + competitionId)
+                .header("token", tokenAlexander)
+                .content(mapper.writeValueAsString(testTracking))
+                .contentType(MediaType.APPLICATION_JSON));
+    }
+
+    @Test
+    public void testGetGoalFromCompetition() throws Exception {
+        long competitionId = this.userRepository.findUserByUsername("alexvr").getCompetitionsCreated().get(0).getCompetitionId();
+
+        this.mockMvc.perform(get("/competitions/" + competitionId + "/getGoal").header("token", tokenAlexander)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andDo(print());
+    }
 
     @After
     public void removeTestObjects() {
-        /*System.err.println("\n" + this.competitionRepository.findCompetitionByUserCreated(alexander) + "\n");
-        if (this.competitionRepository.findCompetitionByUserCreated(alexander) != null && !this.competitionRepository.findCompetitionByUserCreated(alexander).isEmpty()) {
-            this.competition1.setTrackings(new ArrayList<>());
-            this.competition1.setUsersRun(new ArrayList<>());
-            this.competition1.setUserWon(null);
-            this.competition1.setUserCreated(null);
-            this.competition1.setGoal(null);
-            this.competitionRepository.save(competition1);
-        }*/
-
         this.competition2.setTrackings(new ArrayList<>());
         this.competition2.setUsersRun(new ArrayList<>());
         this.competition2.setUserWon(null);
@@ -397,8 +398,6 @@ public class CompetitionRestControllerTest {
 
         this.trackingRepository.findAll().stream().forEach(tracking -> this.trackingRepository.delete(tracking.getTrackingId()));
         this.userRepository.findAll().stream().forEach(user -> this.userRepository.delete(user.getUserId()));
-        //if (this.competitionRepository.findCompetitionByUserCreated(alexander) != null && !this.competitionRepository.findCompetitionByUserCreated(alexander).isEmpty())
-            //this.competitionRepository.delete(competition1);
         this.competitionRepository.delete(competition2);
         this.goalRepository.findAll().stream().forEach(goal -> this.goalRepository.delete(goal.getGoalId()));
     }

@@ -5,6 +5,7 @@ import be.kdg.runtracker.backend.exceptions.NoContentException;
 import be.kdg.runtracker.backend.exceptions.UnauthorizedUserException;
 import be.kdg.runtracker.backend.exceptions.UserNotFoundException;
 import be.kdg.runtracker.backend.services.api.UserService;
+import be.kdg.runtracker.frontend.dto.ShortUser;
 import be.kdg.runtracker.frontend.util.CustomErrorType;
 import com.auth0.jwt.JWT;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -121,6 +123,12 @@ public class UserRestController {
         return new ResponseEntity<User>(HttpStatus.NO_CONTENT);
     }
 
+    /**
+     * Befriend another {@link User}.
+     * @param token authorization id
+     * @param username username of friend
+     * @return HTTP status
+     */
     @RequestMapping(value = "/addFriend/{username}", method = RequestMethod.PUT)
     public ResponseEntity<?> befriendUser(@RequestHeader("token") String token, @PathVariable("username") String username) {
         User currentUser = userService.findUserByAuthId(JWT.decode(token).getSubject());
@@ -143,14 +151,39 @@ public class UserRestController {
         return new ResponseEntity<User>(currentUser, HttpStatus.OK);
     }
 
+    /**
+     * Check if username is available.
+     * @param token authorization id
+     * @param username username to check
+     * @return true if username is available, otherwise false
+     */
     @RequestMapping(value = "/checkUsername/{username}", method = RequestMethod.GET)
     public ResponseEntity<?> checkUsernameAvailability(@RequestHeader("token") String token, @PathVariable("username") String username) {
+        User user = userService.findUserByAuthId(JWT.decode(token).getSubject());
+        if (user == null) throw new UnauthorizedUserException("User with token " + token + " not found!");
+
         boolean available = false;
 
         if (this.userService.findUserByUsername(username) == null || this.userService.findUserByAuthId(JWT.decode(token).getSubject()).getUsername().equals(username))
             available = true;
 
         return new ResponseEntity<Boolean>(available, HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/getAllFriends", method = RequestMethod.GET)
+    public ResponseEntity<List<ShortUser>> getAllFriends(@RequestHeader("token") String token) {
+        User user = userService.findUserByAuthId(JWT.decode(token).getSubject());
+        if (user == null) throw new UnauthorizedUserException("User with token " + token + " not found, cannot fetch friends!");
+
+        List<ShortUser> friends = new ArrayList<>();
+        if (user.getFriends() == null || user.getFriends().isEmpty())
+            throw new NoContentException("No friends found for User with id: " + user.getAuthId() + "!");
+
+        for (User friend : user.getFriends()) {
+            friends.add(new ShortUser(friend));
+        }
+
+        return new ResponseEntity<List<ShortUser>>(friends, HttpStatus.OK);
     }
 
 }
