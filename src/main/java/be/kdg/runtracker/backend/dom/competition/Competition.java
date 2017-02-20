@@ -200,10 +200,7 @@ public class Competition implements Serializable {
 
         Competition that = (Competition) o;
 
-        if (maxParticipants != that.maxParticipants) return false;
-        if (competitionType != that.competitionType) return false;
-        if (goal != null ? !goal.equals(that.goal) : that.goal != null) return false;
-        return !(userCreated != null ? !userCreated.equals(that.userCreated) : that.userCreated != null);
+        return competitionId.equals(that.competitionId);
 
     }
 
