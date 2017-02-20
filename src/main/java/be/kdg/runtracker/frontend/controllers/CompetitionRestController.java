@@ -46,7 +46,7 @@ public class CompetitionRestController {
      * Get all {@link Competition}s.
      * @return List of Competitions
      */
-    @RequestMapping(method = RequestMethod.GET)
+    @RequestMapping(value = "/getCompetitions", method = RequestMethod.GET)
     public ResponseEntity<List<Competition>> getAllCompetitions(@RequestHeader("token") String token) {
         User user = userService.findUserByAuthId(JWT.decode(token).getSubject());
         if (user == null) throw new UnauthorizedUserException("User with token " + token + " not found, cannot fetch Competitions!");

@@ -43,7 +43,7 @@ public class TrackingRestController {
      * @param token Token
      * @return List of Trackings
      */
-    @RequestMapping(method = RequestMethod.GET)
+    @RequestMapping(value = "/getTrackings", method = RequestMethod.GET)
     public ResponseEntity<List<Tracking>> getAllTrackingsOfUser(@RequestHeader("token") String token) {
         User user = userService.findUserByAuthId(JWT.decode(token).getSubject());
         if (user == null) throw new UnauthorizedUserException("User with token " + token + " not found, cannot fetch Trackings!");
