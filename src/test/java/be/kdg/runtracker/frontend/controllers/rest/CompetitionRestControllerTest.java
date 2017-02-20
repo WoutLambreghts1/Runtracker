@@ -4,6 +4,7 @@ import be.kdg.runtracker.backend.dom.competition.Competition;
 import be.kdg.runtracker.backend.dom.competition.CompetitionType;
 import be.kdg.runtracker.backend.dom.competition.Goal;
 import be.kdg.runtracker.backend.dom.profile.User;
+import be.kdg.runtracker.backend.dom.tracking.Coordinate;
 import be.kdg.runtracker.backend.dom.tracking.Tracking;
 import be.kdg.runtracker.backend.persistence.api.CompetitionRepository;
 import be.kdg.runtracker.backend.persistence.api.GoalRepository;
@@ -11,8 +12,6 @@ import be.kdg.runtracker.backend.persistence.api.TrackingRepository;
 import be.kdg.runtracker.backend.persistence.api.UserRepository;
 import com.auth0.jwt.JWT;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -32,10 +31,12 @@ import java.util.List;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.setup.MockMvcBuilders.webAppContextSetup;
 
+import static org.hamcrest.Matchers.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
+import static org.junit.Assert.*;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest
@@ -73,9 +74,6 @@ public class CompetitionRestControllerTest {
 
     @Before
     public void setup() {
-        Logger log = Logger.getLogger("org.hibernate");
-        log.setLevel(Level.WARN);
-
         tokenAlexander = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWV9.TJVA95OrM7E2cBab30RMHrHDcEfxjoYZgeFONFh7HgQ";
         this.alexander = new User();
         this.alexander.setAuthId(JWT.decode(tokenAlexander).getSubject());
@@ -145,21 +143,8 @@ public class CompetitionRestControllerTest {
                 .andDo(print());
     }
 
-    private void addCompetitions() {
-        this.competition1 = new Competition(alexander, goal1, CompetitionType.NOT_REALTIME, 10, 5);
-        this.competition1.addRunner(alexander);
-        this.competition1.addRunner(wout);
-        this.competition1.addRunner(jelle);
-        this.competition1.setUserWon(wout);
-        this.competition2 = new Competition(wout, goal2, CompetitionType.NOT_REALTIME, 10, 5);
-        this.competition2.addRunner(wout);
-
-        this.competitionRepository.save(competition1);
-        this.competitionRepository.save(competition2);
-    }
-
     @Test
-    public void getAllCompetitionsUnauthorized() throws Exception {
+    public void testGetAllCompetitionsUnauthorized() throws Exception {
         String wrongToken = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJPbmxpbmUgSldUIEJ1aWxkZXIiLCJpYXQiOjE0ODY3MzE5MzgsImV4cCI6MTUxODI2NzkzOCwiYXVkIjoid3d3LmV4YW1wbGUuY29tIiwic3ViIjoidGVzdDYifQ.X8l82QUd7sXLuqNxiTJaQZDhU9V7_4fIi3MKNxYHOQU";
 
         this.mockMvc.perform(get("/competitions/").header("token", wrongToken).contentType(MediaType.APPLICATION_JSON))
@@ -168,14 +153,14 @@ public class CompetitionRestControllerTest {
     }
 
     @Test
-    public void getAllRanCompetitions() throws Exception {
+    public void testGetAllRanCompetitions() throws Exception {
         this.mockMvc.perform(get("/competitions/getRanCompetitions").header("token", tokenAlexander).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andDo(print());
     }
 
     @Test
-    public void getAllRanCompetitionsUnauthorized() throws Exception {
+    public void testGetAllRanCompetitionsUnauthorized() throws Exception {
         String wrongToken = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJPbmxpbmUgSldUIEJ1aWxkZXIiLCJpYXQiOjE0ODY3MzE5MzgsImV4cCI6MTUxODI2NzkzOCwiYXVkIjoid3d3LmV4YW1wbGUuY29tIiwic3ViIjoidGVzdDYifQ.X8l82QUd7sXLuqNxiTJaQZDhU9V7_4fIi3MKNxYHOQU";
 
         this.mockMvc.perform(get("/competitions/getRanCompetitions").header("token", wrongToken).contentType(MediaType.APPLICATION_JSON))
@@ -184,21 +169,21 @@ public class CompetitionRestControllerTest {
     }
 
     @Test
-    public void getNoRanCompetitions() throws Exception {
+    public void testGetNoRanCompetitions() throws Exception {
         this.mockMvc.perform(get("/competitions/getRanCompetitions").header("token", tokenJelle).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNoContent())
                 .andDo(print());
     }
 
     @Test
-    public void getAllCreatedCompetitions() throws Exception {
+    public void testGetAllCreatedCompetitions() throws Exception {
         this.mockMvc.perform(get("/competitions/getCreatedCompetitions").header("token", tokenAlexander).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andDo(print());
     }
 
     @Test
-    public void getAllCreatedCompetitionsUnauthorized() throws Exception {
+    public void testGetAllCreatedCompetitionsUnauthorized() throws Exception {
         String wrongToken = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJPbmxpbmUgSldUIEJ1aWxkZXIiLCJpYXQiOjE0ODY3MzE5MzgsImV4cCI6MTUxODI2NzkzOCwiYXVkIjoid3d3LmV4YW1wbGUuY29tIiwic3ViIjoidGVzdDYifQ.X8l82QUd7sXLuqNxiTJaQZDhU9V7_4fIi3MKNxYHOQU";
 
         this.mockMvc.perform(get("/competitions/getCreatedCompetitions").header("token", wrongToken).contentType(MediaType.APPLICATION_JSON))
@@ -207,21 +192,21 @@ public class CompetitionRestControllerTest {
     }
 
     @Test
-    public void getNoCreatedCompetitions() throws Exception {
+    public void testGetNoCreatedCompetitions() throws Exception {
         this.mockMvc.perform(get("/competitions/getCreatedCompetitions").header("token", tokenJelle).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNoContent())
                 .andDo(print());
     }
 
     @Test
-    public void getAllWonCompetitions() throws Exception {
+    public void testGetAllWonCompetitions() throws Exception {
         this.mockMvc.perform(get("/competitions/getWonCompetitions").header("token", tokenWout).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andDo(print());
     }
 
     @Test
-    public void getAllWonCompetitionsUnauthorized() throws Exception {
+    public void testGetAllWonCompetitionsUnauthorized() throws Exception {
         String wrongToken = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJPbmxpbmUgSldUIEJ1aWxkZXIiLCJpYXQiOjE0ODY3MzE5MzgsImV4cCI6MTUxODI2NzkzOCwiYXVkIjoid3d3LmV4YW1wbGUuY29tIiwic3ViIjoidGVzdDYifQ.X8l82QUd7sXLuqNxiTJaQZDhU9V7_4fIi3MKNxYHOQU";
 
         this.mockMvc.perform(get("/competitions/getWonCompetitions").header("token", wrongToken).contentType(MediaType.APPLICATION_JSON))
@@ -230,23 +215,27 @@ public class CompetitionRestControllerTest {
     }
 
     @Test
-    public void getNoWonCompetitions() throws Exception {
+    public void testGetNoWonCompetitions() throws Exception {
         this.mockMvc.perform(get("/competitions/getWonCompetitions").header("token", tokenJelle).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNoContent())
                 .andDo(print());
     }
 
     @Test
-    public void createCompetition() throws Exception {
-        Competition competition = new Competition(alexander, goal1, CompetitionType.REALTIME, 1, 3);
+    public void testCreateCompetition() throws Exception {
+        Competition competition = new Competition(jelle, goal1, CompetitionType.REALTIME, 1, 3);
 
-        this.mockMvc.perform(post("/competitions/createCompetition").content(mapper.writeValueAsString(competition)).header("token", tokenAlexander).contentType(MediaType.APPLICATION_JSON))
+        this.mockMvc.perform(post("/competitions/createCompetition").content(mapper.writeValueAsString(competition)).header("token", tokenJelle).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isCreated())
                 .andDo(print());
+
+        Competition createdCompetition = this.competitionRepository.findCompetitionByUserCreated(jelle).get(0);
+        assertTrue("Username should be jellem for User created!", createdCompetition.getUserCreated().getUsername().equals("jellem"));
+        assertTrue("Username should be jellem for User ran!", createdCompetition.getUsersRun().get(0).getUsername().equals("jellem"));
     }
 
     @Test
-    public void createCompetitionUnauthorized() throws Exception {
+    public void testCreateCompetitionUnauthorized() throws Exception {
         String wrongToken = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJPbmxpbmUgSldUIEJ1aWxkZXIiLCJpYXQiOjE0ODY3MzE5MzgsImV4cCI6MTUxODI2NzkzOCwiYXVkIjoid3d3LmV4YW1wbGUuY29tIiwic3ViIjoidGVzdDYifQ.X8l82QUd7sXLuqNxiTJaQZDhU9V7_4fIi3MKNxYHOQU";
         Competition competition = new Competition(alexander, goal1, CompetitionType.REALTIME, 1, 3);
 
@@ -348,37 +337,81 @@ public class CompetitionRestControllerTest {
                 .andDo(print());
     }
 
-    // TODO: test add tracking to competition.
+    @Test
+    public void testAddTrackingToCompetition() throws Exception {
+        List<Coordinate> coordinates = new ArrayList<>();
+        Coordinate coordinate = new Coordinate();
+        coordinate.setLat(10);
+        coordinate.setLon(10);
+        coordinate.setSpeed(10);
+        coordinate.setTime(10);
+        coordinates.add(coordinate);
+        Tracking testTracking = new Tracking(10, 10, 10, 10, coordinates);
+        long competitionId = this.competitionRepository.findCompetitionByUserCreated(alexander).get(0).getCompetitionId();
+
+        this.mockMvc.perform(post("/competitions/addTracking/" + competitionId)
+                .header("token", tokenAlexander)
+                .content(mapper.writeValueAsString(testTracking))
+                .contentType(MediaType.APPLICATION_JSON));
+    }
+
+    @Test
+    public void testGetGoalFromCompetition() throws Exception {
+        long competitionId = this.userRepository.findUserByUsername("alexvr").getCompetitionsCreated().get(0).getCompetitionId();
+
+        this.mockMvc.perform(get("/competitions/" + competitionId + "/getGoal").header("token", tokenAlexander)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andDo(print());
+    }
+
+    @Test
+    public void testGetAvailableCompetitions() throws Exception {
+        this.mockMvc.perform(get("/competitions/getAvailableCompetitions").header("token", tokenAlexander)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(1)))
+                .andDo(print());
+    }
 
     @After
     public void removeTestObjects() {
-        List<Tracking> trackings = this.trackingRepository.findAll();
-        for (Tracking tracking : trackings) {
-            tracking.setUser(null);
-            tracking.setCompetition(null);
-            this.trackingRepository.save(tracking);
-        }
+        this.competition2.setTrackings(new ArrayList<>());
+        this.competition2.setUsersRun(new ArrayList<>());
+        this.competition2.setUserWon(null);
+        this.competition2.setUserCreated(null);
+        this.competition2.setGoal(null);
+        this.competitionRepository.save(competition2);
 
-        List<User> users = this.userRepository.findAll();
-        for (User user : users) {
-            user.setCompetitionsRun(new ArrayList<>());
-            user.setCompetitionsWon(new ArrayList<>());
-            user.setCompetitionsCreated(new ArrayList<>());
-            this.userRepository.save(user);
-        }
+        this.alexander.setCompetitionsRun(new ArrayList<>());
+        this.alexander.setCompetitionsCreated(new ArrayList<>());
+        this.alexander.setCompetitionsWon(new ArrayList<>());
+        this.alexander.setTrackings(new ArrayList<>());
+        this.alexander.setFriends(new ArrayList<>());
+        this.userRepository.save(alexander);
 
-        List<Competition> competitions = this.competitionRepository.findAll();
-        for (Competition competition : competitions) {
-            competition.setUserWon(null);
-            competition.setUsersRun(new ArrayList<>());
-            competition.setUserCreated(null);
-            competition.setGoal(null);
-            this.competitionRepository.save(competition);
-        }
+        this.wout.setCompetitionsRun(new ArrayList<>());
+        this.wout.setCompetitionsCreated(new ArrayList<>());
+        this.wout.setCompetitionsWon(new ArrayList<>());
+        this.wout.setTrackings(new ArrayList<>());
+        this.wout.setFriends(new ArrayList<>());
+        this.userRepository.save(wout);
+
+        this.jelle.setCompetitionsRun(new ArrayList<>());
+        this.jelle.setCompetitionsCreated(new ArrayList<>());
+        this.jelle.setCompetitionsWon(new ArrayList<>());
+        this.jelle.setTrackings(new ArrayList<>());
+        this.jelle.setFriends(new ArrayList<>());
+        this.userRepository.save(jelle);
+
+        this.trackingAlex.setCompetition(null);
+        this.trackingAlex.setUser(null);
+        this.trackingAlex.setCoordinates(new ArrayList<>());
+        this.trackingRepository.save(trackingAlex);
 
         this.trackingRepository.findAll().stream().forEach(tracking -> this.trackingRepository.delete(tracking.getTrackingId()));
         this.userRepository.findAll().stream().forEach(user -> this.userRepository.delete(user.getUserId()));
-        this.competitionRepository.findAll().stream().forEach(competition -> this.competitionRepository.delete(competition.getCompetitionId()));
+        this.competitionRepository.delete(competition2);
         this.goalRepository.findAll().stream().forEach(goal -> this.goalRepository.delete(goal.getGoalId()));
     }
 

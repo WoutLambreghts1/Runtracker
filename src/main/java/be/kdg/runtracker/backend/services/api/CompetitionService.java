@@ -9,14 +9,12 @@ public interface CompetitionService {
 
     List<Competition> findAllCompetitions();
 
-    List<Competition> findAvailableCompetitions();
+    List<Competition> findAvailableCompetitions(User user);
 
     Competition findCompetitionByCompetitionId(long competitionId);
 
     void saveCompetition(Competition competition);
 
     void deleteCompetition(User user, Competition competition);
-
-    void deleteCompetition(long competionId);
 
 }
