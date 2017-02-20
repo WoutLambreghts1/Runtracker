@@ -32,7 +32,7 @@ public class GoalRestController {
      * Get all {@link be.kdg.runtracker.backend.dom.competition.Goal}s.
      * @return List of Competitions
      */
-    @RequestMapping(method = RequestMethod.GET)
+    @RequestMapping(value = "/getGoals", method = RequestMethod.GET)
     public ResponseEntity<List<Goal>> getAllGoals(@RequestHeader("token") String token) {
         User user = userService.findUserByAuthId(JWT.decode(token).getSubject());
         if (user == null) throw new UnauthorizedUserException("User with token " + token + " not found, cannot fetch Competitions!");

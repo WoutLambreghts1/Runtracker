@@ -120,6 +120,7 @@ public class CompetitionRestController {
         competition.setUserCreated(user);
         competition.addRunner(user);
         user.addCompetitionsCreated(competition);
+        user.addCompetitionsRan(competition);
 
         competitionService.saveCompetition(competition);
         userService.saveUser(user);
