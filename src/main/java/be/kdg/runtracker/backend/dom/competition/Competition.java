@@ -192,7 +192,7 @@ public class Competition implements Serializable {
     public void setFinished() {
         this.isFinished = true;
     }
-
+    
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -202,8 +202,8 @@ public class Competition implements Serializable {
 
         if (maxParticipants != that.maxParticipants) return false;
         if (competitionType != that.competitionType) return false;
-        if (!goal.equals(that.goal)) return false;
-        return userCreated.getUsername().equals(that.userCreated.getUsername());
+        if (goal != null ? !goal.equals(that.goal) : that.goal != null) return false;
+        return !(userCreated != null ? !userCreated.equals(that.userCreated) : that.userCreated != null);
 
     }
 

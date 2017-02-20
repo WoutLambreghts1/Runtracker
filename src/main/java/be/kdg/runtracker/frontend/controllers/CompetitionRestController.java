@@ -63,7 +63,7 @@ public class CompetitionRestController {
      * @return List of Competitions
      */
     @RequestMapping(value = "/getCreatedCompetitions", method = RequestMethod.GET)
-    public ResponseEntity<List<Competition>> getAllCreatedCompetitionsFromUser(@RequestHeader("token") String token) {
+    public ResponseEntity<List<ShortCompetition>> getAllCreatedCompetitionsFromUser(@RequestHeader("token") String token) {
         User user = userService.findUserByAuthId(JWT.decode(token).getSubject());
         if (user == null) throw new UnauthorizedUserException("User with token " + token + " not found, cannot fetch created Competitions!");
 
@@ -75,7 +75,7 @@ public class CompetitionRestController {
             createdCompetitionsShort.add(new ShortCompetition(competition));
         }
 
-        return new ResponseEntity<List<Competition>>(competitions, HttpStatus.OK);
+        return new ResponseEntity<List<ShortCompetition>>(createdCompetitionsShort, HttpStatus.OK);
     }
 
     /**
