@@ -1,7 +1,6 @@
 package be.kdg.runtracker.backend.services.impl;
 
 import be.kdg.runtracker.backend.dom.competition.Competition;
-import be.kdg.runtracker.backend.dom.competition.Goal;
 import be.kdg.runtracker.backend.dom.profile.User;
 import be.kdg.runtracker.backend.dom.tracking.Tracking;
 import be.kdg.runtracker.backend.persistence.api.CompetitionRepository;
@@ -82,9 +81,10 @@ public class CompetitionServiceImpl implements CompetitionService {
             }
         }
 
-        Goal goal = competition.getGoal();
-        if (goal != null) this.goalRepository.delete(goal.getGoalId());
-
+        //Goal goal = competition.getGoal();
+        //if (goal != null) this.goalRepository.delete(goal.getGoalId());
+        
+        competition.setGoal(null);
         competition.setUserCreated(null);
         competition.setUsersRun(null);
         competition.setUserWon(null);
