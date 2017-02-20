@@ -81,6 +81,12 @@ public class CompetitionServiceImpl implements CompetitionService {
             }
         }
 
+
+        for (User runner : competition.getUsersRun()) {
+            runner.getCompetitionsRun().remove(competition);
+            this.userRepository.save(runner);
+        }
+
         //Goal goal = competition.getGoal();
         //if (goal != null) this.goalRepository.delete(goal.getGoalId());
 
