@@ -100,14 +100,20 @@ public class CompetitionRestController {
      * @return List of Competitions
      */
     @RequestMapping(value = "/getRanCompetitions", method = RequestMethod.GET)
-    public ResponseEntity<List<Competition>> getAllRunCompetitionsFromUser(@RequestHeader("token") String token) {
+    public ResponseEntity<List<ShortCompetition>> getAllRunCompetitionsFromUser(@RequestHeader("token") String token) {
         User user = userService.findUserByAuthId(JWT.decode(token).getSubject());
         if (user == null) throw new UnauthorizedUserException("User with token " + token + " not found, cannot fetch ran Competitions!");
 
         List<Competition> competitions = user.getCompetitionsRun();
         if (competitions == null || competitions.isEmpty()) throw new NoContentException("No ran Competitions found for User with token " + token + "!");
 
-        return new ResponseEntity<List<Competition>>(competitions, HttpStatus.OK);
+        List<ShortCompetition> ranCompetitionsShort = new ArrayList<>();
+        for (Competition competition : competitions) {
+            ranCompetitionsShort.add(new ShortCompetition(competition));
+        }
+
+
+        return new ResponseEntity<List<ShortCompetition>>(ranCompetitionsShort, HttpStatus.OK);
     }
 
     /**
