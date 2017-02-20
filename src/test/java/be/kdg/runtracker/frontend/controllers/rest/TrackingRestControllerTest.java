@@ -133,21 +133,21 @@ public class TrackingRestControllerTest {
 
     @Test
     public void testGetAllTrackingsForUser() throws Exception {
-        this.mockMvc.perform(get("/trackings/").header("token", tokenAlexander).contentType(MediaType.APPLICATION_JSON))
+        this.mockMvc.perform(get("/trackings/getTrackings").header("token", tokenAlexander).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andDo(print());
     }
 
     @Test
     public void testGetAllTrackingsForNonExistingUser() throws Exception {
-        this.mockMvc.perform(get("/trackings/").header("token", wrongToken).contentType(MediaType.APPLICATION_JSON))
+        this.mockMvc.perform(get("/trackings/getTrackings").header("token", wrongToken).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isUnauthorized())
                 .andDo(print());
     }
 
     @Test
     public void testGetNoTrackingsForUser() throws Exception {
-        this.mockMvc.perform(get("/trackings/").header("token", tokenWout).contentType(MediaType.APPLICATION_JSON))
+        this.mockMvc.perform(get("/trackings/getTrackings").header("token", tokenWout).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNoContent())
                 .andDo(print());
     }

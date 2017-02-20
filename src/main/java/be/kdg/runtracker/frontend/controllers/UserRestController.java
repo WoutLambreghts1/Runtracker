@@ -32,7 +32,7 @@ public class UserRestController {
 
     protected UserRestController() { }
 
-    @RequestMapping(method = RequestMethod.GET)
+    @RequestMapping(value = "/getUsers",method = RequestMethod.GET)
     public ResponseEntity<?> getAllUsers(@RequestHeader("token") String token) {
         User user = userService.findUserByAuthId(JWT.decode(token).getSubject());
         if (user == null) throw new UnauthorizedUserException("User with token " + token + " not found, cannot fetch all Users!");

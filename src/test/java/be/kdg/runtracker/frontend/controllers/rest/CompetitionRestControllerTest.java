@@ -138,7 +138,7 @@ public class CompetitionRestControllerTest {
 
     @Test
     public void testGetAllCompetitions() throws Exception {
-        this.mockMvc.perform(get("/competitions/").header("token", tokenAlexander).contentType(MediaType.APPLICATION_JSON))
+        this.mockMvc.perform(get("/competitions/getCompetitions").header("token", tokenAlexander).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andDo(print());
     }
@@ -147,7 +147,7 @@ public class CompetitionRestControllerTest {
     public void testGetAllCompetitionsUnauthorized() throws Exception {
         String wrongToken = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJPbmxpbmUgSldUIEJ1aWxkZXIiLCJpYXQiOjE0ODY3MzE5MzgsImV4cCI6MTUxODI2NzkzOCwiYXVkIjoid3d3LmV4YW1wbGUuY29tIiwic3ViIjoidGVzdDYifQ.X8l82QUd7sXLuqNxiTJaQZDhU9V7_4fIi3MKNxYHOQU";
 
-        this.mockMvc.perform(get("/competitions/").header("token", wrongToken).contentType(MediaType.APPLICATION_JSON))
+        this.mockMvc.perform(get("/competitions/getCompetitions").header("token", wrongToken).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isUnauthorized())
                 .andDo(print());
     }
