@@ -53,6 +53,7 @@ public class Tracking implements Serializable {
     List<Coordinate> coordinates;
 
     public Tracking() {
+        this.coordinates = new ArrayList<>();
     }
 
     public Tracking(long totalDuration, long totalDistance, double maxSpeed, double avgSpeed) {
@@ -61,6 +62,7 @@ public class Tracking implements Serializable {
         this.totalDistance = totalDistance;
         this.maxSpeed = maxSpeed;
         this.avgSpeed = avgSpeed;
+        this.coordinates = new ArrayList<>();
     }
 
     public Tracking(long totalDuration, long totalDistance, double maxSpeed, double avgSpeed, List<Coordinate> coordinates) {
@@ -70,6 +72,7 @@ public class Tracking implements Serializable {
         this.maxSpeed = maxSpeed;
         this.avgSpeed = avgSpeed;
         this.coordinates = coordinates;
+        this.coordinates = new ArrayList<>();
     }
 
     public Tracking(long totalDuration, long totalDistance, double maxSpeed, double avgSpeed, List<Coordinate> coordinates, Competition competition) {
@@ -80,6 +83,7 @@ public class Tracking implements Serializable {
         this.avgSpeed = avgSpeed;
         this.coordinates = coordinates;
         this.competition = competition;
+        this.coordinates = new ArrayList<>();
     }
 
     public Long getTrackingId() {

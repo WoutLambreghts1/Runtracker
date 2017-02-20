@@ -51,8 +51,10 @@ public class TrackingServiceImpl implements TrackingService {
         this.userRepository.save(user);
         long trackingId = this.trackingRepository.findAll().get(this.trackingRepository.findAll().size() -1).getTrackingId();
 
-        tracking.getCoordinates().stream().forEach(t -> t.setTrackingId(trackingId));
-        this.coordinatesRepositoryMongo.createCoordinatesCollection(trackingId, tracking.getCoordinates());
+        if (tracking.getCoordinates() != null && !tracking.getCoordinates().isEmpty()) {
+            tracking.getCoordinates().stream().forEach(t -> t.setTrackingId(trackingId));
+            this.coordinatesRepositoryMongo.createCoordinatesCollection(trackingId, tracking.getCoordinates());
+        }
     }
 
     @Override
