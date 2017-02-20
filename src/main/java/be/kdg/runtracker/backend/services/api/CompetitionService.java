@@ -9,7 +9,7 @@ public interface CompetitionService {
 
     List<Competition> findAllCompetitions();
 
-    List<Competition> findAvailableCompetitions();
+    List<Competition> findAvailableCompetitions(User user);
 
     Competition findCompetitionByCompetitionId(long competitionId);
 

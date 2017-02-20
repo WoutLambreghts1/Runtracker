@@ -43,14 +43,14 @@ public class CompetitionServiceImpl implements CompetitionService {
     }
 
     @Override
-    public List<Competition> findAvailableCompetitions() {
+    public List<Competition> findAvailableCompetitions(User user) {
         List<Competition> allCompetitions = this.competitionRepository.findAll();
         List<Competition> availableCompetitions = new ArrayList<>();
 
         if (allCompetitions != null || !allCompetitions.isEmpty()) {
             Date today = new Date();
             for (Competition competition : allCompetitions) {
-                if (competition.getDeadline().after(today) && (competition.getMaxParticipants() > competition.getUsersRun().size())) {
+                if (competition.getDeadline().after(today) && (competition.getMaxParticipants() > competition.getUsersRun().size()) && !user.getCompetitionsRun().contains(competition)) {
                     availableCompetitions.add(competition);
                 }
             }

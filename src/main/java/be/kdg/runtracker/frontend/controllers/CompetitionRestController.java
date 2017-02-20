@@ -10,6 +10,7 @@ import be.kdg.runtracker.backend.exceptions.UnauthorizedUserException;
 import be.kdg.runtracker.backend.services.api.CompetitionService;
 import be.kdg.runtracker.backend.services.api.TrackingService;
 import be.kdg.runtracker.backend.services.api.UserService;
+import be.kdg.runtracker.frontend.dto.ShortCompetition;
 import be.kdg.runtracker.frontend.util.CustomErrorType;
 import com.auth0.jwt.JWT;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +20,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -116,6 +118,7 @@ public class CompetitionRestController {
         if (user == null) throw new UnauthorizedUserException("User with token " + token + " not found, cannot create Competitions!");
 
         competition.setUserCreated(user);
+        competition.addRunner(user);
         user.addCompetitionsCreated(competition);
 
         competitionService.saveCompetition(competition);
@@ -262,14 +265,19 @@ public class CompetitionRestController {
      * @return List of Competitions
      */
     @RequestMapping(value = "/getAvailableCompetitions", method = RequestMethod.GET)
-    public ResponseEntity<List<Competition>> getAvailableCompetitions(@RequestHeader("token") String token) {
+    public ResponseEntity<List<ShortCompetition>> getAvailableCompetitions(@RequestHeader("token") String token) {
         User user = userService.findUserByAuthId(JWT.decode(token).getSubject());
         if (user == null) throw new UnauthorizedUserException("User with token " + token + " not found, cannot fetch available Competitions!");
 
-        List<Competition> availableCompetitions = this.competitionService.findAvailableCompetitions();
+        List<Competition> availableCompetitions = this.competitionService.findAvailableCompetitions(user);
         if (availableCompetitions.isEmpty()) throw new NoContentException("No available Competitions!");
 
-        return new ResponseEntity<List<Competition>>(availableCompetitions, HttpStatus.OK);
+        List<ShortCompetition> availableCompetitionsShort = new ArrayList<>();
+        for (Competition competition : availableCompetitions) {
+            availableCompetitionsShort.add(new ShortCompetition(competition));
+        }
+
+        return new ResponseEntity<List<ShortCompetition>>(availableCompetitionsShort, HttpStatus.OK);
     }
 
     /**
