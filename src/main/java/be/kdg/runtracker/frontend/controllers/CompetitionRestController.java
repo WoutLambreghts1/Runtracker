@@ -70,6 +70,11 @@ public class CompetitionRestController {
         List<Competition> competitions = user.getCompetitionsCreated();
         if (competitions == null || competitions.isEmpty()) throw new NoContentException("No created Competitions found for User with token " + token + "!");
 
+        List<ShortCompetition> createdCompetitionsShort = new ArrayList<>();
+        for (Competition competition : competitions) {
+            createdCompetitionsShort.add(new ShortCompetition(competition));
+        }
+
         return new ResponseEntity<List<Competition>>(competitions, HttpStatus.OK);
     }
 
