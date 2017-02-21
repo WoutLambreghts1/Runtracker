@@ -4,6 +4,7 @@ import be.kdg.runtracker.backend.dom.profile.Friendship;
 import be.kdg.runtracker.backend.dom.profile.User;
 import be.kdg.runtracker.backend.dom.tracking.Coordinate;
 import be.kdg.runtracker.backend.dom.tracking.Tracking;
+import be.kdg.runtracker.backend.persistence.api.CoordinatesRepository;
 import be.kdg.runtracker.backend.persistence.api.FriendshipRepository;
 import be.kdg.runtracker.backend.persistence.api.TrackingRepository;
 import be.kdg.runtracker.backend.persistence.api.UserRepository;
@@ -49,6 +50,9 @@ public class TrackingRestControllerTest {
     private TrackingRepository trackingRepository;
     @Autowired
     private FriendshipRepository friendshipRepository;
+    @Autowired
+    private CoordinatesRepository coordinatesRepository;
+
     private MockMvc mockMvc;
     private Gson gson;
 
@@ -122,6 +126,8 @@ public class TrackingRestControllerTest {
 
         Friendship friendship1 = new Friendship(wout);
         Friendship friendship2 = new Friendship(alexander);
+        friendship1.setAccepted(true);
+        friendship2.setAccepted(true);
         friendshipRepository.save(friendship1);
         friendshipRepository.save(friendship2);
 
@@ -270,6 +276,8 @@ public class TrackingRestControllerTest {
     public void deleteUserAndTrackings() {
         alexander.getTrackings().stream().forEach(tracking -> trackingRepository.delete(tracking.getTrackingId()));
         jelle.getTrackings().stream().forEach(tracking -> trackingRepository.delete(tracking.getTrackingId()));
+        alexander.getTrackings().stream().forEach(tracking -> coordinatesRepository.deleteCoordinatesCollection(tracking.getTrackingId()));
+        jelle.getTrackings().stream().forEach(tracking -> coordinatesRepository.deleteCoordinatesCollection(tracking.getTrackingId()));
 
         userRepository.delete(alexander.getUserId());
         userRepository.delete(wout.getUserId());

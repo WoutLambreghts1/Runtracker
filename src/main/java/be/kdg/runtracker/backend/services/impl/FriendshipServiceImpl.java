@@ -31,7 +31,11 @@ public class FriendshipServiceImpl implements FriendshipService {
 
     @Override
     public Friendship findFriendshipByUserAndFriend(User user, User friend) {
-        return user.getFriendships().stream().filter(f -> f.getFriend().equals(friend)).findFirst().get();
+        for (Friendship friendship : user.getFriendships()) {
+            if (friendship.getFriend()!=null && friendship.getFriend().equals(friend))return friendship;
+        }
+
+        return null;
     }
 
     @Override
@@ -54,15 +58,14 @@ public class FriendshipServiceImpl implements FriendshipService {
         Friendship friendship1 = findFriendshipByUserAndFriend(userOne,userTwo);
         Friendship friendship2 = findFriendshipByUserAndFriend(userTwo,userOne);
 
-        if(friendship1!=null && friendship2 != null && friendship1.isAccepted() && friendship2.isAccepted()) return true;
+        return friendship1 != null && friendship2 != null && friendship1.isAccepted() && friendship2.isAccepted();
 
-        return false;
     }
 
     @Override
     public void acceptFriend(User user,User friend) {
         Friendship friendship1 =  this.findFriendshipByUserAndFriend(user, friend);
-        Friendship friendship2 = this.findFriendshipByUserAndFriend(friend,user);
+        Friendship friendship2 = this.findFriendshipByUserAndFriend(friend, user);
 
         friendship1.setAccepted(true);
         friendship2.setAccepted(true);

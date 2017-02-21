@@ -230,7 +230,7 @@ public class UserRestController {
 
 
     /**
-     *
+     * Get all friends
      * @param token
      * @return
      */
@@ -274,7 +274,7 @@ public class UserRestController {
 
 
     /**
-     *
+     * Get all potential friends (users - own user - friends)
      * @param token
      * @return
      */
@@ -296,6 +296,29 @@ public class UserRestController {
         }
 
         return new ResponseEntity<List<ShortUser>>(potentialFriends, HttpStatus.OK);
+    }
+
+
+    /**
+     * get unaccepted {@link Friendship}.
+     * @param token
+     * @return
+     */
+    @RequestMapping(value = "/getFriendrequests", method = RequestMethod.GET)
+    public ResponseEntity<List<ShortUser>> getFriendrequests(@RequestHeader("token") String token) {
+        User user = userService.findUserByAuthId(JWT.decode(token).getSubject());
+        if (user == null) throw new UnauthorizedUserException("User with token " + token + " not found, cannot fetch friends!");
+
+        List<ShortUser> friendRequests = new ArrayList<>();
+
+        for (Friendship friendship : user.getFriendships()) {
+            if(!friendship.isAccepted())friendRequests.add(new ShortUser(friendship.getFriend()));
+        }
+
+        System.out.println("!!!!!!!!!!!!!!!" + friendRequests.size());
+
+
+        return new ResponseEntity<List<ShortUser>>(friendRequests, HttpStatus.OK);
     }
 
 

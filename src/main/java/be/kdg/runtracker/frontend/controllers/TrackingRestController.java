@@ -77,14 +77,15 @@ public class TrackingRestController {
         User friend = userService.findUserByUsername(username);
         if (friend == null) throw new UnauthorizedUserException("User with username " + username + " not found, cannot fetch Trackings!");
 
-        if (friendshipService.checkFriendship(user,friend)) {
+        if (!friendshipService.checkFriendship(user,friend)) {
             return new ResponseEntity(new CustomErrorType("Not friends with User with username " + username + "!"),
                     HttpStatus.UNAUTHORIZED);
         }
 
         List<Tracking> trackings = friend.getTrackings();
         if (trackings == null || trackings.isEmpty()) throw new NoContentException("No Trackings found for User with username " + friend.getUsername() + "!");
-        if (trackings != null && !trackings.isEmpty()) trackings.stream().forEach(t -> t.setCoordinates(this.coordinatesService.readCoordinatesByTrackingId(t.getTrackingId())));
+
+        trackings.stream().forEach(t -> t.setCoordinates(this.coordinatesService.readCoordinatesByTrackingId(t.getTrackingId())));
 
         List<ShortTracking> trackingsDTO = new ArrayList<>();
         trackings.stream().forEach(tracking -> new ShortTracking(tracking));

@@ -292,4 +292,23 @@ public class User implements Serializable {
     public void setFriendships(List<Friendship> friendships) {
         this.friendships = friendships;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        User user = (User) o;
+
+        if (!userId.equals(user.userId)) return false;
+        return authId.equals(user.authId);
+
+    }
+
+    @Override
+    public int hashCode() {
+        int result = userId.hashCode();
+        result = 31 * result + authId.hashCode();
+        return result;
+    }
 }

@@ -24,13 +24,11 @@ import org.springframework.web.context.WebApplicationContext;
 
 import java.util.ArrayList;
 
+import static org.hamcrest.Matchers.is;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.setup.MockMvcBuilders.webAppContextSetup;
-
-import static org.hamcrest.Matchers.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.setup.MockMvcBuilders.webAppContextSetup;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest
@@ -330,7 +328,7 @@ public class UserRestControllerTest {
     }
 
     @Test
-    public void testgetAllPotentialFriends() throws Exception {
+    public void testGetAllPotentialFriends() throws Exception {
         this.mockMvc.perform(get("/users/getAllPotentialFriends").header("token", tokenAlexander).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andDo(print());
@@ -346,6 +344,20 @@ public class UserRestControllerTest {
         this.mockMvc.perform(put("/users/acceptFriend/" + username).header("token", tokenAlexander).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andDo(print());
+    }
+
+    @Test
+    public void testGetFriendrequests() throws Exception{
+        String username = "woutl";
+        this.mockMvc.perform(put("/users/addFriend/" + username).header("token", tokenAlexander).contentType(MediaType.APPLICATION_JSON))
+                .andDo(print())
+                .andExpect(status().isOk());
+
+        this.mockMvc.perform(get("/users/getFriendrequests").header("token", tokenWout).contentType(MediaType.APPLICATION_JSON))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(content().string(org.hamcrest.Matchers.containsString(alexander.getUsername())));;
+
     }
 
     @After
