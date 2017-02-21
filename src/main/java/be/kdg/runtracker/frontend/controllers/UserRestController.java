@@ -295,7 +295,7 @@ public class UserRestController {
         for (Friendship friendship : user.getFriendships()) {
             if(!friendship.isAccepted())friendRequests.add(new ShortUser(friendship.getFriend()));
         }
-        
+
         return new ResponseEntity<List<ShortUser>>(friendRequests, HttpStatus.OK);
     }
 
