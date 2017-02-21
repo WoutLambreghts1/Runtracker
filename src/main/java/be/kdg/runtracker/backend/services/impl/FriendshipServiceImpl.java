@@ -3,6 +3,7 @@ package be.kdg.runtracker.backend.services.impl;
 import be.kdg.runtracker.backend.dom.profile.Friendship;
 import be.kdg.runtracker.backend.dom.profile.User;
 import be.kdg.runtracker.backend.persistence.api.FriendshipRepository;
+import be.kdg.runtracker.backend.persistence.api.UserRepository;
 import be.kdg.runtracker.backend.services.api.FriendshipService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -18,10 +19,12 @@ import java.util.List;
 public class FriendshipServiceImpl implements FriendshipService {
 
     private FriendshipRepository friendshipRepository;
+    private UserRepository userRepository;
 
     @Autowired
-    public FriendshipServiceImpl(FriendshipRepository friendshipRepository) {
+    public FriendshipServiceImpl(FriendshipRepository friendshipRepository, UserRepository userRepository) {
         this.friendshipRepository = friendshipRepository;
+        this.userRepository = userRepository;
     }
 
     @Override
@@ -73,5 +76,33 @@ public class FriendshipServiceImpl implements FriendshipService {
         saveFriendship(friendship1);
         saveFriendship(friendship2);
 
+    }
+
+    @Override
+    public void addFriend(User user, User friend) {
+        Friendship friendship1 = new Friendship(friend);
+        Friendship friendship2 = new Friendship(user);
+        friendship1.setAccepted(true);
+        this.saveFriendship(friendship1);
+        this.saveFriendship(friendship2);
+
+        user.addFriendship(friendship1);
+        friend.addFriendship(friendship2);
+
+        userRepository.save(user);
+        userRepository.save(friend);
+    }
+
+    @Override
+    public void removeFriend(User user, User friend) {
+        Friendship friendship1 = this.findFriendshipByUserAndFriend(user, friend);
+        Friendship friendship2 = this.findFriendshipByUserAndFriend(friend, user);
+        user.getFriendships().remove(friendship1);
+        friend.getFriendships().remove(friendship2);
+
+        userRepository.save(user);
+        userRepository.save(friend);
+        this.deleteFriendship(friendship1);
+        this.deleteFriendship(friendship2);
     }
 }

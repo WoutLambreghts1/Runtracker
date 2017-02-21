@@ -180,17 +180,7 @@ public class UserRestController {
         User friend = userService.findUserByUsername(username);
         if (friend == null) throw new UserNotFoundException("User with username " + username + " not found, cannot add friend!");
 
-        Friendship friendship1 = new Friendship(friend);
-        Friendship friendship2 = new Friendship(currentUser);
-        friendship1.setAccepted(true);
-        friendshipService.saveFriendship(friendship1);
-        friendshipService.saveFriendship(friendship2);
-
-        currentUser.addFriendship(friendship1);
-        friend.addFriendship(friendship2);
-
-        userService.saveUser(currentUser);
-        userService.saveUser(friend);
+        friendshipService.addFriend(currentUser,friend);
 
         ShortUser userDTO = new ShortUser(currentUser);
 
@@ -212,16 +202,7 @@ public class UserRestController {
         User friend = userService.findUserByUsername(username);
         if (friend == null) throw new UserNotFoundException("User with username " + username + " not found, cannot add friend!");
 
-
-        Friendship friendship1 =  friendshipService.findFriendshipByUserAndFriend(currentUser, friend);
-        Friendship friendship2 = friendshipService.findFriendshipByUserAndFriend(friend,currentUser);
-        currentUser.getFriendships().remove(friendship1);
-        friend.getFriendships().remove(friendship2);
-
-        userService.saveUser(currentUser);
-        userService.saveUser(friend);
-        friendshipService.deleteFriendship(friendship1);
-        friendshipService.deleteFriendship(friendship2);
+        friendshipService.removeFriend(currentUser,friend);
 
         ShortUser userDTO = new ShortUser(currentUser);
 
@@ -314,10 +295,7 @@ public class UserRestController {
         for (Friendship friendship : user.getFriendships()) {
             if(!friendship.isAccepted())friendRequests.add(new ShortUser(friendship.getFriend()));
         }
-
-        System.out.println("!!!!!!!!!!!!!!!" + friendRequests.size());
-
-
+        
         return new ResponseEntity<List<ShortUser>>(friendRequests, HttpStatus.OK);
     }
 

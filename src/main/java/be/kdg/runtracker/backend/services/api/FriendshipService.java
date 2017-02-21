@@ -23,4 +23,8 @@ public interface FriendshipService {
 
     void acceptFriend(User user, User friend);
 
+    void addFriend(User user, User friend);
+
+    void removeFriend(User user, User friend);
+
 }
