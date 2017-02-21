@@ -33,14 +33,17 @@ public class UserRestController {
     protected UserRestController() { }
 
     @RequestMapping(value = "/getUsers",method = RequestMethod.GET)
-    public ResponseEntity<?> getAllUsers(@RequestHeader("token") String token) {
+    public ResponseEntity<List<ShortUser>> getAllUsers(@RequestHeader("token") String token) {
         User user = userService.findUserByAuthId(JWT.decode(token).getSubject());
         if (user == null) throw new UnauthorizedUserException("User with token " + token + " not found, cannot fetch all Users!");
 
         List<User> users = userService.findAllUsers();
         if (users == null || users.isEmpty()) throw new NoContentException("No Users were found!");
 
-        return new ResponseEntity<List<User>>(users, HttpStatus.OK);
+        List<ShortUser> usersDTO = new ArrayList<>();
+        users.stream().forEach(u -> usersDTO.add(new ShortUser(u)));
+
+        return new ResponseEntity<List<ShortUser>>(usersDTO, HttpStatus.OK);
     }
 
     /**
@@ -50,11 +53,13 @@ public class UserRestController {
      */
 
     @RequestMapping(value = "/getUser", method = RequestMethod.GET)
-    public ResponseEntity<?> getUser(@RequestHeader("token") String token) {
+    public ResponseEntity<ShortUser> getUser(@RequestHeader("token") String token) {
         User user = userService.findUserByAuthId(JWT.decode(token).getSubject());
         if (user == null) throw new UserNotFoundException("User with token " + token + " not found!");
 
-        return new ResponseEntity<User>(user, HttpStatus.OK);
+        ShortUser userDTO = new ShortUser(user);
+
+        return new ResponseEntity<ShortUser>(userDTO, HttpStatus.OK);
     }
 
     /**
@@ -85,7 +90,7 @@ public class UserRestController {
      * @return HTTP status
      */
     @RequestMapping(value = "/updateUser", method = RequestMethod.PUT)
-    public ResponseEntity<?> updateUser(@RequestHeader("token") String token, @RequestBody User user) {
+    public ResponseEntity<ShortUser> updateUser(@RequestHeader("token") String token, @RequestBody User user) {
         User currentUser = userService.findUserByAuthId(JWT.decode(token).getSubject());
         if (currentUser == null) throw new UserNotFoundException("User with token " + token + " not found, cannot update User!");
 
@@ -105,7 +110,10 @@ public class UserRestController {
         currentUser.setBirthday(user.getBirthday());
 
         userService.saveUser(currentUser);
-        return new ResponseEntity<User>(currentUser, HttpStatus.OK);
+
+        ShortUser userDTO = new ShortUser(currentUser);
+
+        return new ResponseEntity<ShortUser>(userDTO, HttpStatus.OK);
     }
 
     /**
@@ -120,7 +128,7 @@ public class UserRestController {
 
         this.userService.deleteUser(user);
 
-        return new ResponseEntity<User>(HttpStatus.NO_CONTENT);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
     /**
@@ -130,7 +138,7 @@ public class UserRestController {
      * @return HTTP status
      */
     @RequestMapping(value = "/addFriend/{username}", method = RequestMethod.PUT)
-    public ResponseEntity<?> befriendUser(@RequestHeader("token") String token, @PathVariable("username") String username) {
+    public ResponseEntity<ShortUser> befriendUser(@RequestHeader("token") String token, @PathVariable("username") String username) {
         User currentUser = userService.findUserByAuthId(JWT.decode(token).getSubject());
         if (currentUser == null) throw new UnauthorizedUserException("User with token " + token + " not found, cannot add friend!");
 
@@ -148,7 +156,10 @@ public class UserRestController {
 
         userService.saveUser(currentUser);
         userService.saveUser(friend);
-        return new ResponseEntity<User>(currentUser, HttpStatus.OK);
+
+        ShortUser userDTO = new ShortUser(currentUser);
+
+        return new ResponseEntity<ShortUser>(userDTO, HttpStatus.OK);
     }
 
 
@@ -159,7 +170,7 @@ public class UserRestController {
      * @return HTTP status
      */
     @RequestMapping(value = "/removeFriend/{username}", method = RequestMethod.DELETE)
-    public ResponseEntity<?> defriendUser(@RequestHeader("token") String token, @PathVariable("username") String username) {
+    public ResponseEntity<ShortUser> defriendUser(@RequestHeader("token") String token, @PathVariable("username") String username) {
         User currentUser = userService.findUserByAuthId(JWT.decode(token).getSubject());
         if (currentUser == null) throw new UnauthorizedUserException("User with token " + token + " not found, cannot add friend!");
 
@@ -172,7 +183,10 @@ public class UserRestController {
 
         userService.saveUser(currentUser);
         userService.saveUser(friend);
-        return new ResponseEntity<User>(currentUser, HttpStatus.OK);
+
+        ShortUser userDTO = new ShortUser(currentUser);
+
+        return new ResponseEntity<ShortUser>(userDTO, HttpStatus.OK);
     }
 
     /**
@@ -202,10 +216,7 @@ public class UserRestController {
         List<ShortUser> friends = new ArrayList<>();
         if (user.getFriends() == null || user.getFriends().isEmpty())
             throw new NoContentException("No friends found for User with id: " + user.getAuthId() + "!");
-
-        for (User friend : user.getFriends()) {
-            friends.add(new ShortUser(friend));
-        }
+        user.getFriends().stream().forEach(friend -> friends.add(new ShortUser(friend)));
 
         return new ResponseEntity<List<ShortUser>>(friends, HttpStatus.OK);
     }
@@ -220,14 +231,12 @@ public class UserRestController {
 
         List<ShortUser> potentialFriends = new ArrayList<>();
         for (User potFriend : users) {
-
-            if(potFriend.getFriends()!=null && !potFriend.getFriends().contains(user) && !potFriend.equals(user)){
+            if(potFriend.getFriends() != null && !potFriend.getFriends().contains(user) && !potFriend.equals(user)){
                 potentialFriends.add(new ShortUser(potFriend));
             }
         }
 
         return new ResponseEntity<List<ShortUser>>(potentialFriends, HttpStatus.OK);
-
     }
 
 
