@@ -47,14 +47,17 @@ public class CompetitionRestController {
      * @return List of Competitions
      */
     @RequestMapping(value = "/getCompetitions", method = RequestMethod.GET)
-    public ResponseEntity<List<Competition>> getAllCompetitions(@RequestHeader("token") String token) {
+    public ResponseEntity<List<ShortCompetition>> getAllCompetitions(@RequestHeader("token") String token) {
         User user = userService.findUserByAuthId(JWT.decode(token).getSubject());
         if (user == null) throw new UnauthorizedUserException("User with token " + token + " not found, cannot fetch Competitions!");
 
         List<Competition> competitions = this.competitionService.findAllCompetitions();
         if (competitions == null || competitions.isEmpty()) throw new NoContentException("No Competitions were found!");
 
-        return new ResponseEntity<List<Competition>>(competitions, HttpStatus.OK);
+        List<ShortCompetition> competitionsDTO = new ArrayList<>();
+        competitions.stream().forEach(competition -> competitionsDTO.add(new ShortCompetition(competition)));
+
+        return new ResponseEntity<List<ShortCompetition>>(competitionsDTO, HttpStatus.OK);
     }
 
     /**
@@ -70,12 +73,10 @@ public class CompetitionRestController {
         List<Competition> competitions = user.getCompetitionsCreated();
         if (competitions == null || competitions.isEmpty()) throw new NoContentException("No created Competitions found for User with token " + token + "!");
 
-        List<ShortCompetition> createdCompetitionsShort = new ArrayList<>();
-        for (Competition competition : competitions) {
-            createdCompetitionsShort.add(new ShortCompetition(competition));
-        }
+        List<ShortCompetition> competitionsDTO = new ArrayList<>();
+        competitions.stream().forEach(competition -> competitionsDTO.add(new ShortCompetition(competition)));
 
-        return new ResponseEntity<List<ShortCompetition>>(createdCompetitionsShort, HttpStatus.OK);
+        return new ResponseEntity<List<ShortCompetition>>(competitionsDTO, HttpStatus.OK);
     }
 
     /**
@@ -84,14 +85,17 @@ public class CompetitionRestController {
      * @return List of Competitions
      */
     @RequestMapping(value = "/getWonCompetitions", method = RequestMethod.GET)
-    public ResponseEntity<List<Competition>> getAllWonCompetitionsFromUser(@RequestHeader("token") String token) {
+    public ResponseEntity<List<ShortCompetition>> getAllWonCompetitionsFromUser(@RequestHeader("token") String token) {
         User user = userService.findUserByAuthId(JWT.decode(token).getSubject());
         if (user == null) throw new UnauthorizedUserException("User with token " + token + " not found, cannot fetch won Competitions!");
 
         List<Competition> competitions = user.getCompetitionsWon();
         if (competitions == null || competitions.isEmpty()) throw new NoContentException("No won Competitions found for User with token " + token + "!");
 
-        return new ResponseEntity<List<Competition>>(competitions, HttpStatus.OK);
+        List<ShortCompetition> competitionsDTO = new ArrayList<>();
+        competitions.stream().forEach(competition -> competitionsDTO.add(new ShortCompetition(competition)));
+
+        return new ResponseEntity<List<ShortCompetition>>(competitionsDTO, HttpStatus.OK);
     }
 
     /**
@@ -107,13 +111,10 @@ public class CompetitionRestController {
         List<Competition> competitions = user.getCompetitionsRun();
         if (competitions == null || competitions.isEmpty()) throw new NoContentException("No ran Competitions found for User with token " + token + "!");
 
-        List<ShortCompetition> ranCompetitionsShort = new ArrayList<>();
-        for (Competition competition : competitions) {
-            ranCompetitionsShort.add(new ShortCompetition(competition));
-        }
+        List<ShortCompetition> competitionsDTO = new ArrayList<>();
+        competitions.stream().forEach(competition -> competitionsDTO.add(new ShortCompetition(competition)));
 
-
-        return new ResponseEntity<List<ShortCompetition>>(ranCompetitionsShort, HttpStatus.OK);
+        return new ResponseEntity<List<ShortCompetition>>(competitionsDTO, HttpStatus.OK);
     }
 
     /**
@@ -281,15 +282,13 @@ public class CompetitionRestController {
         User user = userService.findUserByAuthId(JWT.decode(token).getSubject());
         if (user == null) throw new UnauthorizedUserException("User with token " + token + " not found, cannot fetch available Competitions!");
 
-        List<Competition> availableCompetitions = this.competitionService.findAvailableCompetitions(user);
-        if (availableCompetitions.isEmpty()) throw new NoContentException("No available Competitions!");
+        List<Competition> competitions = this.competitionService.findAvailableCompetitions(user);
+        if (competitions.isEmpty()) throw new NoContentException("No available Competitions!");
 
-        List<ShortCompetition> availableCompetitionsShort = new ArrayList<>();
-        for (Competition competition : availableCompetitions) {
-            availableCompetitionsShort.add(new ShortCompetition(competition));
-        }
+        List<ShortCompetition> competitionsDTO = new ArrayList<>();
+        competitions.stream().forEach(competition -> competitionsDTO.add(new ShortCompetition(competition)));
 
-        return new ResponseEntity<List<ShortCompetition>>(availableCompetitionsShort, HttpStatus.OK);
+        return new ResponseEntity<List<ShortCompetition>>(competitionsDTO, HttpStatus.OK);
     }
 
     /**
@@ -312,7 +311,7 @@ public class CompetitionRestController {
         if (goal == null) throw new NoContentException("Goal for Competition with id " + competitionId + " not found!");
         System.err.println("\nGoal for Competition with id " + competitionId + " not found!\n");
 
-        return new ResponseEntity<>(null, HttpStatus.OK);
+        return new ResponseEntity<>(goal, HttpStatus.OK);
     }
 
 }
