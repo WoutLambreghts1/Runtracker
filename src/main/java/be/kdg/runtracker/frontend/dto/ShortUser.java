@@ -21,9 +21,6 @@ public class ShortUser {
     private long maxDistance;
     private double avgDistance;
     private long totalDistance;
-    private boolean ranTenKm;
-    private boolean ranTwentyKm;
-    private boolean ranMarathon;
     private int nrOfCompetitionsWon;
 
     public ShortUser(User user) {
@@ -41,9 +38,6 @@ public class ShortUser {
         this.maxDistance = user.getMaxDistance();
         this.avgDistance = user.getAvgDistance();
         this.totalDistance = user.getTotalDistance();
-        this.ranTenKm = user.isRanTenKm();
-        this.ranTwentyKm = user.isRanTwentyKm();
-        this.ranMarathon = user.isRanMarathon();
         this.nrOfCompetitionsWon = user.getNrOfCompetitionsWon();
     }
 
@@ -97,18 +91,6 @@ public class ShortUser {
 
     public long getTotalDistance() {
         return totalDistance;
-    }
-
-    public boolean isRanTenKm() {
-        return ranTenKm;
-    }
-
-    public boolean isRanTwentyKm() {
-        return ranTwentyKm;
-    }
-
-    public boolean isRanMarathon() {
-        return ranMarathon;
     }
 
     public int getNrOfCompetitionsWon() {

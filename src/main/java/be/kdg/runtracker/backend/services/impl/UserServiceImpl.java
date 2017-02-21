@@ -146,36 +146,6 @@ public class UserServiceImpl implements UserService {
                 user.setNrOfCompetitionsWon(0);
             }
 
-            //Calculate ran marathon
-            boolean ranMarathon = false;
-            if (user.getCompetitionsWon() != null) {
-                if (user.getTrackings().stream().map(t -> t.getTotalDistance()).mapToDouble(Number::doubleValue).max().getAsDouble() > 42195)
-                    ranMarathon = true;
-                user.setRanMarathon(ranMarathon);
-            } else {
-                user.setRanMarathon(false);
-            }
-
-            //Calculate ran 10KM
-            boolean ran10 = false;
-            if (user.getCompetitionsWon() != null) {
-                if (user.getTrackings().stream().map(t -> t.getTotalDistance()).mapToDouble(Number::doubleValue).max().getAsDouble() > 10000)
-                    ran10 = true;
-                user.setRanTenKm(ran10);
-            } else {
-                user.setRanTenKm(false);
-            }
-
-            //Calculate ran 20KM
-            boolean ran20 = false;
-            if (user.getCompetitionsWon() != null) {
-                if (user.getTrackings().stream().map(t -> t.getTotalDistance()).mapToDouble(Number::doubleValue).max().getAsDouble() > 20000)
-                    ran20 = true;
-                user.setRanTwentyKm(ran20);
-            } else {
-                user.setRanTwentyKm(false);
-            }
-
             //Update user
             saveUser(user);
         }

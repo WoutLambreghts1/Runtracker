@@ -90,15 +90,6 @@ public class User implements Serializable {
     private long totalDistance;
 
     @Basic
-    private boolean ranTenKm;
-
-    @Basic
-    private boolean ranTwentyKm;
-
-    @Basic
-    private boolean ranMarathon;
-
-    @Basic
     private int nrOfCompetitionsWon;
 
     public Long getUserId() {
@@ -243,30 +234,6 @@ public class User implements Serializable {
 
     public void setTotalDistance(long totalDistance) {
         this.totalDistance = totalDistance;
-    }
-
-    public boolean isRanTenKm() {
-        return ranTenKm;
-    }
-
-    public void setRanTenKm(boolean ranTenKm) {
-        this.ranTenKm = ranTenKm;
-    }
-
-    public boolean isRanTwentyKm() {
-        return ranTwentyKm;
-    }
-
-    public void setRanTwentyKm(boolean ranTwentyKm) {
-        this.ranTwentyKm = ranTwentyKm;
-    }
-
-    public boolean isRanMarathon() {
-        return ranMarathon;
-    }
-
-    public void setRanMarathon(boolean ranMarathon) {
-        this.ranMarathon = ranMarathon;
     }
 
     public int getNrOfCompetitionsWon() {
