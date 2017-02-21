@@ -387,21 +387,21 @@ public class CompetitionRestControllerTest {
         this.alexander.setCompetitionsCreated(new ArrayList<>());
         this.alexander.setCompetitionsWon(new ArrayList<>());
         this.alexander.setTrackings(new ArrayList<>());
-        this.alexander.setFriends(new ArrayList<>());
+        this.alexander.setFriendships(new ArrayList<>());
         this.userRepository.save(alexander);
 
         this.wout.setCompetitionsRun(new ArrayList<>());
         this.wout.setCompetitionsCreated(new ArrayList<>());
         this.wout.setCompetitionsWon(new ArrayList<>());
         this.wout.setTrackings(new ArrayList<>());
-        this.wout.setFriends(new ArrayList<>());
+        this.wout.setFriendships(new ArrayList<>());
         this.userRepository.save(wout);
 
         this.jelle.setCompetitionsRun(new ArrayList<>());
         this.jelle.setCompetitionsCreated(new ArrayList<>());
         this.jelle.setCompetitionsWon(new ArrayList<>());
         this.jelle.setTrackings(new ArrayList<>());
-        this.jelle.setFriends(new ArrayList<>());
+        this.jelle.setFriendships(new ArrayList<>());
         this.userRepository.save(jelle);
 
         this.trackingAlex.setCompetition(null);

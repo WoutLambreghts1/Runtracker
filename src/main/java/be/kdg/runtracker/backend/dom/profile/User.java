@@ -54,10 +54,11 @@ public class User implements Serializable {
     @Basic
     private Date birthday;
 
+    /*
     @ManyToMany(targetEntity = User.class)
     @LazyCollection(LazyCollectionOption.FALSE)
     private List<User> friends;
-
+*/
     @OneToMany(targetEntity = Competition.class,mappedBy = "userCreated")
     @LazyCollection(LazyCollectionOption.FALSE)
     private List<Competition> competitionsCreated;
@@ -73,6 +74,9 @@ public class User implements Serializable {
     @ManyToMany(targetEntity = Competition.class)
     @LazyCollection(LazyCollectionOption.FALSE)
     private List<Competition> competitionsRun;
+
+    @OneToMany(targetEntity = Friendship.class)
+    private List<Friendship> friendships;
 
     @Basic
     private double maxSpeed;
@@ -156,6 +160,7 @@ public class User implements Serializable {
         this.birthday = birthday;
     }
 
+    /*
     public List<User> getFriends() {
         return friends;
     }
@@ -163,6 +168,7 @@ public class User implements Serializable {
     public void setFriends(List<User> friends) {
         this.friends = friends;
     }
+    */
 
     public List<Competition> getCompetitionsCreated() {
         return this.competitionsCreated;
@@ -244,15 +250,6 @@ public class User implements Serializable {
         this.nrOfCompetitionsWon = nrOfCompetitionsWon;
     }
 
-    public void addFriend(User friend){
-        if(friends == null){
-            friends = new ArrayList<>();
-        }
-
-        if(!friends.contains(friend)){
-            friends.add(friend);
-        }
-    }
 
     public void addTracking(Tracking tracking) {
 
@@ -281,11 +278,18 @@ public class User implements Serializable {
         this.competitionsWon.add(competition);
     }
 
-    public void removeTracking(User friend){
-        if(friends.contains(friend)){
-            friends.remove(friend);
-        }
+    public List<Friendship> getFriendships() {
+        if(this.friendships!=null)return this.friendships;
+        return new ArrayList<Friendship>();
     }
 
+    public void addFriendship(Friendship friendship){
+        List<Friendship> friendships = getFriendships();
+        friendships.add(friendship);
+        this.friendships = friendships;
+    }
 
+    public void setFriendships(List<Friendship> friendships) {
+        this.friendships = friendships;
+    }
 }

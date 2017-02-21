@@ -73,7 +73,11 @@ public class TrackingRestController {
 
         User friend = userService.findUserByUsername(username);
         if (friend == null) throw new UnauthorizedUserException("User with username " + username + " not found, cannot fetch Trackings!");
-        if (!user.getFriends().contains(friend)) {
+
+        boolean containsFriend = false;
+        long matches = user.getFriendships().stream().filter(f -> !f.getFriend().equals(friend)).count();
+        if(matches>0)containsFriend=true;
+        if (containsFriend) {
             return new ResponseEntity(new CustomErrorType("Not friends with User with username " + username + "!"),
                     HttpStatus.UNAUTHORIZED);
         }

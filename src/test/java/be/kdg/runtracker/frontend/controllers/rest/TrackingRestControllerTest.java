@@ -1,8 +1,10 @@
 package be.kdg.runtracker.frontend.controllers.rest;
 
+import be.kdg.runtracker.backend.dom.profile.Friendship;
 import be.kdg.runtracker.backend.dom.profile.User;
 import be.kdg.runtracker.backend.dom.tracking.Coordinate;
 import be.kdg.runtracker.backend.dom.tracking.Tracking;
+import be.kdg.runtracker.backend.persistence.api.FriendshipRepository;
 import be.kdg.runtracker.backend.persistence.api.TrackingRepository;
 import be.kdg.runtracker.backend.persistence.api.UserRepository;
 import com.auth0.jwt.JWT;
@@ -45,6 +47,8 @@ public class TrackingRestControllerTest {
     private UserRepository userRepository;
     @Autowired
     private TrackingRepository trackingRepository;
+    @Autowired
+    private FriendshipRepository friendshipRepository;
     private MockMvc mockMvc;
     private Gson gson;
 
@@ -116,8 +120,13 @@ public class TrackingRestControllerTest {
         this.jelle.addTracking(tracking3);
         this.jelle.addTracking(tracking4);
 
-        this.alexander.addFriend(wout);
-        this.wout.addFriend(alexander);
+        Friendship friendship1 = new Friendship(wout);
+        Friendship friendship2 = new Friendship(alexander);
+        friendshipRepository.save(friendship1);
+        friendshipRepository.save(friendship2);
+
+        this.alexander.addFriendship(friendship1);
+        this.wout.addFriendship(friendship2);
 
         this.userRepository.save(alexander);
         this.userRepository.save(wout);

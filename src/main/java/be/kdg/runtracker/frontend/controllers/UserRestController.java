@@ -1,9 +1,11 @@
 package be.kdg.runtracker.frontend.controllers;
 
+import be.kdg.runtracker.backend.dom.profile.Friendship;
 import be.kdg.runtracker.backend.dom.profile.User;
 import be.kdg.runtracker.backend.exceptions.NoContentException;
 import be.kdg.runtracker.backend.exceptions.UnauthorizedUserException;
 import be.kdg.runtracker.backend.exceptions.UserNotFoundException;
+import be.kdg.runtracker.backend.services.api.FriendshipService;
 import be.kdg.runtracker.backend.services.api.UserService;
 import be.kdg.runtracker.frontend.dto.ShortUser;
 import be.kdg.runtracker.frontend.util.CustomErrorType;
@@ -24,10 +26,12 @@ import java.util.List;
 public class UserRestController {
 
     private UserService userService;
+    private FriendshipService friendshipService;
 
     @Autowired
-    public UserRestController(UserService userService) {
+    public UserRestController(UserService userService,FriendshipService friendshipService) {
         this.userService = userService;
+        this.friendshipService = friendshipService;
     }
 
     protected UserRestController() { }
@@ -151,8 +155,13 @@ public class UserRestController {
         User friend = userService.findUserByUsername(username);
         if (friend == null) throw new UserNotFoundException("User with username " + username + " not found, cannot add friend!");
 
-        currentUser.addFriend(friend);
-        friend.addFriend(currentUser);
+        Friendship friendship1 = new Friendship(friend);
+        Friendship friendship2 = new Friendship(currentUser);
+        friendshipService.saveFriendship(friendship1);
+        friendshipService.saveFriendship(friendship2);
+
+        currentUser.addFriendship(friendship1);
+        friend.addFriendship(friendship2);
 
         userService.saveUser(currentUser);
         userService.saveUser(friend);
@@ -178,11 +187,15 @@ public class UserRestController {
         if (friend == null) throw new UserNotFoundException("User with username " + username + " not found, cannot add friend!");
 
 
-        currentUser.getFriends().remove(friend);
-        friend.getFriends().remove(currentUser);
+        Friendship friendship1 =  friendshipService.findFriendshipByUserAndFriend(currentUser, friend);
+        Friendship friendship2 = friendshipService.findFriendshipByUserAndFriend(friend,currentUser);
+        currentUser.getFriendships().remove(friendship1);
+        friend.getFriendships().remove(friendship2);
 
         userService.saveUser(currentUser);
         userService.saveUser(friend);
+        friendshipService.deleteFriendship(friendship1);
+        friendshipService.deleteFriendship(friendship2);
 
         ShortUser userDTO = new ShortUser(currentUser);
 
@@ -208,19 +221,60 @@ public class UserRestController {
         return new ResponseEntity<Boolean>(available, HttpStatus.OK);
     }
 
+    /**
+     *
+     * @param token
+     * @return
+     */
     @RequestMapping(value = "/getAllFriends", method = RequestMethod.GET)
     public ResponseEntity<List<ShortUser>> getAllFriends(@RequestHeader("token") String token) {
         User user = userService.findUserByAuthId(JWT.decode(token).getSubject());
         if (user == null) throw new UnauthorizedUserException("User with token " + token + " not found, cannot fetch friends!");
 
         List<ShortUser> friends = new ArrayList<>();
-        if (user.getFriends() == null || user.getFriends().isEmpty())
+        if (user.getFriendships() == null || user.getFriendships().isEmpty())
             throw new NoContentException("No friends found for User with id: " + user.getAuthId() + "!");
-        user.getFriends().stream().forEach(friend -> friends.add(new ShortUser(friend)));
+
+        user.getFriendships().stream().forEach(friendship -> friends.add(new ShortUser(friendship.getFriend())));
 
         return new ResponseEntity<List<ShortUser>>(friends, HttpStatus.OK);
     }
 
+    /**
+     * Accept a friendrequest
+     * @param token
+     * @param username
+     * @return
+     */
+    @RequestMapping(value = "/acceptFriend/{username}", method = RequestMethod.PUT)
+    public ResponseEntity<?> acceptFriend(@RequestHeader("token") String token, @PathVariable("username") String username) {
+        User user = userService.findUserByAuthId(JWT.decode(token).getSubject());
+        if (user == null) throw new UnauthorizedUserException("User with token " + token + " not found!");
+
+
+        User friend = userService.findUserByUsername(username);
+        if (friend == null) throw new UserNotFoundException("User with username " + username + " not found, cannot add friend!");
+
+        Friendship friendship1 =  friendshipService.findFriendshipByUserAndFriend(user, friend);
+        Friendship friendship2 = friendshipService.findFriendshipByUserAndFriend(friend,user);
+        user.getFriendships().remove(friendship1);
+        friend.getFriendships().remove(friendship2);
+
+        friendship1.setAccepted(true);
+        friendship2.setAccepted(true);
+        friendshipService.saveFriendship(friendship1);
+        friendshipService.saveFriendship(friendship2);
+
+        ShortUser currShortUser = new ShortUser(user);
+        return new ResponseEntity<ShortUser>(currShortUser, HttpStatus.OK);
+    }
+
+
+    /**
+     *
+     * @param token
+     * @return
+     */
     @RequestMapping(value = "/getAllPotentialFriends", method = RequestMethod.GET)
     public ResponseEntity<List<ShortUser>> getAllPotentialFriends(@RequestHeader("token") String token) {
         User user = userService.findUserByAuthId(JWT.decode(token).getSubject());
@@ -229,11 +283,13 @@ public class UserRestController {
         List<User> users = userService.findAllUsers();
         if (users == null || users.isEmpty()) throw new NoContentException("No Users were found!");
 
+        List<User> friends = new ArrayList<>();
+        user.getFriendships().forEach(f -> friends.add(f.getFriend()));
+        friends.add(user);
+
         List<ShortUser> potentialFriends = new ArrayList<>();
         for (User potFriend : users) {
-            if(potFriend.getFriends() != null && !potFriend.getFriends().contains(user) && !potFriend.equals(user)){
-                potentialFriends.add(new ShortUser(potFriend));
-            }
+            if(!friends.contains(potFriend))potentialFriends.add(new ShortUser(potFriend));
         }
 
         return new ResponseEntity<List<ShortUser>>(potentialFriends, HttpStatus.OK);

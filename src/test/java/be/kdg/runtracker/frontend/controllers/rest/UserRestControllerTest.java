@@ -3,12 +3,10 @@ package be.kdg.runtracker.frontend.controllers.rest;
 import be.kdg.runtracker.backend.dom.competition.Competition;
 import be.kdg.runtracker.backend.dom.competition.CompetitionType;
 import be.kdg.runtracker.backend.dom.competition.Goal;
+import be.kdg.runtracker.backend.dom.profile.Friendship;
 import be.kdg.runtracker.backend.dom.profile.User;
 import be.kdg.runtracker.backend.dom.tracking.Tracking;
-import be.kdg.runtracker.backend.persistence.api.CompetitionRepository;
-import be.kdg.runtracker.backend.persistence.api.GoalRepository;
-import be.kdg.runtracker.backend.persistence.api.TrackingRepository;
-import be.kdg.runtracker.backend.persistence.api.UserRepository;
+import be.kdg.runtracker.backend.persistence.api.*;
 import com.auth0.jwt.JWT;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.After;
@@ -50,6 +48,8 @@ public class UserRestControllerTest {
     private GoalRepository goalRepository;
     @Autowired
     private TrackingRepository trackingRepository;
+    @Autowired
+    private FriendshipRepository friendshipRepository;
 
     private MockMvc mockMvc;
     private ObjectMapper mapper;
@@ -99,7 +99,10 @@ public class UserRestControllerTest {
         this.stijn.setFirstname("Stijn");
         this.stijn.setLastname("Ergeerts");
         this.stijn.setUsername("stijne");
-        this.stijn.addFriend(jens);
+        Friendship friendship = new Friendship(jens);
+        friendship.setAccepted(true);
+        this.friendshipRepository.save(friendship);
+        this.stijn.addFriendship(friendship);
 
         tokenJens = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJPbmxpbmUgSldUIEJ1aWxkZXIiLCJpYXQiOjE0ODY3MzE5MzgsImV4cCI6MTUxODI2NzkzOCwiYXVkIjoid3d3LmV4YW1wbGUuY29tIiwic3ViIjoidGVzdDUifQ.mmEMpKfNaBlkvd-mGpbDDeJOAxU9ASiq0F_mBMckrLw";
         this.jens = new User();
@@ -107,7 +110,10 @@ public class UserRestControllerTest {
         this.jens.setFirstname("Jens");
         this.jens.setLastname("Schadron");
         this.jens.setUsername("jenss");
-        this.jens.addFriend(stijn);
+        Friendship friendship2 = new Friendship(stijn);
+        friendship2.setAccepted(true);
+        this.friendshipRepository.save(friendship2);
+        this.jens.addFriendship(friendship2);
 
         this.goalAlex = new Goal();
         this.goalAlex.setName("Goal1");
@@ -326,6 +332,18 @@ public class UserRestControllerTest {
     @Test
     public void testgetAllPotentialFriends() throws Exception {
         this.mockMvc.perform(get("/users/getAllPotentialFriends").header("token", tokenAlexander).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andDo(print());
+    }
+
+    @Test
+    public void testAcceptFriend() throws Exception {
+        String username = "woutl";
+        this.mockMvc.perform(put("/users/addFriend/" + username).header("token", tokenAlexander).contentType(MediaType.APPLICATION_JSON))
+                .andDo(print())
+                .andExpect(status().isOk());
+
+        this.mockMvc.perform(put("/users/acceptFriend/" + username).header("token", tokenAlexander).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andDo(print());
     }
