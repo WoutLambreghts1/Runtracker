@@ -323,6 +323,13 @@ public class UserRestControllerTest {
                 .andExpect(status().isNoContent());
     }
 
+    @Test
+    public void testgetAllPotentialFriends() throws Exception {
+        this.mockMvc.perform(get("/users/getAllPotentialFriends").header("token", tokenAlexander).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andDo(print());
+    }
+
     @After
     public void removeTestUsers() {
         this.alexander.setCompetitionsCreated(new ArrayList<>());

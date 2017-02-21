@@ -210,4 +210,25 @@ public class UserRestController {
         return new ResponseEntity<List<ShortUser>>(friends, HttpStatus.OK);
     }
 
+    @RequestMapping(value = "/getAllPotentialFriends", method = RequestMethod.GET)
+    public ResponseEntity<List<ShortUser>> getAllPotentialFriends(@RequestHeader("token") String token) {
+        User user = userService.findUserByAuthId(JWT.decode(token).getSubject());
+        if (user == null) throw new UnauthorizedUserException("User with token " + token + " not found, cannot fetch friends!");
+
+        List<User> users = userService.findAllUsers();
+        if (users == null || users.isEmpty()) throw new NoContentException("No Users were found!");
+
+        List<ShortUser> potentialFriends = new ArrayList<>();
+        for (User potFriend : users) {
+
+            if(potFriend.getFriends()!=null && !potFriend.getFriends().contains(user) && !potFriend.equals(user)){
+                potentialFriends.add(new ShortUser(potFriend));
+            }
+        }
+
+        return new ResponseEntity<List<ShortUser>>(potentialFriends, HttpStatus.OK);
+
+    }
+
+
 }
