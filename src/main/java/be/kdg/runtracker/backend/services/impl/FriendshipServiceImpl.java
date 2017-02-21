@@ -48,4 +48,27 @@ public class FriendshipServiceImpl implements FriendshipService {
     public void deleteFriendship(Friendship friendship) {
         friendshipRepository.delete(friendship);
     }
+
+    @Override
+    public boolean checkFriendship(User userOne, User userTwo) {
+        Friendship friendship1 = findFriendshipByUserAndFriend(userOne,userTwo);
+        Friendship friendship2 = findFriendshipByUserAndFriend(userTwo,userOne);
+
+        if(friendship1!=null && friendship2 != null && friendship1.isAccepted() && friendship2.isAccepted()) return true;
+
+        return false;
+    }
+
+    @Override
+    public void acceptFriend(User user,User friend) {
+        Friendship friendship1 =  this.findFriendshipByUserAndFriend(user, friend);
+        Friendship friendship2 = this.findFriendshipByUserAndFriend(friend,user);
+
+        friendship1.setAccepted(true);
+        friendship2.setAccepted(true);
+
+        saveFriendship(friendship1);
+        saveFriendship(friendship2);
+
+    }
 }

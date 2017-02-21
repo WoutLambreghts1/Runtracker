@@ -7,6 +7,7 @@ import be.kdg.runtracker.backend.exceptions.NoContentException;
 import be.kdg.runtracker.backend.exceptions.NotFoundException;
 import be.kdg.runtracker.backend.exceptions.UnauthorizedUserException;
 import be.kdg.runtracker.backend.services.api.CoordinatesService;
+import be.kdg.runtracker.backend.services.api.FriendshipService;
 import be.kdg.runtracker.backend.services.api.TrackingService;
 import be.kdg.runtracker.backend.services.api.UserService;
 import be.kdg.runtracker.frontend.dto.ShortTracking;
@@ -30,12 +31,14 @@ public class TrackingRestController {
     private TrackingService trackingService;
     private UserService userService;
     private CoordinatesService coordinatesService;
+    private FriendshipService friendshipService;
 
     @Autowired
-    public TrackingRestController(TrackingService trackingService, UserService userService, CoordinatesService coordinatesService) {
+    public TrackingRestController(TrackingService trackingService, UserService userService, CoordinatesService coordinatesService,FriendshipService friendshipService) {
         this.trackingService = trackingService;
         this.userService = userService;
         this.coordinatesService = coordinatesService;
+        this.friendshipService = friendshipService;
     }
 
     protected TrackingRestController() { }
@@ -74,10 +77,7 @@ public class TrackingRestController {
         User friend = userService.findUserByUsername(username);
         if (friend == null) throw new UnauthorizedUserException("User with username " + username + " not found, cannot fetch Trackings!");
 
-        boolean containsFriend = false;
-        long matches = user.getFriendships().stream().filter(f -> !f.getFriend().equals(friend)).count();
-        if(matches>0)containsFriend=true;
-        if (containsFriend) {
+        if (friendshipService.checkFriendship(user,friend)) {
             return new ResponseEntity(new CustomErrorType("Not friends with User with username " + username + "!"),
                     HttpStatus.UNAUTHORIZED);
         }

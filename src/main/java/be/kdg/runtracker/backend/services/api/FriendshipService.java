@@ -19,4 +19,8 @@ public interface FriendshipService {
 
     void deleteFriendship(Friendship friendship);
 
+    boolean checkFriendship(User userOne, User userTwo);
+
+    void acceptFriend(User user, User friend);
+
 }

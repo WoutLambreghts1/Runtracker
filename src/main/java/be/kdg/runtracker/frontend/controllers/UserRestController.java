@@ -136,6 +136,31 @@ public class UserRestController {
     }
 
     /**
+     * Check if username is available.
+     * @param token authorization id
+     * @param username username to check
+     * @return true if username is available, otherwise false
+     */
+    @RequestMapping(value = "/checkUsername/{username}", method = RequestMethod.GET)
+    public ResponseEntity<?> checkUsernameAvailability(@RequestHeader("token") String token, @PathVariable("username") String username) {
+        User user = userService.findUserByAuthId(JWT.decode(token).getSubject());
+        if (user == null) throw new UnauthorizedUserException("User with token " + token + " not found!");
+
+        boolean available = false;
+
+        if (this.userService.findUserByUsername(username) == null || this.userService.findUserByAuthId(JWT.decode(token).getSubject()).getUsername().equals(username))
+            available = true;
+
+        return new ResponseEntity<Boolean>(available, HttpStatus.OK);
+    }
+
+
+    /*
+    FRIENDSHIP PART OF USERS
+    *---------------------------------------
+     */
+
+    /**
      * Befriend another {@link User}.
      * @param token authorization id
      * @param username username of friend
@@ -157,6 +182,7 @@ public class UserRestController {
 
         Friendship friendship1 = new Friendship(friend);
         Friendship friendship2 = new Friendship(currentUser);
+        friendship1.setAccepted(true);
         friendshipService.saveFriendship(friendship1);
         friendshipService.saveFriendship(friendship2);
 
@@ -202,24 +228,6 @@ public class UserRestController {
         return new ResponseEntity<ShortUser>(userDTO, HttpStatus.OK);
     }
 
-    /**
-     * Check if username is available.
-     * @param token authorization id
-     * @param username username to check
-     * @return true if username is available, otherwise false
-     */
-    @RequestMapping(value = "/checkUsername/{username}", method = RequestMethod.GET)
-    public ResponseEntity<?> checkUsernameAvailability(@RequestHeader("token") String token, @PathVariable("username") String username) {
-        User user = userService.findUserByAuthId(JWT.decode(token).getSubject());
-        if (user == null) throw new UnauthorizedUserException("User with token " + token + " not found!");
-
-        boolean available = false;
-
-        if (this.userService.findUserByUsername(username) == null || this.userService.findUserByAuthId(JWT.decode(token).getSubject()).getUsername().equals(username))
-            available = true;
-
-        return new ResponseEntity<Boolean>(available, HttpStatus.OK);
-    }
 
     /**
      *
@@ -235,7 +243,10 @@ public class UserRestController {
         if (user.getFriendships() == null || user.getFriendships().isEmpty())
             throw new NoContentException("No friends found for User with id: " + user.getAuthId() + "!");
 
-        user.getFriendships().stream().forEach(friendship -> friends.add(new ShortUser(friendship.getFriend())));
+
+        for (Friendship friendship : user.getFriendships()) {
+            if(friendshipService.checkFriendship(user,friendship.getFriend())) friends.add(new ShortUser(friendship.getFriend()));
+        }
 
         return new ResponseEntity<List<ShortUser>>(friends, HttpStatus.OK);
     }
@@ -255,15 +266,7 @@ public class UserRestController {
         User friend = userService.findUserByUsername(username);
         if (friend == null) throw new UserNotFoundException("User with username " + username + " not found, cannot add friend!");
 
-        Friendship friendship1 =  friendshipService.findFriendshipByUserAndFriend(user, friend);
-        Friendship friendship2 = friendshipService.findFriendshipByUserAndFriend(friend,user);
-        user.getFriendships().remove(friendship1);
-        friend.getFriendships().remove(friendship2);
-
-        friendship1.setAccepted(true);
-        friendship2.setAccepted(true);
-        friendshipService.saveFriendship(friendship1);
-        friendshipService.saveFriendship(friendship2);
+        friendshipService.acceptFriend(user,friend);
 
         ShortUser currShortUser = new ShortUser(user);
         return new ResponseEntity<ShortUser>(currShortUser, HttpStatus.OK);
