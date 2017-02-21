@@ -151,6 +151,30 @@ public class UserRestController {
         return new ResponseEntity<User>(currentUser, HttpStatus.OK);
     }
 
+
+    /**
+     *Defriend another {@link User}.
+     * @param token authorization id
+     * @param username username of friend
+     * @return HTTP status
+     */
+    @RequestMapping(value = "/removeFriend/{username}", method = RequestMethod.DELETE)
+    public ResponseEntity<?> defriendUser(@RequestHeader("token") String token, @PathVariable("username") String username) {
+        User currentUser = userService.findUserByAuthId(JWT.decode(token).getSubject());
+        if (currentUser == null) throw new UnauthorizedUserException("User with token " + token + " not found, cannot add friend!");
+
+        User friend = userService.findUserByUsername(username);
+        if (friend == null) throw new UserNotFoundException("User with username " + username + " not found, cannot add friend!");
+
+
+        currentUser.getFriends().remove(friend);
+        friend.getFriends().remove(currentUser);
+
+        userService.saveUser(currentUser);
+        userService.saveUser(friend);
+        return new ResponseEntity<User>(currentUser, HttpStatus.OK);
+    }
+
     /**
      * Check if username is available.
      * @param token authorization id

@@ -87,8 +87,6 @@ public class CompetitionServiceImpl implements CompetitionService {
             this.userRepository.save(runner);
         }
 
-        //Goal goal = competition.getGoal();
-        //if (goal != null) this.goalRepository.delete(goal.getGoalId());
 
         competition.setGoal(null);
         competition.setUserCreated(null);

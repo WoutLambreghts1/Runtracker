@@ -274,6 +274,17 @@ public class UserRestControllerTest {
     }
 
     @Test
+    public void testDefriendUser() throws Exception {
+        String username = "woutl";
+        this.mockMvc.perform(put("/users/addFriend/" + username).header("token", tokenAlexander).contentType(MediaType.APPLICATION_JSON))
+                .andDo(print())
+                .andExpect(status().isOk());
+        this.mockMvc.perform(delete("/users/removeFriend/" + username).header("token", tokenAlexander))
+                .andDo(print())
+                .andExpect(status().isOk());
+    }
+
+    @Test
     public void checkAvailableUsername() throws Exception {
         String username = "testuser";
         this.mockMvc.perform(get("/users/checkUsername/" + username).header("token", tokenAlexander).contentType(MediaType.APPLICATION_JSON))
