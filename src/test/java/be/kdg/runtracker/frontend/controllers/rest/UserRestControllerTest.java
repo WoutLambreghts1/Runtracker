@@ -113,6 +113,7 @@ public class UserRestControllerTest {
         this.friendshipRepository.save(friendship2);
         this.jens.addFriendship(friendship2);
 
+
         this.goalAlex = new Goal();
         this.goalAlex.setName("Goal1");
         this.goalAlex.setDistance(10);
@@ -393,6 +394,24 @@ public class UserRestControllerTest {
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(content().string(org.hamcrest.Matchers.containsString("false")));
+    }
+
+    @Test
+    public void testGetFriend() throws Exception{
+        //Send & accept friendship
+        String username = "woutl";
+        this.mockMvc.perform(put("/users/addFriend/" + username).header("token", tokenAlexander).contentType(MediaType.APPLICATION_JSON))
+                .andDo(print())
+                .andExpect(status().isOk());
+
+        this.mockMvc.perform(put("/users/acceptFriend/" + username).header("token", tokenAlexander).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andDo(print());
+
+        //Get friend
+        this.mockMvc.perform(get("/users/getFriend/" + username).header("token", tokenAlexander).contentType(MediaType.APPLICATION_JSON))
+                .andDo(print())
+                .andExpect(status().isOk());
     }
 
 
