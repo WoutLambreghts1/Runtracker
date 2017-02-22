@@ -154,6 +154,53 @@ public class UserRestController {
         return new ResponseEntity<Boolean>(available, HttpStatus.OK);
     }
 
+    /**
+     * Check if username is online.
+     * @param token authorization id
+     * @param username username to check online
+     * @return true if user is online
+     */
+    @RequestMapping(value = "/checkOnline/{username}", method = RequestMethod.GET)
+    public ResponseEntity<?> checkOnline(@RequestHeader("token") String token, @PathVariable("username") String username) {
+        User user = userService.findUserByAuthId(JWT.decode(token).getSubject());
+        if (user == null) throw new UnauthorizedUserException("User with token " + token + " not found!");
+
+        boolean online = this.userService.findUserByUsername(username).isOnline();
+
+        return new ResponseEntity<Boolean>(online, HttpStatus.OK);
+    }
+
+    /**
+     *
+     * @param token
+     * @return {@link ShortUser}.
+     */
+    @RequestMapping(value = "/setOnline", method = RequestMethod.PUT)
+    public ResponseEntity<?> setOnline(@RequestHeader("token") String token) {
+        User user = userService.findUserByAuthId(JWT.decode(token).getSubject());
+        if (user == null) throw new UnauthorizedUserException("User with token " + token + " not found!");
+
+        user.setOnline(true);
+        userService.saveUser(user);
+
+        return new ResponseEntity<ShortUser>(new ShortUser(user), HttpStatus.OK);
+    }
+
+    /**
+     *
+     * @param token
+     * @return {@link ShortUser}.
+     */
+    @RequestMapping(value = "/setOffline", method = RequestMethod.PUT)
+    public ResponseEntity<?> setOffline(@RequestHeader("token") String token) {
+        User user = userService.findUserByAuthId(JWT.decode(token).getSubject());
+        if (user == null) throw new UnauthorizedUserException("User with token " + token + " not found!");
+
+        user.setOnline(false);
+        userService.saveUser(user);
+
+        return new ResponseEntity<ShortUser>(new ShortUser(user), HttpStatus.OK);
+    }
 
     /*
     FRIENDSHIP PART OF USERS

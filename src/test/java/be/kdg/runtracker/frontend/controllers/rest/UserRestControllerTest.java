@@ -360,6 +360,42 @@ public class UserRestControllerTest {
 
     }
 
+    @Test
+    public void testCheckOnline() throws Exception{
+        String username = "woutl";
+        this.mockMvc.perform(get("/users/checkOnline/" + username).header("token", tokenAlexander))
+                .andDo(print())
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    public void testSetOnline() throws Exception{
+        String username = "woutl";
+        this.mockMvc.perform(put("/users/setOnline").header("token", tokenWout).contentType(MediaType.APPLICATION_JSON))
+                .andDo(print())
+                .andExpect(status().isOk());
+
+        this.mockMvc.perform(get("/users/checkOnline/" + username).header("token", tokenAlexander))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("true")));
+    }
+
+
+    @Test
+    public void testSetOffline() throws Exception{
+        String username = "woutl";
+        this.mockMvc.perform(put("/users/setOffline").header("token", tokenWout).contentType(MediaType.APPLICATION_JSON))
+                .andDo(print())
+                .andExpect(status().isOk());
+
+        this.mockMvc.perform(get("/users/checkOnline/" + username).header("token", tokenAlexander))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("false")));
+    }
+
+
     @After
     public void removeTestUsers() {
         this.alexander.setCompetitionsCreated(new ArrayList<>());

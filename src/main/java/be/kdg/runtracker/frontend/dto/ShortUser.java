@@ -15,6 +15,7 @@ public class ShortUser {
     private Gender gender;
     private String city;
     private Date birthday;
+    private boolean online;
 
     private double maxSpeed;
     private double avgSpeed;
@@ -39,6 +40,7 @@ public class ShortUser {
         this.avgDistance = user.getAvgDistance();
         this.totalDistance = user.getTotalDistance();
         this.nrOfCompetitionsWon = user.getNrOfCompetitionsWon();
+        this.online = user.isOnline();
     }
 
     public Long getUserId() {
@@ -97,4 +99,7 @@ public class ShortUser {
         return nrOfCompetitionsWon;
     }
 
+    public boolean isOnline() {
+        return online;
+    }
 }

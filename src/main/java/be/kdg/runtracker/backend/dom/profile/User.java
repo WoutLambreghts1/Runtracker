@@ -54,11 +54,9 @@ public class User implements Serializable {
     @Basic
     private Date birthday;
 
-    /*
-    @ManyToMany(targetEntity = User.class)
-    @LazyCollection(LazyCollectionOption.FALSE)
-    private List<User> friends;
-*/
+    @Basic
+    private boolean online;
+
     @OneToMany(targetEntity = Competition.class,mappedBy = "userCreated")
     @LazyCollection(LazyCollectionOption.FALSE)
     private List<Competition> competitionsCreated;
@@ -160,16 +158,6 @@ public class User implements Serializable {
         this.birthday = birthday;
     }
 
-    /*
-    public List<User> getFriends() {
-        return friends;
-    }
-
-    public void setFriends(List<User> friends) {
-        this.friends = friends;
-    }
-    */
-
     public List<Competition> getCompetitionsCreated() {
         return this.competitionsCreated;
     }
@@ -250,6 +238,13 @@ public class User implements Serializable {
         this.nrOfCompetitionsWon = nrOfCompetitionsWon;
     }
 
+    public boolean isOnline() {
+        return online;
+    }
+
+    public void setOnline(boolean online) {
+        this.online = online;
+    }
 
     public void addTracking(Tracking tracking) {
 
