@@ -406,6 +406,42 @@ public class UserRestControllerTest {
     }
 
 
+    @Test
+    public void testGetOnlineUsers() throws Exception{
+        String username = "woutl";
+        this.mockMvc.perform(put("/users/setOnline").header("token", tokenWout).contentType(MediaType.APPLICATION_JSON))
+                .andDo(print())
+                .andExpect(status().isOk());
+
+        this.mockMvc.perform(get("/users/getAllOnlineUsers/").header("token", tokenAlexander).contentType(MediaType.APPLICATION_JSON))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(content().string(org.hamcrest.Matchers.containsString(username)));
+    }
+
+    @Test
+    public void testGetOnlineFriends() throws Exception{
+        String username = "woutl";
+        this.mockMvc.perform(put("/users/addFriend/" + username).header("token", tokenAlexander).contentType(MediaType.APPLICATION_JSON))
+                .andDo(print())
+                .andExpect(status().isOk());
+
+        this.mockMvc.perform(put("/users/acceptFriend/" + username).header("token", tokenAlexander).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andDo(print());
+
+        this.mockMvc.perform(put("/users/setOnline").header("token", tokenWout).contentType(MediaType.APPLICATION_JSON))
+                .andDo(print())
+                .andExpect(status().isOk());
+
+        this.mockMvc.perform(get("/users/getAllOnlineFriends/").header("token", tokenAlexander).contentType(MediaType.APPLICATION_JSON))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(content().string(org.hamcrest.Matchers.containsString(username)));
+
+    }
+
+
     @After
     public void removeTestUsers() {
         this.alexander.setCompetitionsCreated(new ArrayList<>());
