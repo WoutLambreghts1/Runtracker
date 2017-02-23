@@ -67,6 +67,25 @@ public class UserRestController {
     }
 
     /**
+     * Get specific user by username
+     * @param token
+     * @param username
+     * @return
+     */
+    @RequestMapping(value = "/getUser/{username}", method = RequestMethod.GET)
+    public ResponseEntity<ShortUser> getFriend(@RequestHeader("token") String token,@PathVariable("username") String username) {
+        User user = userService.findUserByAuthId(JWT.decode(token).getSubject());
+        if (user == null) throw new UnauthorizedUserException("User with token " + token + " not found, cannot fetch user!");
+
+
+        User otherUser = userService.findUserByUsername(username);
+        if (otherUser == null) throw new UnauthorizedUserException("User with username " + username + " not found, cannot fetch user!");
+
+
+        return new ResponseEntity<ShortUser>(new ShortUser(otherUser), HttpStatus.OK);
+    }
+
+    /**
      * Create a {@link User}.
      * @param user User from body
      * @param ucBuilder Uri Builder
@@ -280,29 +299,6 @@ public class UserRestController {
     }
 
 
-    /**
-     * Get specific friend
-     * @param token
-     * @param username
-     * @return
-     */
-    @RequestMapping(value = "/getFriend/{username}", method = RequestMethod.GET)
-    public ResponseEntity<ShortUser> getFriend(@RequestHeader("token") String token,@PathVariable("username") String username) {
-        User user = userService.findUserByAuthId(JWT.decode(token).getSubject());
-        if (user == null) throw new UnauthorizedUserException("User with token " + token + " not found, cannot fetch friends!");
-
-
-        User friend = userService.findUserByUsername(username);
-        if (friend == null) throw new UnauthorizedUserException("Friend with username " + username + " not found, cannot fetch friend!");
-
-
-        if (!friendshipService.checkFriendship(user,friend)) {
-            return new ResponseEntity(new CustomErrorType("Not friends with User with username " + username + "!"),
-                    HttpStatus.UNAUTHORIZED);
-        }
-
-        return new ResponseEntity<ShortUser>(new ShortUser(friend), HttpStatus.OK);
-    }
 
     /**
      * Accept a friendrequest

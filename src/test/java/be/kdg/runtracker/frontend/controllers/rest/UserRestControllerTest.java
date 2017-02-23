@@ -397,19 +397,10 @@ public class UserRestControllerTest {
     }
 
     @Test
-    public void testGetFriend() throws Exception{
-        //Send & accept friendship
+    public void testGetUserByUsername() throws Exception{
         String username = "woutl";
-        this.mockMvc.perform(put("/users/addFriend/" + username).header("token", tokenAlexander).contentType(MediaType.APPLICATION_JSON))
-                .andDo(print())
-                .andExpect(status().isOk());
-
-        this.mockMvc.perform(put("/users/acceptFriend/" + username).header("token", tokenAlexander).contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andDo(print());
-
         //Get friend
-        this.mockMvc.perform(get("/users/getFriend/" + username).header("token", tokenAlexander).contentType(MediaType.APPLICATION_JSON))
+        this.mockMvc.perform(get("/users/getUser/" + username).header("token", tokenAlexander).contentType(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isOk());
     }
