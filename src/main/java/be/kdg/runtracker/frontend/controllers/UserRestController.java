@@ -189,39 +189,6 @@ public class UserRestController {
         return new ResponseEntity<Boolean>(online, HttpStatus.OK);
     }
 
-    /**
-     * Get all online friends
-     * @param token
-     * @return
-     */
-    @RequestMapping(value = "/getAllOnlineFriends", method = RequestMethod.GET)
-    public ResponseEntity<?> getOnlineFriends(@RequestHeader("token") String token) {
-        User user = userService.findUserByAuthId(JWT.decode(token).getSubject());
-        if (user == null) throw new UnauthorizedUserException("User with token " + token + " not found!");
-
-
-        List<ShortUser> onlineFriends = new ArrayList<>();
-        for (Friendship friendship : user.getFriendships()) {
-            if(friendshipService.checkFriendship(user,friendship.getFriend()) && friendship.getFriend().isOnline()) onlineFriends.add(new ShortUser(friendship.getFriend()));
-        }
-
-
-        return new ResponseEntity<List<ShortUser>>(onlineFriends, HttpStatus.OK);
-    }
-
-
-    @RequestMapping(value = "/getAllOnlineUsers", method = RequestMethod.GET)
-    public ResponseEntity<?> getOnlineUsers(@RequestHeader("token") String token) {
-        User user = userService.findUserByAuthId(JWT.decode(token).getSubject());
-        if (user == null) throw new UnauthorizedUserException("User with token " + token + " not found!");
-
-
-        List<ShortUser> onlineUsers = new ArrayList<>();
-        userService.findAllUsers().stream().filter(u -> u.isOnline()).forEach(uu -> onlineUsers.add(new ShortUser(uu)));
-
-
-        return new ResponseEntity<List<ShortUser>>(onlineUsers, HttpStatus.OK);
-    }
 
     /**
      *
@@ -253,6 +220,24 @@ public class UserRestController {
         userService.saveUser(user);
 
         return new ResponseEntity<ShortUser>(new ShortUser(user), HttpStatus.OK);
+    }
+
+    /**
+     * Get all online users
+     * @param token
+     * @return
+     */
+    @RequestMapping(value = "/getAllOnlineUsers", method = RequestMethod.GET)
+    public ResponseEntity<?> getOnlineUsers(@RequestHeader("token") String token) {
+        User user = userService.findUserByAuthId(JWT.decode(token).getSubject());
+        if (user == null) throw new UnauthorizedUserException("User with token " + token + " not found!");
+
+
+        List<ShortUser> onlineUsers = new ArrayList<>();
+        userService.findAllUsers().stream().filter(u -> u.isOnline()).forEach(uu -> onlineUsers.add(new ShortUser(uu)));
+
+
+        return new ResponseEntity<List<ShortUser>>(onlineUsers, HttpStatus.OK);
     }
 
     /*
@@ -330,6 +315,26 @@ public class UserRestController {
         }
 
         return new ResponseEntity<List<ShortUser>>(friends, HttpStatus.OK);
+    }
+
+    /**
+     * Get all online friends
+     * @param token
+     * @return
+     */
+    @RequestMapping(value = "/getAllOnlineFriends", method = RequestMethod.GET)
+    public ResponseEntity<?> getOnlineFriends(@RequestHeader("token") String token) {
+        User user = userService.findUserByAuthId(JWT.decode(token).getSubject());
+        if (user == null) throw new UnauthorizedUserException("User with token " + token + " not found!");
+
+
+        List<ShortUser> onlineFriends = new ArrayList<>();
+        for (Friendship friendship : user.getFriendships()) {
+            if(friendshipService.checkFriendship(user,friendship.getFriend()) && friendship.getFriend().isOnline()) onlineFriends.add(new ShortUser(friendship.getFriend()));
+        }
+
+
+        return new ResponseEntity<List<ShortUser>>(onlineFriends, HttpStatus.OK);
     }
 
 
