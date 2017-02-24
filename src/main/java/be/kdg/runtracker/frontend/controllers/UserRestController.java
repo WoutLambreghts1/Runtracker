@@ -374,6 +374,7 @@ public class UserRestController {
         User user = userService.findUserByAuthId(JWT.decode(token).getSubject());
         if (user == null) throw new UnauthorizedUserException("User with token " + token + " not found!");
 
+        List<ShortUser> friendsSorted = new ArrayList<>();
         List<ShortUser> friends = new ArrayList<>();
         for (Friendship friendship : user.getFriendships()) {
             if(friendshipService.checkFriendship(user,friendship.getFriend())) friends.add(new ShortUser(friendship.getFriend()));
@@ -381,34 +382,34 @@ public class UserRestController {
 
         switch (sortoption){
             //1. Order by avg distance
-            case 1:userService.findAllUsers().stream().sorted((u1,u2) -> Double.compare(u2.getAvgDistance(),u1.getAvgDistance())).forEach(user1 -> friends.add(new ShortUser(user1)));
+            case 1:friends.stream().sorted((u1,u2) -> Double.compare(u2.getAvgDistance(),u1.getAvgDistance())).forEach(user1 -> friendsSorted.add(user1));
                 break;
             //2. Order by avg speed
-            case 2:userService.findAllUsers().stream().sorted((u1,u2) -> Double.compare(u2.getAvgSpeed(),u1.getAvgSpeed())).forEach(user1 -> friends.add(new ShortUser(user1)));
+            case 2:friends.stream().sorted((u1,u2) -> Double.compare(u2.getAvgSpeed(),u1.getAvgSpeed())).forEach(user1 -> friendsSorted.add(user1));
                 break;
             //3. Order by max distance
-            case 3:userService.findAllUsers().stream().sorted((u1,u2) -> Long.compare(u2.getMaxDistance(),u1.getMaxDistance())).forEach(user1 -> friends.add(new ShortUser(user1)));
+            case 3:friends.stream().sorted((u1,u2) -> Long.compare(u2.getMaxDistance(),u1.getMaxDistance())).forEach(user1 -> friendsSorted.add(user1));
                 break;
             //4. Order by max speed
-            case 4:userService.findAllUsers().stream().sorted((u1,u2) -> Double.compare(u2.getMaxSpeed(),u1.getMaxSpeed())).forEach(user1 -> friends.add(new ShortUser(user1)));
+            case 4:friends.stream().sorted((u1,u2) -> Double.compare(u2.getMaxSpeed(),u1.getMaxSpeed())).forEach(user1 -> friendsSorted.add(user1));
                 break;
             //5. Order by nr of competitions won
-            case 5:userService.findAllUsers().stream().sorted((u1,u2) -> Integer.compare(u2.getNrOfCompetitionsWon(),u1.getNrOfCompetitionsWon())).forEach(user1 -> friends.add(new ShortUser(user1)));
+            case 5:friends.stream().sorted((u1,u2) -> Integer.compare(u2.getNrOfCompetitionsWon(),u1.getNrOfCompetitionsWon())).forEach(user1 -> friendsSorted.add(user1));
                 break;
             //6. Order by nr of competitions done
-            case 6:userService.findAllUsers().stream().sorted((u1,u2) -> Integer.compare(u2.getNrOfCompetitionsDone(),u1.getNrOfCompetitionsDone())).forEach(user1 -> friends.add(new ShortUser(user1)));
+            case 6:friends.stream().sorted((u1,u2) -> Integer.compare(u2.getNrOfCompetitionsDone(),u1.getNrOfCompetitionsDone())).forEach(user1 -> friendsSorted.add(user1));
                 break;
             //7. Order by ratio done/won
-            case 7:userService.findAllUsers().stream().sorted((u1,u2) ->
+            case 7:friends.stream().sorted((u1,u2) ->
                     Double.compare((u2.getNrOfCompetitionsDone()>0)?u2.getNrOfCompetitionsWon()/u2.getNrOfCompetitionsDone():0,(u1.getNrOfCompetitionsDone()>0)?u1.getNrOfCompetitionsWon()/u1.getNrOfCompetitionsDone() : 0))
-                    .forEach(user1 -> friends.add(new ShortUser(user1)));
+                    .forEach(user1 -> friendsSorted.add(user1));
                 break;
             //8. Order by total distance
-            case 8:userService.findAllUsers().stream().sorted((u1,u2) -> Long.compare(u1.getTotalDistance(),u2.getTotalDistance())).forEach(user1 -> friends.add(new ShortUser(user1)));
+            case 8:friends.stream().sorted((u1,u2) -> Long.compare(u2.getTotalDistance(),u1.getTotalDistance())).forEach(user1 -> friendsSorted.add(user1));
                 ;break;
         }
 
-        return new ResponseEntity<List<ShortUser>>(friends, HttpStatus.OK);
+        return new ResponseEntity<List<ShortUser>>(friendsSorted, HttpStatus.OK);
 
     }
 
