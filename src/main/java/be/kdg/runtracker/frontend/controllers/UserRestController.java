@@ -240,6 +240,52 @@ public class UserRestController {
         return new ResponseEntity<List<ShortUser>>(onlineUsers, HttpStatus.OK);
     }
 
+    /**
+     *Get all users sorted
+     * @param token
+     * @param sortoption
+     * @return
+     */
+
+    @RequestMapping(value = "/getAllUsersSorted/{sortoption}", method = RequestMethod.GET)
+    public ResponseEntity<?> getAllUsersSorted(@RequestHeader("token") String token,@PathVariable("sortoption") int sortoption) {
+        User user = userService.findUserByAuthId(JWT.decode(token).getSubject());
+        if (user == null) throw new UnauthorizedUserException("User with token " + token + " not found!");
+
+        ArrayList<ShortUser> sortedUsers = new ArrayList<>();
+        switch (sortoption){
+            //1. Order by avg distance
+            case 1:userService.findAllUsers().stream().sorted((u1,u2) -> Double.compare(u1.getAvgDistance(),u2.getAvgDistance())).forEach(user1 -> sortedUsers.add(new ShortUser(user1)));
+                break;
+            //2. Order by avg speed
+            case 2:userService.findAllUsers().stream().sorted((u1,u2) -> Double.compare(u1.getAvgSpeed(),u2.getAvgSpeed())).forEach(user1 -> sortedUsers.add(new ShortUser(user1)));
+                break;
+            //3. Order by max distance
+            case 3:userService.findAllUsers().stream().sorted((u1,u2) -> Long.compare(u1.getMaxDistance(),u2.getMaxDistance())).forEach(user1 -> sortedUsers.add(new ShortUser(user1)));
+                break;
+            //4. Order by max speed
+            case 4:userService.findAllUsers().stream().sorted((u1,u2) -> Double.compare(u1.getMaxSpeed(),u2.getMaxSpeed())).forEach(user1 -> sortedUsers.add(new ShortUser(user1)));
+                break;
+            //5. Order by nr of competitions won
+            case 5:userService.findAllUsers().stream().sorted((u1,u2) -> Integer.compare(u1.getNrOfCompetitionsWon(),u2.getNrOfCompetitionsWon())).forEach(user1 -> sortedUsers.add(new ShortUser(user1)));
+                break;
+            //6. Order by nr of competitions done
+            case 6:userService.findAllUsers().stream().sorted((u1,u2) -> Integer.compare(u1.getNrOfCompetitionsDone(),u2.getNrOfCompetitionsDone())).forEach(user1 -> sortedUsers.add(new ShortUser(user1)));
+                break;
+            //7. Order by ratio done/won
+            case 7:userService.findAllUsers().stream().sorted((u1,u2) ->
+                    Double.compare((u1.getNrOfCompetitionsDone()>0)?u1.getNrOfCompetitionsWon()/u1.getNrOfCompetitionsDone():0,(u2.getNrOfCompetitionsDone()>0)?u2.getNrOfCompetitionsWon()/u2.getNrOfCompetitionsDone() : 0))
+                    .forEach(user1 -> sortedUsers.add(new ShortUser(user1)));
+                break;
+            //8. Order by total distance
+            case 8:userService.findAllUsers().stream().sorted((u1,u2) -> Long.compare(u1.getTotalDistance(),u2.getTotalDistance())).forEach(user1 -> sortedUsers.add(new ShortUser(user1)));
+                ;break;
+        }
+
+        return new ResponseEntity<List<ShortUser>>(sortedUsers, HttpStatus.OK);
+
+    }
+
     /*
     FRIENDSHIP PART OF USERS
     *---------------------------------------
@@ -315,6 +361,55 @@ public class UserRestController {
         }
 
         return new ResponseEntity<List<ShortUser>>(friends, HttpStatus.OK);
+    }
+
+    /**
+     * Get all friends sorted
+     * @param token
+     * @param sortoption
+     * @return
+     */
+    @RequestMapping(value = "/getAllFriendsSorted/{sortoption}", method = RequestMethod.GET)
+    public ResponseEntity<?> getAllFriendsSorted(@RequestHeader("token") String token,@PathVariable("sortoption") int sortoption) {
+        User user = userService.findUserByAuthId(JWT.decode(token).getSubject());
+        if (user == null) throw new UnauthorizedUserException("User with token " + token + " not found!");
+
+        List<ShortUser> friends = new ArrayList<>();
+        for (Friendship friendship : user.getFriendships()) {
+            if(friendshipService.checkFriendship(user,friendship.getFriend())) friends.add(new ShortUser(friendship.getFriend()));
+        }
+
+        switch (sortoption){
+            //1. Order by avg distance
+            case 1:userService.findAllUsers().stream().sorted((u1,u2) -> Double.compare(u1.getAvgDistance(),u2.getAvgDistance())).forEach(user1 -> friends.add(new ShortUser(user1)));
+                break;
+            //2. Order by avg speed
+            case 2:userService.findAllUsers().stream().sorted((u1,u2) -> Double.compare(u1.getAvgSpeed(),u2.getAvgSpeed())).forEach(user1 -> friends.add(new ShortUser(user1)));
+                break;
+            //3. Order by max distance
+            case 3:userService.findAllUsers().stream().sorted((u1,u2) -> Long.compare(u1.getMaxDistance(),u2.getMaxDistance())).forEach(user1 -> friends.add(new ShortUser(user1)));
+                break;
+            //4. Order by max speed
+            case 4:userService.findAllUsers().stream().sorted((u1,u2) -> Double.compare(u1.getMaxSpeed(),u2.getMaxSpeed())).forEach(user1 -> friends.add(new ShortUser(user1)));
+                break;
+            //5. Order by nr of competitions won
+            case 5:userService.findAllUsers().stream().sorted((u1,u2) -> Integer.compare(u1.getNrOfCompetitionsWon(),u2.getNrOfCompetitionsWon())).forEach(user1 -> friends.add(new ShortUser(user1)));
+                break;
+            //6. Order by nr of competitions done
+            case 6:userService.findAllUsers().stream().sorted((u1,u2) -> Integer.compare(u1.getNrOfCompetitionsDone(),u2.getNrOfCompetitionsDone())).forEach(user1 -> friends.add(new ShortUser(user1)));
+                break;
+            //7. Order by ratio done/won
+            case 7:userService.findAllUsers().stream().sorted((u1,u2) ->
+                    Double.compare((u1.getNrOfCompetitionsDone()>0)?u1.getNrOfCompetitionsWon()/u1.getNrOfCompetitionsDone():0,(u2.getNrOfCompetitionsDone()>0)?u2.getNrOfCompetitionsWon()/u2.getNrOfCompetitionsDone() : 0))
+                    .forEach(user1 -> friends.add(new ShortUser(user1)));
+                break;
+            //8. Order by total distance
+            case 8:userService.findAllUsers().stream().sorted((u1,u2) -> Long.compare(u1.getTotalDistance(),u2.getTotalDistance())).forEach(user1 -> friends.add(new ShortUser(user1)));
+                ;break;
+        }
+
+        return new ResponseEntity<List<ShortUser>>(friends, HttpStatus.OK);
+
     }
 
     /**

@@ -440,6 +440,56 @@ public class UserRestControllerTest {
 
     }
 
+    @Test
+    public void testGetAllFriendsSorted() throws Exception{
+        String username = "woutl";
+        this.mockMvc.perform(put("/users/addFriend/" + username).header("token", tokenAlexander).contentType(MediaType.APPLICATION_JSON))
+                .andDo(print())
+                .andExpect(status().isOk());
+
+        this.mockMvc.perform(put("/users/acceptFriend/" + username).header("token", tokenAlexander).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andDo(print());
+
+        this.mockMvc.perform(put("/users/setOnline").header("token", tokenWout).contentType(MediaType.APPLICATION_JSON))
+                .andDo(print())
+                .andExpect(status().isOk());
+
+
+        for (int i = 1; i < 9; i++) {
+            this.mockMvc.perform(get("/users/getAllFriendsSorted/" + i).header("token", tokenAlexander).contentType(MediaType.APPLICATION_JSON))
+                    .andDo(print())
+                    .andExpect(status().isOk());
+        }
+
+    }
+
+
+    @Test
+    public void testGetAllUsersSorted() throws Exception{
+        String username = "woutl";
+        this.mockMvc.perform(put("/users/addFriend/" + username).header("token", tokenAlexander).contentType(MediaType.APPLICATION_JSON))
+                .andDo(print())
+                .andExpect(status().isOk());
+
+        this.mockMvc.perform(put("/users/acceptFriend/" + username).header("token", tokenAlexander).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andDo(print());
+
+        this.mockMvc.perform(put("/users/setOnline").header("token", tokenWout).contentType(MediaType.APPLICATION_JSON))
+                .andDo(print())
+                .andExpect(status().isOk());
+
+
+        for (int i = 1; i < 9; i++) {
+            this.mockMvc.perform(get("/users/getAllUsersSorted/" + i).header("token", tokenAlexander).contentType(MediaType.APPLICATION_JSON))
+                    .andDo(print())
+                    .andExpect(status().isOk());
+        }
+
+    }
+
+
 
     @After
     public void removeTestUsers() {
