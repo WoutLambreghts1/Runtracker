@@ -23,6 +23,7 @@ public class ShortUser {
     private double avgDistance;
     private long totalDistance;
     private int nrOfCompetitionsWon;
+    private int nrOfCompetitionsDone;
 
     public ShortUser(User user) {
         this.userId = user.getUserId();
@@ -41,6 +42,7 @@ public class ShortUser {
         this.totalDistance = user.getTotalDistance();
         this.nrOfCompetitionsWon = user.getNrOfCompetitionsWon();
         this.online = user.isOnline();
+        this.nrOfCompetitionsDone = user.getNrOfCompetitionsDone();
     }
 
     public Long getUserId() {
@@ -101,5 +103,9 @@ public class ShortUser {
 
     public boolean isOnline() {
         return online;
+    }
+
+    public int getNrOfCompetitionsDone() {
+        return nrOfCompetitionsDone;
     }
 }

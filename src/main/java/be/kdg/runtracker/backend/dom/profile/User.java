@@ -94,6 +94,9 @@ public class User implements Serializable {
     @Basic
     private int nrOfCompetitionsWon;
 
+    @Basic
+    private int nrOfCompetitionsDone;
+
     public Long getUserId() {
         return this.userId;
     }
@@ -244,6 +247,14 @@ public class User implements Serializable {
 
     public void setOnline(boolean online) {
         this.online = online;
+    }
+
+    public int getNrOfCompetitionsDone() {
+        return nrOfCompetitionsDone;
+    }
+
+    public void setNrOfCompetitionsDone(int nrOfCompetitionsDone) {
+        this.nrOfCompetitionsDone = nrOfCompetitionsDone;
     }
 
     public void addTracking(Tracking tracking) {

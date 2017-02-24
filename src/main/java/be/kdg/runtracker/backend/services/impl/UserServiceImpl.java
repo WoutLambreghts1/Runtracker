@@ -146,6 +146,14 @@ public class UserServiceImpl implements UserService {
                 user.setNrOfCompetitionsWon(0);
             }
 
+            //Calculate nr of competitions done
+            if (user.getCompetitionsRun() != null) {
+                int nrDone= user.getCompetitionsRun().size();
+                user.setNrOfCompetitionsDone(nrDone);
+            } else {
+                user.setNrOfCompetitionsDone(0);
+            }
+
             //Update user
             saveUser(user);
         }
