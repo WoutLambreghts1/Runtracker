@@ -8,13 +8,9 @@ import org.hibernate.annotations.LazyCollection;
 import org.hibernate.annotations.LazyCollectionOption;
 
 import javax.persistence.*;
-import javax.validation.constraints.NotNull;
 import java.io.Serializable;
-import java.sql.Date;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.List;
-import java.util.TimeZone;
 
 /**
  * @author Wout
@@ -30,21 +26,11 @@ public class Competition implements Serializable {
     @Column(nullable=false, name = "competition_id")
     private Long competitionId;
 
-    @Column(nullable=false)
-    @NotNull
-    private CompetitionType competitionType;
+    @Basic
+    private String name;
 
     @Basic
-    @NotNull
-    private Date deadline;
-
-    @Basic
-    @NotNull
-    private int maxParticipants;
-
-    @Basic
-    @NotNull
-    private boolean isFinished;
+    private String topic;
 
     @ManyToOne(targetEntity = Goal.class,fetch = FetchType.EAGER)
     private Goal goal;
@@ -63,16 +49,11 @@ public class Competition implements Serializable {
     @LazyCollection(LazyCollectionOption.FALSE)
     private List<User> usersRun;
 
-    public Competition(User userCreated, Goal goal, CompetitionType competitionType, int deadlineInAmountOfDays, int maxParticipants) {
+    public Competition(User userCreated, Goal goal,String topic,String name) {
         this.userCreated = userCreated;
         this.goal = goal;
-        this.competitionType = competitionType;
-        this.maxParticipants = maxParticipants;
-        this.isFinished = false;
-
-        Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("Europe/Brussels"));
-        calendar.add(Calendar.DATE, deadlineInAmountOfDays);
-        this.deadline = new Date(calendar.getTimeInMillis());
+        this.topic = topic;
+        this.name = name;
 
         addRunner(userCreated);
     }
@@ -86,14 +67,6 @@ public class Competition implements Serializable {
 
     public void setCompetitionId(Long competitionId) {
         this.competitionId = competitionId;
-    }
-
-    public CompetitionType getCompetitionType() {
-        return this.competitionType;
-    }
-
-    public void setCompetitionType(CompetitionType competitionType) {
-        this.competitionType = competitionType;
     }
 
     public Goal getGoal() {
@@ -136,20 +109,20 @@ public class Competition implements Serializable {
         this.usersRun = usersRun;
     }
 
-    public Date getDeadline() {
-        return deadline;
+    public String getName() {
+        return name;
     }
 
-    public void setDeadline(Date deadline) {
-        this.deadline = deadline;
+    public void setName(String name) {
+        this.name = name;
     }
 
-    public int getMaxParticipants() {
-        return maxParticipants;
+    public String getTopic() {
+        return topic;
     }
 
-    public void setMaxParticipants(int maxParticipants) {
-        this.maxParticipants = maxParticipants;
+    public void setTopic(String topic) {
+        this.topic = topic;
     }
 
     public void addRunner(User runner){
@@ -185,13 +158,6 @@ public class Competition implements Serializable {
         }
     }
 
-    public boolean isFinished() {
-        return isFinished;
-    }
-
-    public void setFinished() {
-        this.isFinished = true;
-    }
 
     @Override
     public boolean equals(Object o) {
@@ -206,10 +172,9 @@ public class Competition implements Serializable {
 
     @Override
     public int hashCode() {
-        int result = competitionType.hashCode();
-        result = 31 * result + maxParticipants;
+        int result = competitionId.hashCode();
         result = 31 * result + goal.hashCode();
-        result = 31 * result + userCreated.getUsername().hashCode();
+        result = 31 * result + userCreated.hashCode();
         return result;
     }
 }

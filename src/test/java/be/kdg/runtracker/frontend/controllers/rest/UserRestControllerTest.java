@@ -1,7 +1,6 @@
 package be.kdg.runtracker.frontend.controllers.rest;
 
 import be.kdg.runtracker.backend.dom.competition.Competition;
-import be.kdg.runtracker.backend.dom.competition.CompetitionType;
 import be.kdg.runtracker.backend.dom.competition.Goal;
 import be.kdg.runtracker.backend.dom.profile.Friendship;
 import be.kdg.runtracker.backend.dom.profile.User;
@@ -118,7 +117,7 @@ public class UserRestControllerTest {
         this.goalAlex.setName("Goal1");
         this.goalAlex.setDistance(10);
 
-        this.competitionAlex = new Competition(alexander, goalAlex, CompetitionType.NOT_REALTIME, 10, 5);
+        this.competitionAlex = new Competition(alexander, goalAlex, "topicABC","Competition one");
         this.competitionAlex.addRunner(alexander);
         this.alexander.addCompetitionsCreated(competitionAlex);
         this.alexander.addCompetitionsRan(competitionAlex);

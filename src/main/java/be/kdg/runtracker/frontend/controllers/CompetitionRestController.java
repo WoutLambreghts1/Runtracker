@@ -21,7 +21,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 @RestController
@@ -157,26 +156,6 @@ public class CompetitionRestController {
         Competition competition = this.competitionService.findCompetitionByCompetitionId(competitionId);
         if (competition == null) throw new NotFoundException("Competition with id " + competitionId + " not found!");
 
-        // TODO: Testen of een user nog kan deelnemen aan een competitie die vol zit of voorbij is.
-
-        if (competition.isFinished()) {
-            System.err.println("Competition with id " + competitionId + " has finished!");
-            return new ResponseEntity(new CustomErrorType("Competition with id " + competitionId + " has finished!"),
-                    HttpStatus.UNAUTHORIZED);
-        }
-
-        if (competition.getDeadline().before(new Date())) {
-            System.err.println("Deadline for Competition with id " + competitionId + " has passed!");
-            if (competition.isFinished() == false) competition.isFinished();
-            return new ResponseEntity(new CustomErrorType("Deadline for Competition with id " + competitionId + " has passed!"),
-                    HttpStatus.UNAUTHORIZED);
-        }
-
-        if (competition.getMaxParticipants() <= competition.getUsersRun().size()) {
-            System.err.println("Max participants reached for Competition with id " + competitionId + "!");
-            return new ResponseEntity(new CustomErrorType("Max participants reached for Competition with id " + competitionId + "!"),
-                    HttpStatus.UNAUTHORIZED);
-        }
 
         competition.addRunner(user);
         user.addCompetitionsRan(competition);
@@ -255,11 +234,6 @@ public class CompetitionRestController {
         Competition competition = this.competitionService.findCompetitionByCompetitionId(competitionId);
         if (competition == null) throw new NoContentException("Competition with id " + competitionId + " not found!");
 
-        if (competition.isFinished() || (competition.getMaxParticipants() <= competition.getUsersRun().size())) {
-            return new ResponseEntity(new CustomErrorType("Cannot add tracking to Competition because it is finished or because the max participants have been reached!"),
-                    HttpStatus.UNAUTHORIZED);
-        }
-
         competition.addTracking(tracking);
         user.addTracking(tracking);
 
@@ -272,24 +246,6 @@ public class CompetitionRestController {
         return new ResponseEntity<String>(headers, HttpStatus.CREATED);
     }
 
-    /**
-     * Get all available {@link Competition}s.
-     * @param token authorization id
-     * @return List of Competitions
-     */
-    @RequestMapping(value = "/getAvailableCompetitions", method = RequestMethod.GET)
-    public ResponseEntity<List<ShortCompetition>> getAvailableCompetitions(@RequestHeader("token") String token) {
-        User user = userService.findUserByAuthId(JWT.decode(token).getSubject());
-        if (user == null) throw new UnauthorizedUserException("User with token " + token + " not found, cannot fetch available Competitions!");
-
-        List<Competition> competitions = this.competitionService.findAvailableCompetitions(user);
-        if (competitions.isEmpty()) throw new NoContentException("No available Competitions!");
-
-        List<ShortCompetition> competitionsDTO = new ArrayList<>();
-        competitions.stream().forEach(competition -> competitionsDTO.add(new ShortCompetition(competition)));
-
-        return new ResponseEntity<List<ShortCompetition>>(competitionsDTO, HttpStatus.OK);
-    }
 
     /**
      * Get the {@link Goal} from a {@link Competition}.

@@ -1,7 +1,6 @@
 package be.kdg.runtracker.frontend.controllers.rest;
 
 import be.kdg.runtracker.backend.dom.competition.Competition;
-import be.kdg.runtracker.backend.dom.competition.CompetitionType;
 import be.kdg.runtracker.backend.dom.competition.Goal;
 import be.kdg.runtracker.backend.dom.profile.User;
 import be.kdg.runtracker.backend.dom.tracking.Coordinate;
@@ -28,15 +27,11 @@ import org.springframework.web.context.WebApplicationContext;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.junit.Assert.assertTrue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.setup.MockMvcBuilders.webAppContextSetup;
-
-import static org.hamcrest.Matchers.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-
-import static org.junit.Assert.*;
+import static org.springframework.test.web.servlet.setup.MockMvcBuilders.webAppContextSetup;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest
@@ -99,7 +94,7 @@ public class CompetitionRestControllerTest {
         this.goal1.setName("Goal1");
         this.goal1.setDistance(10);
 
-        this.competition1 = new Competition(alexander, goal1, CompetitionType.NOT_REALTIME, 10, 5);
+        this.competition1 = new Competition(alexander, goal1, "topicABC","comp1");
         this.competition1.addRunner(alexander);
         this.alexander.addCompetitionsCreated(competition1);
         this.alexander.addCompetitionsRan(competition1);
@@ -116,7 +111,7 @@ public class CompetitionRestControllerTest {
         this.goal2.setName("Goal2");
         this.goal2.setDistance(10);
 
-        this.competition2 = new Competition(wout, goal2, CompetitionType.NOT_REALTIME, 10, 5);
+        this.competition2 = new Competition(wout, goal2, "topicABC","compet");
         this.wout.addCompetitionsCreated(competition2);
         this.competition2.addRunner(wout);
 
@@ -223,7 +218,7 @@ public class CompetitionRestControllerTest {
 
     @Test
     public void testCreateCompetition() throws Exception {
-        Competition competition = new Competition(jelle, goal1, CompetitionType.REALTIME, 1, 3);
+        Competition competition = new Competition(jelle, goal1, "topicABC","comp6");
 
         this.mockMvc.perform(post("/competitions/createCompetition").content(mapper.writeValueAsString(competition)).header("token", tokenJelle).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isCreated())
@@ -237,7 +232,7 @@ public class CompetitionRestControllerTest {
     @Test
     public void testCreateCompetitionUnauthorized() throws Exception {
         String wrongToken = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJPbmxpbmUgSldUIEJ1aWxkZXIiLCJpYXQiOjE0ODY3MzE5MzgsImV4cCI6MTUxODI2NzkzOCwiYXVkIjoid3d3LmV4YW1wbGUuY29tIiwic3ViIjoidGVzdDYifQ.X8l82QUd7sXLuqNxiTJaQZDhU9V7_4fIi3MKNxYHOQU";
-        Competition competition = new Competition(alexander, goal1, CompetitionType.REALTIME, 1, 3);
+        Competition competition = new Competition(alexander, goal1, "topicABC","comp123");
 
         this.mockMvc.perform(post("/competitions/createCompetition").content(mapper.writeValueAsString(competition)).header("token", wrongToken).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isUnauthorized())
@@ -362,15 +357,6 @@ public class CompetitionRestControllerTest {
         this.mockMvc.perform(get("/competitions/" + competitionId + "/getGoal").header("token", tokenAlexander)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andDo(print());
-    }
-
-    @Test
-    public void testGetAvailableCompetitions() throws Exception {
-        this.mockMvc.perform(get("/competitions/getAvailableCompetitions").header("token", tokenAlexander)
-                .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$", hasSize(1)))
                 .andDo(print());
     }
 
