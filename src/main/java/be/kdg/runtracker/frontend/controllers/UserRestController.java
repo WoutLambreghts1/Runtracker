@@ -376,6 +376,7 @@ public class UserRestController {
 
         List<ShortUser> friendsSorted = new ArrayList<>();
         List<ShortUser> friends = new ArrayList<>();
+        friends.add(new ShortUser(user));
         for (Friendship friendship : user.getFriendships()) {
             if(friendshipService.checkFriendship(user,friendship.getFriend())) friends.add(new ShortUser(friendship.getFriend()));
         }
