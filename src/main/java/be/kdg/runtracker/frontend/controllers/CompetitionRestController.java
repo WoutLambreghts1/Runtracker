@@ -60,6 +60,24 @@ public class CompetitionRestController {
     }
 
     /**
+     * Get specific competition
+     * @param token
+     * @param competitionId
+     * @return
+     */
+    @RequestMapping(value = "/{competitionId}", method = RequestMethod.GET)
+    public ResponseEntity<ShortCompetition> getCompetitionById(@RequestHeader("token") String token,@PathVariable("competitionId") long competitionId) {
+        User user = userService.findUserByAuthId(JWT.decode(token).getSubject());
+        if (user == null) throw new UnauthorizedUserException("User with token " + token + " not found, cannot fetch Competitions!");
+
+        Competition competition = this.competitionService.findCompetitionByCompetitionId(competitionId);
+        if (competition == null) throw new NoContentException("No Competition was found!");
+
+
+        return new ResponseEntity<ShortCompetition>(new ShortCompetition(competition), HttpStatus.OK);
+    }
+
+    /**
      * Get all {@link Competition}s created by {@link User}.
      * @param token Token
      * @return List of Competitions

@@ -9,6 +9,8 @@ import org.hibernate.annotations.LazyCollectionOption;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,6 +34,9 @@ public class Competition implements Serializable {
     @Basic
     private String topic;
 
+    @Basic
+    private Timestamp time;
+
     @ManyToOne(targetEntity = Goal.class,fetch = FetchType.EAGER)
     private Goal goal;
 
@@ -54,6 +59,7 @@ public class Competition implements Serializable {
         this.goal = goal;
         this.topic = topic;
         this.name = name;
+        this.time = java.sql.Timestamp.valueOf(LocalDateTime.now());
 
         addRunner(userCreated);
     }
@@ -94,7 +100,8 @@ public class Competition implements Serializable {
     }
 
     public List<Tracking> getTrackings() {
-        return this.trackings;
+        if(this.trackings!=null)return this.trackings;
+        return new ArrayList<Tracking>();
     }
 
     public void setTrackings(List<Tracking> trackings) {
@@ -123,6 +130,14 @@ public class Competition implements Serializable {
 
     public void setTopic(String topic) {
         this.topic = topic;
+    }
+
+    public Timestamp getTime() {
+        return time;
+    }
+
+    public void setTime(Timestamp time) {
+        this.time = time;
     }
 
     public void addRunner(User runner){

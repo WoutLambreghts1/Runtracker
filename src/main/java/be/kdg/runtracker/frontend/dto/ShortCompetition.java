@@ -3,7 +3,9 @@ package be.kdg.runtracker.frontend.dto;
 import be.kdg.runtracker.backend.dom.competition.Competition;
 import be.kdg.runtracker.backend.dom.competition.Goal;
 import be.kdg.runtracker.backend.dom.profile.User;
+import be.kdg.runtracker.backend.dom.tracking.Tracking;
 
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,6 +18,8 @@ public class ShortCompetition {
     private List<ShortUser> usersRun;
     private String topic;
     private String name;
+    private List<ShortTracking> trackings;
+    private Timestamp time;
 
     public ShortCompetition(Competition competition) {
         this.competitionId = competition.getCompetitionId();
@@ -26,9 +30,15 @@ public class ShortCompetition {
         this.usersRun = new ArrayList<>();
         this.topic = competition.getTopic();
         this.name = competition.getName();
+        this.time = competition.getTime();
+        this.trackings = new ArrayList<>();
 
         for (User user : competition.getUsersRun()) {
             usersRun.add(new ShortUser(user));
+        }
+
+        for (Tracking tracking : competition.getTrackings()) {
+            trackings.add(new ShortTracking(tracking));
         }
     }
 
@@ -58,5 +68,9 @@ public class ShortCompetition {
 
     public String getTopic() {
         return topic;
+    }
+
+    public List<ShortTracking> getTrackings() {
+        return trackings;
     }
 }
