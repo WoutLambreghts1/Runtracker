@@ -117,7 +117,7 @@ public class UserRestControllerTest {
         this.goalAlex.setName("Goal1");
         this.goalAlex.setDistance(10);
 
-        this.competitionAlex = new Competition(alexander, goalAlex, "topicABC","Competition one");
+        this.competitionAlex = new Competition(alexander, goalAlex, "topicABC", "Competition one");
         this.competitionAlex.addRunner(alexander);
         this.alexander.addCompetitionsCreated(competitionAlex);
         this.alexander.addCompetitionsRan(competitionAlex);
@@ -126,7 +126,7 @@ public class UserRestControllerTest {
         this.competitionAlex.setUserWon(wout);
         this.wout.addCompetitionsWon(competitionAlex);
 
-        this.trackingAlex = new Tracking(10, 10, 10,10);
+        this.trackingAlex = new Tracking(10, 10, 10, 10);
         this.trackingAlex.setCompetition(competitionAlex);
         this.alexander.addTracking(trackingAlex);
 
@@ -181,6 +181,8 @@ public class UserRestControllerTest {
     @Test
     public void testCreateUser() throws Exception {
         String testToken = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJPbmxpbmUgSldUIEJ1aWxkZXIiLCJpYXQiOjE0ODY3MzE5MzgsImV4cCI6MTUxODI2NzkzOCwiYXVkIjoid3d3LmV4YW1wbGUuY29tIiwic3ViIjoidGVzdDYifQ.X8l82QUd7sXLuqNxiTJaQZDhU9V7_4fIi3MKNxYHOQU";
+        String testToken2 = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJKQVQiLCJpYXQiOjE0ODgyMTA5NzAsImV4cCI6MTUxOTc0Njk3MCwiYXVkIjoid3d3LmV4YW1wbGUuY29tIiwic3ViIjoiam9za2UwMjMxNjEifQ.JDWWhkBb3BqZh3ttj3gEYadX5JUYK91vO_QLMQAcb8Y";
+        String testToken3= "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJKQVQiLCJpYXQiOjE0ODgyMTA5NzAsImV4cCI6MTUxOTc0Njk3MCwiYXVkIjoid3d3LmV4YW1wbGUuY29tIiwic3ViIjoiam9za2UwNDExNTEifQ.4-yVCxaRtnKe_AgcXR1jafmmcR9fQrLqF3YWGhqXerM";
         User testUser = new User();
         testUser.setAuthId(JWT.decode(testToken).getSubject());
         testUser.setFirstname("Test");
@@ -189,9 +191,27 @@ public class UserRestControllerTest {
 
         this.mockMvc.perform(post("/users/createUser").content(mapper.writeValueAsString(testUser)).header("token", testToken).contentType(MediaType.APPLICATION_JSON))
                 .andDo(print())
-                .andExpect(status().isCreated());
+                .andExpect(status().isCreated())
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("TestUser")));
+
+
+        testUser.setAuthId(JWT.decode(testToken2).getSubject());
+        this.mockMvc.perform(post("/users/createUser").content(mapper.writeValueAsString(testUser)).header("token", testToken2).contentType(MediaType.APPLICATION_JSON))
+                .andDo(print())
+                .andExpect(status().isCreated())
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("TestUser1")));
+
+        testUser.setAuthId(JWT.decode(testToken3).getSubject());
+        testUser.setUsername("TestUser1");
+        this.mockMvc.perform(post("/users/createUser").content(mapper.writeValueAsString(testUser)).header("token", testToken3).contentType(MediaType.APPLICATION_JSON))
+                .andDo(print())
+                .andExpect(status().isCreated())
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("TestUser11")));
+
 
         this.userRepository.delete(userRepository.findUserByAuthId(JWT.decode(testToken).getSubject()).getUserId());
+        this.userRepository.delete(userRepository.findUserByAuthId(JWT.decode(testToken2).getSubject()).getUserId());
+        this.userRepository.delete(userRepository.findUserByAuthId(JWT.decode(testToken3).getSubject()).getUserId());
     }
 
     @Test
@@ -347,7 +367,7 @@ public class UserRestControllerTest {
     }
 
     @Test
-    public void testGetFriendrequests() throws Exception{
+    public void testGetFriendrequests() throws Exception {
         String username = "woutl";
         this.mockMvc.perform(put("/users/addFriend/" + username).header("token", tokenAlexander).contentType(MediaType.APPLICATION_JSON))
                 .andDo(print())
@@ -356,12 +376,13 @@ public class UserRestControllerTest {
         this.mockMvc.perform(get("/users/getFriendrequests").header("token", tokenWout).contentType(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isOk())
-                .andExpect(content().string(org.hamcrest.Matchers.containsString(alexander.getUsername())));;
+                .andExpect(content().string(org.hamcrest.Matchers.containsString(alexander.getUsername())));
+        ;
 
     }
 
     @Test
-    public void testCheckOnline() throws Exception{
+    public void testCheckOnline() throws Exception {
         String username = "woutl";
         this.mockMvc.perform(get("/users/checkOnline/" + username).header("token", tokenAlexander))
                 .andDo(print())
@@ -369,7 +390,7 @@ public class UserRestControllerTest {
     }
 
     @Test
-    public void testSetOnline() throws Exception{
+    public void testSetOnline() throws Exception {
         String username = "woutl";
         this.mockMvc.perform(put("/users/setOnline").header("token", tokenWout).contentType(MediaType.APPLICATION_JSON))
                 .andDo(print())
@@ -383,7 +404,7 @@ public class UserRestControllerTest {
 
 
     @Test
-    public void testSetOffline() throws Exception{
+    public void testSetOffline() throws Exception {
         String username = "woutl";
         this.mockMvc.perform(put("/users/setOffline").header("token", tokenWout).contentType(MediaType.APPLICATION_JSON))
                 .andDo(print())
@@ -396,7 +417,7 @@ public class UserRestControllerTest {
     }
 
     @Test
-    public void testGetUserByUsername() throws Exception{
+    public void testGetUserByUsername() throws Exception {
         String username = "woutl";
         //Get friend
         this.mockMvc.perform(get("/users/getUser/" + username).header("token", tokenAlexander).contentType(MediaType.APPLICATION_JSON))
@@ -406,7 +427,7 @@ public class UserRestControllerTest {
 
 
     @Test
-    public void testGetOnlineUsers() throws Exception{
+    public void testGetOnlineUsers() throws Exception {
         String username = "woutl";
         this.mockMvc.perform(put("/users/setOnline").header("token", tokenWout).contentType(MediaType.APPLICATION_JSON))
                 .andDo(print())
@@ -419,7 +440,7 @@ public class UserRestControllerTest {
     }
 
     @Test
-    public void testGetOnlineFriends() throws Exception{
+    public void testGetOnlineFriends() throws Exception {
         String username = "woutl";
         this.mockMvc.perform(put("/users/addFriend/" + username).header("token", tokenAlexander).contentType(MediaType.APPLICATION_JSON))
                 .andDo(print())
@@ -441,7 +462,7 @@ public class UserRestControllerTest {
     }
 
     @Test
-    public void testGetAllFriendsSorted() throws Exception{
+    public void testGetAllFriendsSorted() throws Exception {
         String username = "woutl";
         this.mockMvc.perform(put("/users/addFriend/" + username).header("token", tokenAlexander).contentType(MediaType.APPLICATION_JSON))
                 .andDo(print())
@@ -466,7 +487,7 @@ public class UserRestControllerTest {
 
 
     @Test
-    public void testGetAllUsersSorted() throws Exception{
+    public void testGetAllUsersSorted() throws Exception {
         String username = "woutl";
         this.mockMvc.perform(put("/users/addFriend/" + username).header("token", tokenAlexander).contentType(MediaType.APPLICATION_JSON))
                 .andDo(print())
@@ -488,7 +509,6 @@ public class UserRestControllerTest {
         }
 
     }
-
 
 
     @After

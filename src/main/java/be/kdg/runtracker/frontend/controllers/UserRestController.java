@@ -11,7 +11,6 @@ import be.kdg.runtracker.frontend.dto.ShortUser;
 import be.kdg.runtracker.frontend.util.CustomErrorType;
 import com.auth0.jwt.JWT;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -99,11 +98,9 @@ public class UserRestController {
                     HttpStatus.CONFLICT
             );
         }
-        userService.saveUser(user);
+        userService.createUser(user);
 
-        HttpHeaders headers = new HttpHeaders();
-        headers.setLocation(ucBuilder.path("/api/users/getuser").buildAndExpand(token).toUri());
-        return new ResponseEntity<String>(headers, HttpStatus.CREATED);
+        return new ResponseEntity<ShortUser>(new ShortUser(user), HttpStatus.CREATED);
     }
 
     /**

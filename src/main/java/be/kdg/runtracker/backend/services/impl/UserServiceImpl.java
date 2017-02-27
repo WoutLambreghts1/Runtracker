@@ -10,6 +10,7 @@ import be.kdg.runtracker.backend.persistence.api.TrackingRepository;
 import be.kdg.runtracker.backend.persistence.api.UserRepository;
 import be.kdg.runtracker.backend.persistence.impl.CoordinatesRepositoryMongo;
 import be.kdg.runtracker.backend.services.api.UserService;
+import be.kdg.runtracker.frontend.dto.ShortUser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -91,6 +92,27 @@ public class UserServiceImpl implements UserService {
         }
 
         this.userRepository.delete(user.getUserId());
+    }
+
+    @Override
+    public ShortUser createUser(User user) {
+        boolean exists = true;
+        if(findUserByUsername(user.getUsername())==null){
+            this.userRepository.save(user);
+            exists = false;
+        }
+
+        int usernr = 1;
+        while (exists){
+            if(findUserByUsername(user.getUsername() + usernr)==null){
+                user.setUsername(user.getUsername()+usernr);
+                this.userRepository.save(user);
+                exists=false;
+            }
+            usernr++;
+        };
+
+        return new ShortUser(user);
     }
 
     private void updateUserPrestations(User user){
