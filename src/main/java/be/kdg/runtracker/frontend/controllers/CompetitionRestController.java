@@ -2,12 +2,14 @@ package be.kdg.runtracker.frontend.controllers;
 
 import be.kdg.runtracker.backend.dom.competition.Competition;
 import be.kdg.runtracker.backend.dom.competition.Goal;
+import be.kdg.runtracker.backend.dom.profile.Friendship;
 import be.kdg.runtracker.backend.dom.profile.User;
 import be.kdg.runtracker.backend.dom.tracking.Tracking;
 import be.kdg.runtracker.backend.exceptions.NoContentException;
 import be.kdg.runtracker.backend.exceptions.NotFoundException;
 import be.kdg.runtracker.backend.exceptions.UnauthorizedUserException;
 import be.kdg.runtracker.backend.services.api.CompetitionService;
+import be.kdg.runtracker.backend.services.api.FriendshipService;
 import be.kdg.runtracker.backend.services.api.TrackingService;
 import be.kdg.runtracker.backend.services.api.UserService;
 import be.kdg.runtracker.frontend.dto.ShortCompetition;
@@ -31,12 +33,14 @@ public class CompetitionRestController {
     private CompetitionService competitionService;
     private UserService userService;
     private TrackingService trackingService;
+    private FriendshipService friendshipService;
 
     @Autowired
-    public CompetitionRestController(CompetitionService competitionService, UserService userService, TrackingService trackingService) {
+    public CompetitionRestController(CompetitionService competitionService, UserService userService, TrackingService trackingService,FriendshipService friendshipService) {
         this.competitionService = competitionService;
         this.userService = userService;
         this.trackingService = trackingService;
+        this.friendshipService = friendshipService;
     }
 
     protected CompetitionRestController() { }
@@ -116,6 +120,32 @@ public class CompetitionRestController {
     }
 
     /**
+     * Get all {@link Competition}s won by friend of {@link User}.
+     * @param token Token
+     * @return List of Competitions
+     */
+    @RequestMapping(value = "/getWonCompetitionsFriends", method = RequestMethod.GET)
+    public ResponseEntity<List<ShortCompetition>> getAllWonCompetitionsFromFriends(@RequestHeader("token") String token) {
+        User user = userService.findUserByAuthId(JWT.decode(token).getSubject());
+        if (user == null) throw new UnauthorizedUserException("User with token " + token + " not found, cannot fetch won Competitions!");
+
+        //Get friends
+        List<User> friends = new ArrayList<>();
+        for (Friendship friendship : user.getFriendships()) {
+            if(friendshipService.checkFriendship(user,friendship.getFriend())) friends.add(friendship.getFriend());
+        }
+
+        List<Competition> competitions = new ArrayList<>();
+        friends.stream().forEach(f -> competitions.addAll(f.getCompetitionsWon()));
+
+        if (competitions == null || competitions.isEmpty()) throw new NoContentException("No won Competitions found for User with token " + token + "!");
+        List<ShortCompetition> competitionsDTO = new ArrayList<>();
+        competitions.stream().forEach(competition -> competitionsDTO.add(new ShortCompetition(competition)));
+
+        return new ResponseEntity<List<ShortCompetition>>(competitionsDTO, HttpStatus.OK);
+    }
+
+    /**
      * Get all {@link Competition}s ran by {@link User}.
      * @param token Token
      * @return List of Competitions
@@ -133,6 +163,33 @@ public class CompetitionRestController {
 
         return new ResponseEntity<List<ShortCompetition>>(competitionsDTO, HttpStatus.OK);
     }
+
+    /**
+     * Get all {@link Competition}s won by friend of {@link User}.
+     * @param token Token
+     * @return List of Competitions
+     */
+    @RequestMapping(value = "/getRanCompetitionsFriends", method = RequestMethod.GET)
+    public ResponseEntity<List<ShortCompetition>> getAllRanCompetitionsFromFriends(@RequestHeader("token") String token) {
+        User user = userService.findUserByAuthId(JWT.decode(token).getSubject());
+        if (user == null) throw new UnauthorizedUserException("User with token " + token + " not found, cannot fetch won Competitions!");
+
+        //Get friends
+        List<User> friends = new ArrayList<>();
+        for (Friendship friendship : user.getFriendships()) {
+            if(friendshipService.checkFriendship(user,friendship.getFriend())) friends.add(friendship.getFriend());
+        }
+
+        List<Competition> competitions = new ArrayList<>();
+        friends.stream().forEach(f -> competitions.addAll(f.getCompetitionsRun()));
+
+        if (competitions == null || competitions.isEmpty()) throw new NoContentException("No won Competitions found for User with token " + token + "!");
+        List<ShortCompetition> competitionsDTO = new ArrayList<>();
+        competitions.stream().forEach(competition -> competitionsDTO.add(new ShortCompetition(competition)));
+
+        return new ResponseEntity<List<ShortCompetition>>(competitionsDTO, HttpStatus.OK);
+    }
+
 
     /**
      * {@link User} creates a {@link Competition}.

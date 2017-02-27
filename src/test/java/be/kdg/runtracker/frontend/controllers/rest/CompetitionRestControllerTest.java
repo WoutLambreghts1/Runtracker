@@ -31,6 +31,7 @@ import java.util.List;
 import static org.junit.Assert.assertTrue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.setup.MockMvcBuilders.webAppContextSetup;
 
@@ -169,6 +170,76 @@ public class CompetitionRestControllerTest {
     @Test
     public void testGetAllRanCompetitions() throws Exception {
         this.mockMvc.perform(get("/competitions/getRanCompetitions").header("token", tokenAlexander).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andDo(print());
+    }
+
+    @Test
+    public void testGetAllRanCompetitionsFriends() throws Exception {
+        //Add friend
+        String username = "woutl";
+        this.mockMvc.perform(put("/users/addFriend/" + username).header("token", tokenAlexander).contentType(MediaType.APPLICATION_JSON))
+                .andDo(print())
+                .andExpect(status().isOk());
+
+        this.mockMvc.perform(put("/users/acceptFriend/" + alexander.getUsername()).header("token", tokenWout).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andDo(print());
+
+        //Create competition
+        Competition competition = new Competition(wout, goal1, "topicABC", "comp6");
+        this.mockMvc.perform(post("/competitions/createCompetition").content(mapper.writeValueAsString(competition)).header("token", tokenWout).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isCreated())
+                .andDo(print());
+
+        //Add runner to competition
+        long competitionId = this.competitionRepository.findCompetitionByUserCreated(wout).get(this.competitionRepository.findCompetitionByUserCreated(wout).size() - 1).getCompetitionId();
+
+        this.mockMvc.perform(post("/competitions/running/" + competitionId).header("token", tokenJelle).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isCreated())
+                .andDo(print());
+
+
+        //Get ran competitions friends
+        this.mockMvc.perform(get("/competitions/getRanCompetitionsFriends").header("token", tokenAlexander).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andDo(print())
+                .andExpect(content().string(org.hamcrest.Matchers.containsString(username)));
+    }
+
+    @Test
+    public void testGetAllWonCompetitionsFriends() throws Exception {
+        //Add friend
+        String username = "woutl";
+        this.mockMvc.perform(put("/users/addFriend/" + username).header("token", tokenAlexander).contentType(MediaType.APPLICATION_JSON))
+                .andDo(print())
+                .andExpect(status().isOk());
+
+        this.mockMvc.perform(put("/users/acceptFriend/" + alexander.getUsername()).header("token", tokenWout).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andDo(print());
+
+        //Create competition
+        Competition competition = new Competition(wout, goal1, "topicABC", "comp6");
+        this.mockMvc.perform(post("/competitions/createCompetition").content(mapper.writeValueAsString(competition)).header("token", tokenWout).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isCreated())
+                .andDo(print());
+
+        //Add runner to competition
+        long competitionId = this.competitionRepository.findCompetitionByUserCreated(wout).get(this.competitionRepository.findCompetitionByUserCreated(wout).size() - 1).getCompetitionId();
+
+        this.mockMvc.perform(post("/competitions/running/" + competitionId).header("token", tokenJelle).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isCreated())
+                .andDo(print());
+
+
+        //Win competition
+        this.mockMvc.perform(post("/competitions/wins/" + competitionId).header("token", tokenWout).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isCreated())
+                .andDo(print());
+
+        //Get won competitions friends
+        this.mockMvc.perform(get("/competitions/getWonCompetitionsFriends").header("token", tokenAlexander).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andDo(print());
     }
