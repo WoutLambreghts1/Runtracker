@@ -73,4 +73,8 @@ public class ShortCompetition {
     public List<ShortTracking> getTrackings() {
         return trackings;
     }
+
+    public Timestamp getTime() {
+        return time;
+    }
 }

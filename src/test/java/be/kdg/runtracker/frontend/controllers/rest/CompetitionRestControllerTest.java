@@ -450,6 +450,62 @@ public class CompetitionRestControllerTest {
                 .andDo(print());
     }
 
+    @Test
+    public void testGetAllNonFinishedCompetitions() throws Exception {
+        //Create competition
+        Competition competition = new Competition(wout, goal1, "topicABC", "comp6");
+        this.mockMvc.perform(post("/competitions/createCompetition").content(mapper.writeValueAsString(competition)).header("token", tokenWout).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isCreated())
+                .andDo(print());
+
+        //Add runner to competition
+        long competitionId = this.competitionRepository.findCompetitionByUserCreated(wout).get(this.competitionRepository.findCompetitionByUserCreated(wout).size() - 1).getCompetitionId();
+
+        this.mockMvc.perform(post("/competitions/running/" + competitionId).header("token", tokenJelle).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isCreated())
+                .andDo(print());
+
+        //Get non-finished competitions (no winnner)
+        this.mockMvc.perform(get("/competitions/getNonFinishedCompetitions").header("token", tokenAlexander).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andDo(print())
+                .andExpect(content().string(org.hamcrest.Matchers.containsString(competition.getName())))
+                .andExpect(content().string(org.hamcrest.Matchers.containsString(jelle.getUsername())));
+    }
+
+    @Test
+    public void testGetAllNonFinishedCompetitionsFriends() throws Exception {
+        //Add friend
+        String username = "woutl";
+        this.mockMvc.perform(put("/users/addFriend/" + username).header("token", tokenAlexander).contentType(MediaType.APPLICATION_JSON))
+                .andDo(print())
+                .andExpect(status().isOk());
+
+        this.mockMvc.perform(put("/users/acceptFriend/" + alexander.getUsername()).header("token", tokenWout).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andDo(print());
+
+        //Create competition
+        Competition competition = new Competition(wout, goal1, "topicABC", "comp6");
+        this.mockMvc.perform(post("/competitions/createCompetition").content(mapper.writeValueAsString(competition)).header("token", tokenWout).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isCreated())
+                .andDo(print());
+
+        //Add runner to competition
+        long competitionId = this.competitionRepository.findCompetitionByUserCreated(wout).get(this.competitionRepository.findCompetitionByUserCreated(wout).size() - 1).getCompetitionId();
+
+        this.mockMvc.perform(post("/competitions/running/" + competitionId).header("token", tokenJelle).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isCreated())
+                .andDo(print());
+
+        //Get non-finished competitions (no winnner)
+        this.mockMvc.perform(get("/competitions/getNonFinishedCompetitionsFriends").header("token", tokenAlexander).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andDo(print())
+                .andExpect(content().string(org.hamcrest.Matchers.containsString(competition.getName())))
+                .andExpect(content().string(org.hamcrest.Matchers.containsString(jelle.getUsername())));
+    }
+
     @After
     public void removeTestObjects() {
         this.competition2.setTrackings(new ArrayList<>());
