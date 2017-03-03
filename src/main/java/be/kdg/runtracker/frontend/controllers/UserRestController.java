@@ -128,6 +128,7 @@ public class UserRestController {
         currentUser.setGender(user.getGender());
         currentUser.setCity(user.getCity());;
         currentUser.setBirthday(user.getBirthday());
+        currentUser.setAvatar(user.getAvatar());
 
         userService.saveUser(currentUser);
 
