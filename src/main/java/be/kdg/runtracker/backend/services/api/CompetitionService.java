@@ -11,7 +11,7 @@ public interface CompetitionService {
 
     Competition findCompetitionByCompetitionId(long competitionId);
 
-    void saveCompetition(Competition competition);
+    Competition saveCompetition(Competition competition);
 
     void deleteCompetition(User user, Competition competition);
 

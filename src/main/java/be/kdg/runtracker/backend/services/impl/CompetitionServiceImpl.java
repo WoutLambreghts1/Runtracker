@@ -47,8 +47,8 @@ public class CompetitionServiceImpl implements CompetitionService {
     }
 
     @Override
-    public void saveCompetition(Competition competition) {
-        this.competitionRepository.save(competition);
+    public Competition saveCompetition(Competition competition) {
+        return this.competitionRepository.save(competition);
     }
 
     @Override
