@@ -4,6 +4,7 @@ import be.kdg.runtracker.backend.dom.profile.User;
 import be.kdg.runtracker.backend.dom.tracking.Tracking;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.LazyCollection;
 import org.hibernate.annotations.LazyCollectionOption;
 
@@ -19,43 +20,46 @@ import java.util.List;
  */
 
 @Entity
-@JsonIdentityInfo(generator=ObjectIdGenerators.PropertyGenerator.class, property="competitionId", scope = Competition.class)
-@Table(name="Competition")
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "competitionId", scope = Competition.class)
+@Table(name = "Competition")
 public class Competition implements Serializable {
 
     @Id
     @GeneratedValue
-    @Column(nullable=false, name = "competition_id")
+    @Column(nullable = false, name = "competition_id")
     private Long competitionId;
 
     @Basic
     private String name;
 
     @Basic
+    private String topic;
+
+    @CreationTimestamp
     private Timestamp time;
 
-    @ManyToOne(targetEntity = Goal.class,fetch = FetchType.EAGER)
+    @ManyToOne(targetEntity = Goal.class, fetch = FetchType.EAGER)
     private Goal goal;
 
-    @ManyToOne(targetEntity = User.class,fetch = FetchType.EAGER)
+    @ManyToOne(targetEntity = User.class, fetch = FetchType.EAGER)
     private User userCreated;
 
-    @ManyToOne(targetEntity = User.class,fetch = FetchType.EAGER)
+    @ManyToOne(targetEntity = User.class, fetch = FetchType.EAGER)
     private User userWon;
 
     @OneToMany(targetEntity = Tracking.class, cascade = CascadeType.REMOVE)
     @LazyCollection(LazyCollectionOption.FALSE)
     private List<Tracking> trackings;
 
-    @ManyToMany(targetEntity = User.class,mappedBy = "competitionsRun")
+    @ManyToMany(targetEntity = User.class, mappedBy = "competitionsRun")
     @LazyCollection(LazyCollectionOption.FALSE)
     private List<User> usersRun;
 
-    public Competition(User userCreated, Goal goal,String name) {
+    public Competition(User userCreated, Goal goal, String topic, String name) {
         this.userCreated = userCreated;
         this.goal = goal;
+        this.topic = topic;
         this.name = name;
-        this.time = java.sql.Timestamp.valueOf(LocalDateTime.now());
 
         addRunner(userCreated);
     }
@@ -96,7 +100,7 @@ public class Competition implements Serializable {
     }
 
     public List<Tracking> getTrackings() {
-        if(this.trackings!=null)return this.trackings;
+        if (this.trackings != null) return this.trackings;
         return new ArrayList<Tracking>();
     }
 
@@ -120,6 +124,14 @@ public class Competition implements Serializable {
         this.name = name;
     }
 
+    public String getTopic() {
+        return topic;
+    }
+
+    public void setTopic(String topic) {
+        this.topic = topic;
+    }
+
     public Timestamp getTime() {
         return time;
     }
@@ -128,35 +140,35 @@ public class Competition implements Serializable {
         this.time = time;
     }
 
-    public void addRunner(User runner){
-        if(usersRun == null){
+    public void addRunner(User runner) {
+        if (usersRun == null) {
             usersRun = new ArrayList<>();
         }
 
-        if(!usersRun.stream().filter(u -> u.getUserId() == runner.getUserId()).findFirst().isPresent()){
+        if (!usersRun.stream().filter(u -> u.getUserId() == runner.getUserId()).findFirst().isPresent()) {
             usersRun.add(runner);
         }
 
     }
 
-    public void removeRunner(User runner){
-        if(usersRun.stream().filter(u -> u.getUserId() == runner.getUserId()).findFirst().isPresent()){
+    public void removeRunner(User runner) {
+        if (usersRun.stream().filter(u -> u.getUserId() == runner.getUserId()).findFirst().isPresent()) {
             usersRun.remove(runner);
         }
     }
 
-    public void addTracking(Tracking tracking){
-        if(trackings == null){
+    public void addTracking(Tracking tracking) {
+        if (trackings == null) {
             trackings = new ArrayList<>();
         }
 
-        if(!trackings.contains(tracking)){
+        if (!trackings.contains(tracking)) {
             trackings.add(tracking);
         }
     }
 
-    public void removeTracking(Tracking tracking){
-        if(trackings.contains(tracking)){
+    public void removeTracking(Tracking tracking) {
+        if (trackings.contains(tracking)) {
             trackings.remove(tracking);
         }
     }

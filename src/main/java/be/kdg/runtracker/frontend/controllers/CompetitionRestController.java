@@ -196,11 +196,11 @@ public class CompetitionRestController {
      * {@link User} creates a {@link Competition}.
      * @param token Token
      * @param competition Created Competition
-     * @param ucBuilder Uri Builder
+//     * @param ucBuilder Uri Builder
      * @return HTTP Status
      */
     @RequestMapping(value = "/createCompetition", method = RequestMethod.POST)
-    public ResponseEntity<?> createCompetition(@RequestHeader("token") String token, @RequestBody Competition competition, UriComponentsBuilder ucBuilder) {
+    public ResponseEntity<Competition> createCompetition(@RequestHeader("token") String token, @RequestBody Competition competition) { //, UriComponentsBuilder ucBuilder
         User user = userService.findUserByAuthId(JWT.decode(token).getSubject());
         if (user == null) throw new UnauthorizedUserException("User with token " + token + " not found, cannot create Competitions!");
 
@@ -209,12 +209,12 @@ public class CompetitionRestController {
         user.addCompetitionsCreated(competition);
         user.addCompetitionsRan(competition);
 
-        competitionService.saveCompetition(competition);
+        Competition c = competitionService.saveCompetition(competition);
         userService.saveUser(user);
 
-        HttpHeaders headers = new HttpHeaders();
-        headers.setLocation(ucBuilder.path("/api/users/getUser").buildAndExpand(user.getAuthId()).toUri());
-        return new ResponseEntity<String>(headers, HttpStatus.CREATED);
+//        HttpHeaders headers = new HttpHeaders();
+//        headers.setLocation(ucBuilder.path("/api/users/getUser").buildAndExpand(user.getAuthId()).toUri());
+        return new ResponseEntity<Competition>(c, HttpStatus.CREATED);
     }
 
     /**
