@@ -51,7 +51,7 @@ public class Competition implements Serializable {
     @LazyCollection(LazyCollectionOption.FALSE)
     private List<User> usersRun;
 
-    public Competition(User userCreated, Goal goal, String topic, String name) {
+    public Competition(User userCreated, Goal goal, String name) {
         this.userCreated = userCreated;
         this.goal = goal;
         this.name = name;
@@ -118,7 +118,7 @@ public class Competition implements Serializable {
     public void setName(String name) {
         this.name = name;
     }
-    
+
     public Timestamp getTime() {
         return time;
     }
