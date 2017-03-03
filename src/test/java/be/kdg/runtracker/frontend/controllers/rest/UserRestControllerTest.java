@@ -117,7 +117,7 @@ public class UserRestControllerTest {
         this.goalAlex.setName("Goal1");
         this.goalAlex.setDistance(10);
 
-        this.competitionAlex = new Competition(alexander, goalAlex, "topicABC", "Competition one");
+        this.competitionAlex = new Competition(alexander, goalAlex, "Competition one");
         this.competitionAlex.addRunner(alexander);
         this.alexander.addCompetitionsCreated(competitionAlex);
         this.alexander.addCompetitionsRan(competitionAlex);

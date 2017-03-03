@@ -365,6 +365,25 @@ public class CompetitionRestController {
         return new ResponseEntity<List<ShortCompetition>>(competitionsDTO, HttpStatus.OK);
     }
 
+    /**
+     * Get all finished competitions
+     * @param token
+     * @return List of {@link ShortCompetition}.
+     */
+    @RequestMapping(value = "/getFinishedCompetitionsUser", method = RequestMethod.GET)
+    public ResponseEntity<List<ShortCompetition>> getAllFinishedCompetitionsUser(@RequestHeader("token") String token) {
+        User user = userService.findUserByAuthId(JWT.decode(token).getSubject());
+        if (user == null) throw new UnauthorizedUserException("User with token " + token + " not found, cannot fetch competitions");
+
+        List<Competition> competitions = user.getCompetitionsRun().stream().filter(c ->c.getUserWon()!=null).collect(Collectors.toList());
+        if (competitions == null || competitions.isEmpty()) throw new NoContentException("No finished Competitions!");
+
+        List<ShortCompetition> competitionsDTO = new ArrayList<>();
+        competitions.stream().forEach(competition -> competitionsDTO.add(new ShortCompetition(competition)));
+
+        return new ResponseEntity<List<ShortCompetition>>(competitionsDTO, HttpStatus.OK);
+    }
+
 
     /**
      * Get all non finished competitions of friends

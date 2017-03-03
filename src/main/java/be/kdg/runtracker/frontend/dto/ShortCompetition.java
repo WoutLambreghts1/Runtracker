@@ -16,7 +16,6 @@ public class ShortCompetition {
     private ShortUser userCreated;
     private ShortUser userWon;
     private List<ShortUser> usersRun;
-    private String topic;
     private String name;
     private List<ShortTracking> trackings;
     private Timestamp time;
@@ -28,7 +27,6 @@ public class ShortCompetition {
         if (competition.getUserWon() != null)
             this.userWon = new ShortUser(competition.getUserWon());
         this.usersRun = new ArrayList<>();
-        this.topic = competition.getTopic();
         this.name = competition.getName();
         this.time = competition.getTime();
         this.trackings = new ArrayList<>();
@@ -64,10 +62,6 @@ public class ShortCompetition {
 
     public String getName() {
         return name;
-    }
-
-    public String getTopic() {
-        return topic;
     }
 
     public List<ShortTracking> getTrackings() {

@@ -32,9 +32,6 @@ public class Competition implements Serializable {
     private String name;
 
     @Basic
-    private String topic;
-
-    @Basic
     private Timestamp time;
 
     @ManyToOne(targetEntity = Goal.class,fetch = FetchType.EAGER)
@@ -54,10 +51,9 @@ public class Competition implements Serializable {
     @LazyCollection(LazyCollectionOption.FALSE)
     private List<User> usersRun;
 
-    public Competition(User userCreated, Goal goal,String topic,String name) {
+    public Competition(User userCreated, Goal goal,String name) {
         this.userCreated = userCreated;
         this.goal = goal;
-        this.topic = topic;
         this.name = name;
         this.time = java.sql.Timestamp.valueOf(LocalDateTime.now());
 
@@ -122,14 +118,6 @@ public class Competition implements Serializable {
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    public String getTopic() {
-        return topic;
-    }
-
-    public void setTopic(String topic) {
-        this.topic = topic;
     }
 
     public Timestamp getTime() {

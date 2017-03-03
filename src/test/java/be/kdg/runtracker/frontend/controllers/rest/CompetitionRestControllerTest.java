@@ -98,7 +98,7 @@ public class CompetitionRestControllerTest {
         this.goal1.setName("Goal1");
         this.goal1.setDistance(10);
 
-        this.competition1 = new Competition(alexander, goal1, "topicABC", "comp1");
+        this.competition1 = new Competition(alexander, goal1, "comp1");
         this.competition1.addRunner(alexander);
         this.alexander.addCompetitionsCreated(competition1);
         this.alexander.addCompetitionsRan(competition1);
@@ -115,7 +115,7 @@ public class CompetitionRestControllerTest {
         this.goal2.setName("Goal2");
         this.goal2.setDistance(10);
 
-        this.competition2 = new Competition(wout, goal2, "topicABC", "compet");
+        this.competition2 = new Competition(wout, goal2, "compet");
         this.wout.addCompetitionsCreated(competition2);
         this.competition2.addRunner(wout);
 
@@ -187,7 +187,7 @@ public class CompetitionRestControllerTest {
                 .andDo(print());
 
         //Create competition
-        Competition competition = new Competition(wout, goal1, "topicABC", "comp6");
+        Competition competition = new Competition(wout, goal1, "comp6");
         this.mockMvc.perform(post("/competitions/createCompetition").content(mapper.writeValueAsString(competition)).header("token", tokenWout).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isCreated())
                 .andDo(print());
@@ -220,7 +220,7 @@ public class CompetitionRestControllerTest {
                 .andDo(print());
 
         //Create competition
-        Competition competition = new Competition(wout, goal1, "topicABC", "comp6");
+        Competition competition = new Competition(wout, goal1, "comp6");
         this.mockMvc.perform(post("/competitions/createCompetition").content(mapper.writeValueAsString(competition)).header("token", tokenWout).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isCreated())
                 .andDo(print());
@@ -308,7 +308,7 @@ public class CompetitionRestControllerTest {
 
     @Test
     public void testCreateCompetition() throws Exception {
-        Competition competition = new Competition(jelle, goal1, "topicABC", "comp6");
+        Competition competition = new Competition(jelle, goal1, "comp6");
 
         this.mockMvc.perform(post("/competitions/createCompetition").content(mapper.writeValueAsString(competition)).header("token", tokenJelle).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isCreated())
@@ -322,7 +322,7 @@ public class CompetitionRestControllerTest {
     @Test
     public void testCreateCompetitionUnauthorized() throws Exception {
         String wrongToken = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJPbmxpbmUgSldUIEJ1aWxkZXIiLCJpYXQiOjE0ODY3MzE5MzgsImV4cCI6MTUxODI2NzkzOCwiYXVkIjoid3d3LmV4YW1wbGUuY29tIiwic3ViIjoidGVzdDYifQ.X8l82QUd7sXLuqNxiTJaQZDhU9V7_4fIi3MKNxYHOQU";
-        Competition competition = new Competition(alexander, goal1, "topicABC", "comp123");
+        Competition competition = new Competition(alexander, goal1, "comp123");
 
         this.mockMvc.perform(post("/competitions/createCompetition").content(mapper.writeValueAsString(competition)).header("token", wrongToken).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isUnauthorized())
@@ -451,9 +451,9 @@ public class CompetitionRestControllerTest {
     }
 
     @Test
-    public void testGetAllNonFinishedCompetitions() throws Exception {
+     public void testGetAllNonFinishedCompetitions() throws Exception {
         //Create competition
-        Competition competition = new Competition(wout, goal1, "topicABC", "comp6");
+        Competition competition = new Competition(wout, goal1, "comp6");
         this.mockMvc.perform(post("/competitions/createCompetition").content(mapper.writeValueAsString(competition)).header("token", tokenWout).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isCreated())
                 .andDo(print());
@@ -474,6 +474,34 @@ public class CompetitionRestControllerTest {
     }
 
     @Test
+    public void testGetAllFinishedCompetitionsUser() throws Exception {
+        //Create competition
+        Competition competition = new Competition(alexander, goal1, "comp6");
+        this.mockMvc.perform(post("/competitions/createCompetition").content(mapper.writeValueAsString(competition)).header("token", tokenAlexander).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isCreated())
+                .andDo(print());
+
+        //Add runner to competition
+        long competitionId = this.competitionRepository.findCompetitionByUserCreated(alexander).get(this.competitionRepository.findCompetitionByUserCreated(alexander).size() - 1).getCompetitionId();
+
+        this.mockMvc.perform(post("/competitions/running/" + competitionId).header("token", tokenJelle).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isCreated())
+                .andDo(print());
+
+        //Add winner to competition
+        this.mockMvc.perform(post("/competitions/wins/" + competitionId).header("token", tokenAlexander).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isCreated())
+                .andDo(print());
+
+        //Get finished competitions of user
+        this.mockMvc.perform(get("/competitions/getFinishedCompetitionsUser").header("token", tokenAlexander).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andDo(print())
+                .andExpect(content().string(org.hamcrest.Matchers.containsString(competition.getName())))
+                .andExpect(content().string(org.hamcrest.Matchers.containsString(jelle.getUsername())));
+    }
+
+    @Test
     public void testGetAllNonFinishedCompetitionsFriends() throws Exception {
         //Add friend
         String username = "woutl";
@@ -486,7 +514,7 @@ public class CompetitionRestControllerTest {
                 .andDo(print());
 
         //Create competition
-        Competition competition = new Competition(wout, goal1, "topicABC", "comp6");
+        Competition competition = new Competition(wout, goal1, "comp6");
         this.mockMvc.perform(post("/competitions/createCompetition").content(mapper.writeValueAsString(competition)).header("token", tokenWout).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isCreated())
                 .andDo(print());
