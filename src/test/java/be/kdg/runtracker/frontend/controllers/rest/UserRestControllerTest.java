@@ -182,7 +182,7 @@ public class UserRestControllerTest {
     public void testCreateUser() throws Exception {
         String testToken = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJPbmxpbmUgSldUIEJ1aWxkZXIiLCJpYXQiOjE0ODY3MzE5MzgsImV4cCI6MTUxODI2NzkzOCwiYXVkIjoid3d3LmV4YW1wbGUuY29tIiwic3ViIjoidGVzdDYifQ.X8l82QUd7sXLuqNxiTJaQZDhU9V7_4fIi3MKNxYHOQU";
         String testToken2 = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJKQVQiLCJpYXQiOjE0ODgyMTA5NzAsImV4cCI6MTUxOTc0Njk3MCwiYXVkIjoid3d3LmV4YW1wbGUuY29tIiwic3ViIjoiam9za2UwMjMxNjEifQ.JDWWhkBb3BqZh3ttj3gEYadX5JUYK91vO_QLMQAcb8Y";
-        String testToken3= "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJKQVQiLCJpYXQiOjE0ODgyMTA5NzAsImV4cCI6MTUxOTc0Njk3MCwiYXVkIjoid3d3LmV4YW1wbGUuY29tIiwic3ViIjoiam9za2UwNDExNTEifQ.4-yVCxaRtnKe_AgcXR1jafmmcR9fQrLqF3YWGhqXerM";
+        String testToken3 = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJKQVQiLCJpYXQiOjE0ODgyMTA5NzAsImV4cCI6MTUxOTc0Njk3MCwiYXVkIjoid3d3LmV4YW1wbGUuY29tIiwic3ViIjoiam9za2UwNDExNTEifQ.4-yVCxaRtnKe_AgcXR1jafmmcR9fQrLqF3YWGhqXerM";
         User testUser = new User();
         testUser.setAuthId(JWT.decode(testToken).getSubject());
         testUser.setFirstname("Test");
@@ -508,6 +508,20 @@ public class UserRestControllerTest {
                     .andExpect(status().isOk());
         }
 
+    }
+
+    @Test
+    public void testSetAvatar() throws Exception {
+        String avatar = "MyAvatar";
+
+        this.mockMvc.perform(put("/users/setAvatar/" + avatar).header("token", tokenWout).contentType(MediaType.APPLICATION_JSON))
+                .andDo(print())
+                .andExpect(status().isOk());
+
+        this.mockMvc.perform(get("/users/getUser").header("token", tokenWout).contentType(MediaType.APPLICATION_JSON))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(content().string(org.hamcrest.Matchers.containsString(avatar)));
     }
 
 

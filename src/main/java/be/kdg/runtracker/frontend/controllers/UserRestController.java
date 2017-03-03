@@ -283,6 +283,24 @@ public class UserRestController {
 
     }
 
+
+    /**
+     * set avatar of user
+     * @param token
+     * @param avatarname
+     * @return
+     */
+    @RequestMapping(value = "/setAvatar/{avatarname}", method = RequestMethod.PUT)
+    public ResponseEntity<?> setAvatar(@RequestHeader("token") String token, @PathVariable("avatarname") String avatarname) {
+        User user = userService.findUserByAuthId(JWT.decode(token).getSubject());
+        if (user == null) throw new UnauthorizedUserException("User with token " + token + " not found!");
+
+        user.setAvatar(avatarname);
+        userService.saveUser(user);
+
+        return new ResponseEntity<ShortUser>(new ShortUser(user), HttpStatus.OK);
+    }
+
     /*
     FRIENDSHIP PART OF USERS
     *---------------------------------------

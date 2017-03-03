@@ -97,6 +97,9 @@ public class User implements Serializable {
     @Basic
     private int nrOfCompetitionsDone;
 
+    @Basic
+    private String avatar;
+
     public Long getUserId() {
         return this.userId;
     }
@@ -255,6 +258,14 @@ public class User implements Serializable {
 
     public void setNrOfCompetitionsDone(int nrOfCompetitionsDone) {
         this.nrOfCompetitionsDone = nrOfCompetitionsDone;
+    }
+
+    public String getAvatar() {
+        return avatar;
+    }
+
+    public void setAvatar(String avatar) {
+        this.avatar = avatar;
     }
 
     public void addTracking(Tracking tracking) {

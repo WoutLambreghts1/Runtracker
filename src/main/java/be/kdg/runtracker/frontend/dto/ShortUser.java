@@ -24,6 +24,7 @@ public class ShortUser {
     private long totalDistance;
     private int nrOfCompetitionsWon;
     private int nrOfCompetitionsDone;
+    private String avatar;
 
     public ShortUser(User user) {
         this.userId = user.getUserId();
@@ -34,6 +35,7 @@ public class ShortUser {
         this.gender = user.getGender();
         this.city = user.getCity();
         this.birthday = user.getBirthday();
+        this.avatar = user.getAvatar();
 
         this.maxSpeed = user.getMaxSpeed();
         this.avgSpeed = user.getAvgSpeed();
@@ -107,5 +109,9 @@ public class ShortUser {
 
     public int getNrOfCompetitionsDone() {
         return nrOfCompetitionsDone;
+    }
+
+    public String getAvatar() {
+        return avatar;
     }
 }
