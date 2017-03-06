@@ -59,7 +59,10 @@ public class TrackingRestController {
         if (trackings != null && !trackings.isEmpty()) trackings.stream().forEach(tracking -> tracking.setCoordinates(this.coordinatesService.readCoordinatesByTrackingId(tracking.getTrackingId())));
 
         List<ShortTracking> trackingsDTO = new ArrayList<>();
-        trackings.stream().forEach(tracking -> new ShortTracking(tracking));
+
+        for (Tracking tracking : trackings) {
+            trackingsDTO.add(new ShortTracking(tracking));
+        }
 
         return new ResponseEntity<List<ShortTracking>>(trackingsDTO, HttpStatus.OK);
     }
@@ -89,7 +92,9 @@ public class TrackingRestController {
         trackings.stream().forEach(t -> t.setCoordinates(this.coordinatesService.readCoordinatesByTrackingId(t.getTrackingId())));
 
         List<ShortTracking> trackingsDTO = new ArrayList<>();
-        trackings.stream().forEach(tracking -> new ShortTracking(tracking));
+        for (Tracking tracking : trackings) {
+            trackingsDTO.add(new ShortTracking(tracking));
+        }
 
         return new ResponseEntity<List<ShortTracking>>(trackingsDTO, HttpStatus.OK);
     }
