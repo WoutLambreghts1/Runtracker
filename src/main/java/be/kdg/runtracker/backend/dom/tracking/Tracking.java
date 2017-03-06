@@ -43,6 +43,9 @@ public class Tracking implements Serializable {
     @Basic
     private double avgSpeed;
 
+    @Basic
+    private double avgPace;
+
     @ManyToOne(targetEntity = User.class)
     private User user;
 
@@ -65,12 +68,13 @@ public class Tracking implements Serializable {
         this.coordinates = new ArrayList<>();
     }
 
-    public Tracking(long totalDuration, long totalDistance, double maxSpeed, double avgSpeed, List<Coordinate> coordinates) {
+    public Tracking(long totalDuration, long totalDistance, double maxSpeed, double avgSpeed, double avgPace, List<Coordinate> coordinates) {
         this.time = Timestamp.valueOf(LocalDateTime.now());
         this.totalDuration = totalDuration;
         this.totalDistance = totalDistance;
         this.maxSpeed = maxSpeed;
         this.avgSpeed = avgSpeed;
+        this.avgPace = avgPace;
         this.coordinates = coordinates;
         this.coordinates = new ArrayList<>();
     }

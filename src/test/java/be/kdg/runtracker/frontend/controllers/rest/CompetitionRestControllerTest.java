@@ -431,7 +431,7 @@ public class CompetitionRestControllerTest {
         coordinate.setSpeed(10);
         coordinate.setTime(10);
         coordinates.add(coordinate);
-        Tracking testTracking = new Tracking(10, 10, 10, 10, coordinates);
+        Tracking testTracking = new Tracking(10, 10, 10, 10, 10, coordinates);
         long competitionId = this.competitionRepository.findCompetitionByUserCreated(alexander).get(0).getCompetitionId();
 
         this.mockMvc.perform(post("/competitions/addTracking/" + competitionId)

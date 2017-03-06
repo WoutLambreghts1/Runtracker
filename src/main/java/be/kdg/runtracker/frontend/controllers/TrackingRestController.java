@@ -11,6 +11,7 @@ import be.kdg.runtracker.backend.services.api.FriendshipService;
 import be.kdg.runtracker.backend.services.api.TrackingService;
 import be.kdg.runtracker.backend.services.api.UserService;
 import be.kdg.runtracker.frontend.dto.ShortTracking;
+import be.kdg.runtracker.frontend.dto.TrackingDTO;
 import be.kdg.runtracker.frontend.util.CustomErrorType;
 import com.auth0.jwt.JWT;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -116,16 +117,16 @@ public class TrackingRestController {
     /**
      * Create a {@link Tracking}.
      * @param token Token
-     * @param tracking Tracking
+     * @param trackingDTO Tracking
      * @param ucBuilder Uri Builder
      * @return HTTP Status Created
      */
     @RequestMapping(value = "/createTracking",method = RequestMethod.POST)
-    public ResponseEntity<?> createTracking(@RequestHeader("token") String token, @RequestBody Tracking tracking, UriComponentsBuilder ucBuilder) {
+    public ResponseEntity<?> createTracking(@RequestHeader("token") String token, @RequestBody TrackingDTO trackingDTO, UriComponentsBuilder ucBuilder) {
         User user = userService.findUserByAuthId(JWT.decode(token).getSubject());
         if (user == null) throw new UnauthorizedUserException("User with token " + token + " not found, cannot fetch Trackings!");
 
-        this.trackingService.saveTracking(tracking, user);
+        this.trackingService.saveTracking(trackingDTO.getAsTrackingWithoutCompetition(), user);
 
         HttpHeaders headers = new HttpHeaders();
         headers.setLocation(ucBuilder.path("/api/users/getuser").buildAndExpand(user.getAuthId()).toUri());

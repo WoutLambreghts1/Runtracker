@@ -8,6 +8,7 @@ import be.kdg.runtracker.backend.persistence.api.CoordinatesRepository;
 import be.kdg.runtracker.backend.persistence.api.FriendshipRepository;
 import be.kdg.runtracker.backend.persistence.api.TrackingRepository;
 import be.kdg.runtracker.backend.persistence.api.UserRepository;
+import be.kdg.runtracker.frontend.dto.TrackingDTO;
 import com.auth0.jwt.JWT;
 import com.google.gson.Gson;
 import org.junit.After;
@@ -193,18 +194,36 @@ public class TrackingRestControllerTest {
 
     @Test
     public void testCreateTracking() throws Exception {
-        String localDateTimeNow = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
-        String testTrackingJSON = "{\"time\":\"" + localDateTimeNow + "\",\"totalDuration\":10,\"totalDistance\":10,\"maxSpeed\":10.0,\"avgSpeed\":10.0,\"coordinates\":[{\"time\":10,\"lat\":10.0,\"lon\":10.0,\"trackingId\":0,\"speed\":10.0}]}";
-        this.mockMvc.perform(post("/trackings/createTracking").content(testTrackingJSON).header("token", tokenAlexander).contentType(MediaType.APPLICATION_JSON))
+        //String localDateTimeNow = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+        //String testTrackingJSON = "{\"time\":\"" + localDateTimeNow + "\",\"totalDuration\":10,\"totalDistance\":10,\"maxSpeed\":10.0,\"avgSpeed\":10.0,\"coordinates\":[{\"time\":10,\"lat\":10.0,\"lon\":10.0,\"trackingId\":0,\"speed\":10.0}]}";
+        TrackingDTO testTracking = new TrackingDTO();
+        testTracking.setTotalDuration(10);
+        testTracking.setTotalDistance(10);
+        testTracking.setAvgSpeed(10);
+        testTracking.setAvgPace(10);
+        testTracking.setMaxSpeed(10);
+        List<Coordinate> coordinates = new ArrayList<Coordinate>();
+        coordinates.add(new Coordinate(10, 10, 10, 10));
+
+        this.mockMvc.perform(post("/trackings/createTracking").content(gson.toJson(testTracking)).header("token", tokenAlexander).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isCreated())
                 .andDo(print());
     }
 
     @Test
     public void testCreateTrackingForNonExistingUser() throws Exception {
-        String localDateTimeNow = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
-        String testTrackingJSON = "{\"time\":\"" + localDateTimeNow + "\",\"totalDuration\":10,\"totalDistance\":10,\"maxSpeed\":10.0,\"avgSpeed\":10.0,\"coordinates\":[{\"time\":10,\"lat\":10.0,\"lon\":10.0,\"trackingId\":0,\"speed\":10.0}]}";
-        this.mockMvc.perform(post("/trackings/createTracking").content(testTrackingJSON).header("token", wrongToken).contentType(MediaType.APPLICATION_JSON))
+        //String localDateTimeNow = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+        //String testTrackingJSON = "{\"time\":\"" + localDateTimeNow + "\",\"totalDuration\":10,\"totalDistance\":10,\"maxSpeed\":10.0,\"avgSpeed\":10.0,\"coordinates\":[{\"time\":10,\"lat\":10.0,\"lon\":10.0,\"trackingId\":0,\"speed\":10.0}]}";
+        TrackingDTO testTracking = new TrackingDTO();
+        testTracking.setTotalDuration(10);
+        testTracking.setTotalDistance(10);
+        testTracking.setAvgSpeed(10);
+        testTracking.setAvgPace(10);
+        testTracking.setMaxSpeed(10);
+        List<Coordinate> coordinates = new ArrayList<Coordinate>();
+        coordinates.add(new Coordinate(10, 10, 10, 10));
+
+        this.mockMvc.perform(post("/trackings/createTracking").content(gson.toJson(testTracking)).header("token", wrongToken).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isUnauthorized())
                 .andDo(print());
     }
