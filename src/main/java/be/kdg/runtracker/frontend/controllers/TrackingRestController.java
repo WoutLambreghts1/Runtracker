@@ -1,5 +1,6 @@
 package be.kdg.runtracker.frontend.controllers;
 
+import be.kdg.runtracker.backend.dom.profile.Friendship;
 import be.kdg.runtracker.backend.dom.profile.User;
 import be.kdg.runtracker.backend.dom.tracking.Coordinate;
 import be.kdg.runtracker.backend.dom.tracking.Tracking;
@@ -88,6 +89,37 @@ public class TrackingRestController {
 
         List<Tracking> trackings = friend.getTrackings();
         if (trackings == null || trackings.isEmpty()) throw new NoContentException("No Trackings found for User with username " + friend.getUsername() + "!");
+
+        trackings.stream().forEach(t -> t.setCoordinates(this.coordinatesService.readCoordinatesByTrackingId(t.getTrackingId())));
+
+        List<ShortTracking> trackingsDTO = new ArrayList<>();
+        for (Tracking tracking : trackings) {
+            trackingsDTO.add(new ShortTracking(tracking));
+        }
+
+        return new ResponseEntity<List<ShortTracking>>(trackingsDTO, HttpStatus.OK);
+    }
+
+    /**
+     * Get all {@link Tracking}s of all friends.
+     * @param token Token
+     * @return List of Trackings
+     */
+    @RequestMapping(value = "/getAllTrackingsFriends", method = RequestMethod.GET)
+    public ResponseEntity<List<ShortTracking>> getAllTrackingsFriends(@RequestHeader("token") String token) {
+
+        User user = userService.findUserByAuthId(JWT.decode(token).getSubject());
+        if (user == null) throw new UnauthorizedUserException("User with token " + token + " not found");
+
+        List<Tracking> trackings=new ArrayList<>();
+        if (user.getFriendships() == null || user.getFriendships().isEmpty()) throw new NoContentException("No friends found for User with id: " + user.getAuthId() + "!");
+        for (Friendship friendship : user.getFriendships()) {
+            if(friendshipService.checkFriendship(user,friendship.getFriend())){
+                trackings.addAll(friendship.getFriend().getTrackings());
+            }
+        }
+
+        if (trackings == null || trackings.isEmpty()) throw new NoContentException("No Trackings found for friends of user with username " + user.getUsername() + "!");
 
         trackings.stream().forEach(t -> t.setCoordinates(this.coordinatesService.readCoordinatesByTrackingId(t.getTrackingId())));
 

@@ -24,15 +24,12 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.WebApplicationContext;
 
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.setup.MockMvcBuilders.webAppContextSetup;
 
@@ -131,9 +128,17 @@ public class TrackingRestControllerTest {
         friendship2.setAccepted(true);
         friendshipRepository.save(friendship1);
         friendshipRepository.save(friendship2);
-
         this.alexander.addFriendship(friendship1);
         this.wout.addFriendship(friendship2);
+
+        Friendship friendship3 = new Friendship(wout);
+        Friendship friendship4 = new Friendship(jelle);
+        friendship3.setAccepted(true);
+        friendship4.setAccepted(true);
+        friendshipRepository.save(friendship3);
+        friendshipRepository.save(friendship4);
+        this.jelle.addFriendship(friendship3);
+        this.wout.addFriendship(friendship4);
 
         this.userRepository.save(alexander);
         this.userRepository.save(wout);
@@ -174,6 +179,15 @@ public class TrackingRestControllerTest {
         this.mockMvc.perform(get("/trackings/getAllTrackings/" + username).header("token", tokenWout).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andDo(print());
+    }
+
+    @Test
+    public void testGetAllTrackingsFriends() throws Exception {
+        String username = "alexvr";
+        this.mockMvc.perform(get("/trackings/getAllTrackingsFriends/").header("token", tokenWout).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andDo(print())
+                .andExpect(content().string(org.hamcrest.Matchers.containsString(username)));
     }
 
     @Test
