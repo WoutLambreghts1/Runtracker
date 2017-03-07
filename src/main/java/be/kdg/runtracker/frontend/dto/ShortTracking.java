@@ -17,7 +17,7 @@ public class ShortTracking {
     private double avgSpeed;
     private double avgPace;
     private ShortUser user;
-    List<Coordinate> coordinates;
+    private List<Coordinate> coordinates;
 
     public ShortTracking(Tracking tracking) {
         this.trackingId = tracking.getTrackingId();
