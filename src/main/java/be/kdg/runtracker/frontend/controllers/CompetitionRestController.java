@@ -384,6 +384,33 @@ public class CompetitionRestController {
         return new ResponseEntity<List<ShortCompetition>>(competitionsDTO, HttpStatus.OK);
     }
 
+    /**
+     * Get all finished competitions
+     * @param token
+     * @return List of {@link ShortCompetition}.
+     */
+    @RequestMapping(value = "/getFinishedCompetitionsFriends", method = RequestMethod.GET)
+    public ResponseEntity<List<ShortCompetition>> getAllFinishedCompetitionsFriends(@RequestHeader("token") String token) {
+        User user = userService.findUserByAuthId(JWT.decode(token).getSubject());
+        if (user == null) throw new UnauthorizedUserException("User with token " + token + " not found, cannot fetch competitions");
+
+        List<Competition> competitions = new ArrayList<>();
+
+        if (user.getFriendships() == null || user.getFriendships().isEmpty()) throw new NoContentException("No friends found for User with id: " + user.getAuthId() + "!");
+        for (Friendship friendship : user.getFriendships()) {
+            if(friendshipService.checkFriendship(user,friendship.getFriend())){
+                competitions.addAll(friendship.getFriend().getCompetitionsRun().stream().filter(c -> c.getUserWon() != null).collect(Collectors.toList()));
+            }
+        }
+
+        if (competitions == null || competitions.isEmpty()) throw new NoContentException("No non-finished Competitions of friends!");
+
+        List<ShortCompetition> competitionsDTO = new ArrayList<>();
+        competitions.stream().forEach(competition -> competitionsDTO.add(new ShortCompetition(competition)));
+
+        return new ResponseEntity<List<ShortCompetition>>(competitionsDTO, HttpStatus.OK);
+    }
+
 
     /**
      * Get all non finished competitions of friends

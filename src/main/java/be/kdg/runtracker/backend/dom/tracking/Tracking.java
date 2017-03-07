@@ -164,4 +164,12 @@ public class Tracking implements Serializable {
         if (this.coordinates == null) this.coordinates = new ArrayList<>();
         this.coordinates.add(coordinate);
     }
+
+    public double getAvgPace() {
+        return avgPace;
+    }
+
+    public void setAvgPace(double avgPace) {
+        this.avgPace = avgPace;
+    }
 }

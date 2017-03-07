@@ -15,6 +15,7 @@ public class ShortTracking {
     private long totalDistance;
     private double maxSpeed;
     private double avgSpeed;
+    private double avgPace;
     private ShortUser user;
     List<Coordinate> coordinates;
 
@@ -25,6 +26,7 @@ public class ShortTracking {
         this.totalDistance = tracking.getTotalDistance();
         this.maxSpeed = tracking.getMaxSpeed();
         this.avgSpeed = tracking.getAvgSpeed();
+        this.avgPace = tracking.getAvgPace();
         if (tracking.getUser() != null) {
             this.user = new ShortUser(tracking.getUser());
         } else { this.user = null; }
@@ -63,5 +65,9 @@ public class ShortTracking {
 
     public List<Coordinate> getCoordinates() {
         return coordinates;
+    }
+
+    public double getAvgPace() {
+        return avgPace;
     }
 }
