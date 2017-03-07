@@ -35,7 +35,7 @@ public class Tracking implements Serializable {
     private long totalDuration;
 
     @Basic
-    private long totalDistance;
+    private double totalDistance;
 
     @Basic
     private double maxSpeed;
@@ -59,7 +59,7 @@ public class Tracking implements Serializable {
         this.coordinates = new ArrayList<>();
     }
 
-    public Tracking(long totalDuration, long totalDistance, double maxSpeed, double avgSpeed) {
+    public Tracking(long totalDuration, double totalDistance, double maxSpeed, double avgSpeed) {
         this.time = Timestamp.valueOf(LocalDateTime.now());
         this.totalDuration = totalDuration;
         this.totalDistance = totalDistance;
@@ -68,7 +68,7 @@ public class Tracking implements Serializable {
         this.coordinates = new ArrayList<>();
     }
 
-    public Tracking(long totalDuration, long totalDistance, double maxSpeed, double avgSpeed, double avgPace, List<Coordinate> coordinates) {
+    public Tracking(long totalDuration, double totalDistance, double maxSpeed, double avgSpeed, double avgPace, List<Coordinate> coordinates) {
         this.time = Timestamp.valueOf(LocalDateTime.now());
         this.totalDuration = totalDuration;
         this.totalDistance = totalDistance;
@@ -78,7 +78,7 @@ public class Tracking implements Serializable {
         this.coordinates = coordinates;
     }
 
-    public Tracking(long totalDuration, long totalDistance, double maxSpeed, double avgSpeed, List<Coordinate> coordinates, Competition competition) {
+    public Tracking(long totalDuration, double totalDistance, double maxSpeed, double avgSpeed, List<Coordinate> coordinates, Competition competition) {
         this.time = Timestamp.valueOf(LocalDateTime.now());
         this.totalDuration = totalDuration;
         this.totalDistance = totalDistance;
@@ -112,7 +112,7 @@ public class Tracking implements Serializable {
         this.totalDuration = totalDuration;
     }
 
-    public long getTotalDistance() {
+    public double getTotalDistance() {
         return this.totalDistance;
     }
 

@@ -9,7 +9,7 @@ import java.util.List;
 public class TrackingDTO {
 
     private long totalDuration;
-    private long totalDistance;
+    private double totalDistance;
     private double maxSpeed;
     private double avgSpeed;
     private double avgPace;

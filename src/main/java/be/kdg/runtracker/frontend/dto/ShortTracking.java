@@ -12,7 +12,7 @@ public class ShortTracking {
     private Long trackingId;
     private Timestamp time;
     private long totalDuration;
-    private long totalDistance;
+    private double totalDistance;
     private double maxSpeed;
     private double avgSpeed;
     private double avgPace;
@@ -47,7 +47,7 @@ public class ShortTracking {
         return totalDuration;
     }
 
-    public long getTotalDistance() {
+    public double getTotalDistance() {
         return totalDistance;
     }
 
