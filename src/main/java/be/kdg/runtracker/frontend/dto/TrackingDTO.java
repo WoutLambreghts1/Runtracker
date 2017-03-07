@@ -1,5 +1,6 @@
 package be.kdg.runtracker.frontend.dto;
 
+import be.kdg.runtracker.backend.dom.competition.Competition;
 import be.kdg.runtracker.backend.dom.tracking.Coordinate;
 import be.kdg.runtracker.backend.dom.tracking.Tracking;
 
@@ -12,6 +13,7 @@ public class TrackingDTO {
     private double maxSpeed;
     private double avgSpeed;
     private double avgPace;
+    private Competition competition;
     private List<Coordinate> coordinates;
 
     public TrackingDTO() {
@@ -37,11 +39,15 @@ public class TrackingDTO {
         return avgPace;
     }
 
+    public Competition getCompetition() {
+        return competition;
+    }
+
     public List<Coordinate> getCoordinates() {
         return coordinates;
     }
 
-    public void setTotalDuration(int totalDuration) {
+    public void setTotalDuration(long totalDuration) {
         this.totalDuration = totalDuration;
     }
 
@@ -59,6 +65,10 @@ public class TrackingDTO {
 
     public void setAvgPace(double avgPace) {
         this.avgPace = avgPace;
+    }
+
+    public void setCompetition(Competition competition) {
+        this.competition = competition;
     }
 
     public void setCoordinates(List<Coordinate> coordinates) {
