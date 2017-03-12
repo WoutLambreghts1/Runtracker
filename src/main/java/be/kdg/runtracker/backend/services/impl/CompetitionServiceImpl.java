@@ -14,7 +14,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 @Service("CompetitionService")
@@ -43,7 +42,18 @@ public class CompetitionServiceImpl implements CompetitionService {
 
     @Override
     public Competition findCompetitionByCompetitionId(long competitionId) {
-        return this.competitionRepository.findCompetitionByCompetitionId(competitionId);
+        Competition c =  this.competitionRepository.findCompetitionByCompetitionId(competitionId);
+        List<Tracking> trackings = new ArrayList<>();
+        for (Tracking t : c.getTrackings()) {
+            Tracking track = t;
+            track.setCoordinates(coordinatesRepositoryMongo.readCoordinatesByTrackingId(t.getTrackingId()));
+            trackings.add(track);
+        }
+
+        c.setTrackings(trackings);
+
+        return c;
+
     }
 
     @Override
