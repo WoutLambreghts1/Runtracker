@@ -42,16 +42,17 @@ public class CompetitionServiceImpl implements CompetitionService {
 
     @Override
     public Competition findCompetitionByCompetitionId(long competitionId) {
-        Competition c =  this.competitionRepository.findCompetitionByCompetitionId(competitionId);
-        List<Tracking> trackings = new ArrayList<>();
-        for (Tracking t : c.getTrackings()) {
-            Tracking track = t;
-            track.setCoordinates(coordinatesRepositoryMongo.readCoordinatesByTrackingId(t.getTrackingId()));
-            trackings.add(track);
+        Competition c = this.competitionRepository.findCompetitionByCompetitionId(competitionId);
+        if (c != null) {
+            List<Tracking> trackings = new ArrayList<>();
+            for (Tracking t : c.getTrackings()) {
+                Tracking track = t;
+                track.setCoordinates(coordinatesRepositoryMongo.readCoordinatesByTrackingId(t.getTrackingId()));
+                trackings.add(track);
+            }
+
+            c.setTrackings(trackings);
         }
-
-        c.setTrackings(trackings);
-
         return c;
 
     }
