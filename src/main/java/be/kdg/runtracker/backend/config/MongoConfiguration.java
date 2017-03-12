@@ -22,7 +22,8 @@ public class MongoConfiguration extends AbstractMongoConfiguration {
     @Override
     public Mongo mongo() throws Exception {
         return new MongoClient(
-                new MongoClientURI( "mongodb://runtracking:Runtracker2017@schadronds.synology.me:27017/runtrackerdb" )
+//                new MongoClientURI( "mongodb://runtracking:Runtracker2017@schadronds.synology.me:27017/runtrackerdb" )
+                new MongoClientURI( "mongodb://runtracking:Runtracker2017@192.168.0.101:27017/runtrackerdb" )
         );
     }
 

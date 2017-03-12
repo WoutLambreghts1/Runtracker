@@ -43,7 +43,7 @@ public class MQTTRestController {
 
     /**
      * Get {@link MQTTConfig}.
-     * @return The MQTTConfig file
+     * @return The MQTTConfig file with competition topic
      */
     @RequestMapping(value = "/getConfig/{compId}", method = RequestMethod.GET)
     public ResponseEntity<MQTTConfig> getConfigWithCompId(@RequestHeader("token") String token, @PathVariable("compId") long compId) {

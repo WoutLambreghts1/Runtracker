@@ -7,6 +7,7 @@ import java.util.Locale;
  */
 public class MQTTConfig {
     private String host = "schadronds.synology.me";
+//    private String host = "192.168.0.101";
     private int port = 9883;
     private boolean ssl = true;
 
