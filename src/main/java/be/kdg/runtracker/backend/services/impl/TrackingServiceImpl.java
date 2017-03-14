@@ -13,6 +13,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service("TrackingService")
@@ -44,6 +46,7 @@ public class TrackingServiceImpl implements TrackingService {
 
     @Override
     public void saveTracking(Tracking tracking, User user) {
+        tracking.setTime(Timestamp.valueOf(LocalDateTime.now()));
         tracking.setUser(user);
         user.addTracking(tracking);
 
