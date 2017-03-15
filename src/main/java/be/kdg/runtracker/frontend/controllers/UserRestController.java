@@ -17,7 +17,9 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @CrossOrigin
@@ -28,17 +30,19 @@ public class UserRestController {
     private FriendshipService friendshipService;
 
     @Autowired
-    public UserRestController(UserService userService,FriendshipService friendshipService) {
+    public UserRestController(UserService userService, FriendshipService friendshipService) {
         this.userService = userService;
         this.friendshipService = friendshipService;
     }
 
-    protected UserRestController() { }
+    protected UserRestController() {
+    }
 
-    @RequestMapping(value = "/getUsers",method = RequestMethod.GET)
+    @RequestMapping(value = "/getUsers", method = RequestMethod.GET)
     public ResponseEntity<List<ShortUser>> getAllUsers(@RequestHeader("token") String token) {
         User user = userService.findUserByAuthId(JWT.decode(token).getSubject());
-        if (user == null) throw new UnauthorizedUserException("User with token " + token + " not found, cannot fetch all Users!");
+        if (user == null)
+            throw new UnauthorizedUserException("User with token " + token + " not found, cannot fetch all Users!");
 
         List<User> users = userService.findAllUsers();
         if (users == null || users.isEmpty()) throw new NoContentException("No Users were found!");
@@ -51,6 +55,7 @@ public class UserRestController {
 
     /**
      * Get {@link User} by its authId.
+     *
      * @param token authorization id
      * @return User
      */
@@ -67,18 +72,21 @@ public class UserRestController {
 
     /**
      * Get specific user by username
+     *
      * @param token
      * @param username
      * @return
      */
     @RequestMapping(value = "/getUser/{username}", method = RequestMethod.GET)
-    public ResponseEntity<ShortUser> getFriend(@RequestHeader("token") String token,@PathVariable("username") String username) {
+    public ResponseEntity<ShortUser> getFriend(@RequestHeader("token") String token, @PathVariable("username") String username) {
         User user = userService.findUserByAuthId(JWT.decode(token).getSubject());
-        if (user == null) throw new UnauthorizedUserException("User with token " + token + " not found, cannot fetch user!");
+        if (user == null)
+            throw new UnauthorizedUserException("User with token " + token + " not found, cannot fetch user!");
 
 
         User otherUser = userService.findUserByUsername(username);
-        if (otherUser == null) throw new UnauthorizedUserException("User with username " + username + " not found, cannot fetch user!");
+        if (otherUser == null)
+            throw new UnauthorizedUserException("User with username " + username + " not found, cannot fetch user!");
 
 
         return new ResponseEntity<ShortUser>(new ShortUser(otherUser), HttpStatus.OK);
@@ -86,12 +94,13 @@ public class UserRestController {
 
     /**
      * Create a {@link User}.
-     * @param user User from body
+     *
+     * @param user      User from body
      * @param ucBuilder Uri Builder
      * @return HTTP status
      */
-    @RequestMapping(value = "/createUser",method = RequestMethod.POST)
-    public ResponseEntity<?> createUser(@RequestHeader("token") String token,@RequestBody User user, UriComponentsBuilder ucBuilder) {
+    @RequestMapping(value = "/createUser", method = RequestMethod.POST)
+    public ResponseEntity<?> createUser(@RequestHeader("token") String token, @RequestBody User user, UriComponentsBuilder ucBuilder) {
         user.setAuthId(JWT.decode(token).getSubject());
         if (userService.findUserByAuthId(user.getAuthId()) != null) {
             return new ResponseEntity("A User with name " + user.getFirstname() + " " + user.getLastname() + " already exists!",
@@ -105,14 +114,16 @@ public class UserRestController {
 
     /**
      * Update an existing {@link User}.
+     *
      * @param token authorization id
-     * @param user User from body
+     * @param user  User from body
      * @return HTTP status
      */
     @RequestMapping(value = "/updateUser", method = RequestMethod.PUT)
     public ResponseEntity<ShortUser> updateUser(@RequestHeader("token") String token, @RequestBody User user) {
         User currentUser = userService.findUserByAuthId(JWT.decode(token).getSubject());
-        if (currentUser == null) throw new UserNotFoundException("User with token " + token + " not found, cannot update User!");
+        if (currentUser == null)
+            throw new UserNotFoundException("User with token " + token + " not found, cannot update User!");
 
         if (!user.getUsername().equals(currentUser.getUsername())) {
             if (this.userService.findUserByUsername(user.getUsername()) != null) {
@@ -126,7 +137,8 @@ public class UserRestController {
         currentUser.setFirstname(user.getFirstname());
         currentUser.setLastname(user.getLastname());
         currentUser.setGender(user.getGender());
-        currentUser.setCity(user.getCity());;
+        currentUser.setCity(user.getCity());
+        ;
         currentUser.setBirthday(user.getBirthday());
         currentUser.setAvatar(user.getAvatar());
 
@@ -139,13 +151,15 @@ public class UserRestController {
 
     /**
      * Delete an existing {@link User}.
+     *
      * @param token authorization id
      * @return HTTP status
      */
     @RequestMapping(value = "/deleteUser", method = RequestMethod.DELETE)
     public ResponseEntity<?> deleteUser(@RequestHeader("token") String token) {
         User user = userService.findUserByAuthId(JWT.decode(token).getSubject());
-        if (user == null) throw new UserNotFoundException("User with token " + token + " not found, cannot delete User!");
+        if (user == null)
+            throw new UserNotFoundException("User with token " + token + " not found, cannot delete User!");
 
         this.userService.deleteUser(user);
 
@@ -154,7 +168,8 @@ public class UserRestController {
 
     /**
      * Check if username is available.
-     * @param token authorization id
+     *
+     * @param token    authorization id
      * @param username username to check
      * @return true if username is available, otherwise false
      */
@@ -173,7 +188,8 @@ public class UserRestController {
 
     /**
      * Check if username is online.
-     * @param token authorization id
+     *
+     * @param token    authorization id
      * @param username username to check online
      * @return true if user is online
      */
@@ -189,7 +205,6 @@ public class UserRestController {
 
 
     /**
-     *
      * @param token
      * @return {@link ShortUser}.
      */
@@ -205,7 +220,6 @@ public class UserRestController {
     }
 
     /**
-     *
      * @param token
      * @return {@link ShortUser}.
      */
@@ -222,6 +236,7 @@ public class UserRestController {
 
     /**
      * Get all online users
+     *
      * @param token
      * @return
      */
@@ -239,45 +254,55 @@ public class UserRestController {
     }
 
     /**
-     *Get all users sorted
+     * Get all users sorted
+     *
      * @param token
      * @param sortoption
      * @return
      */
 
     @RequestMapping(value = "/getAllUsersSorted/{sortoption}", method = RequestMethod.GET)
-    public ResponseEntity<?> getAllUsersSorted(@RequestHeader("token") String token,@PathVariable("sortoption") int sortoption) {
+    public ResponseEntity<?> getAllUsersSorted(@RequestHeader("token") String token, @PathVariable("sortoption") int sortoption) {
         User user = userService.findUserByAuthId(JWT.decode(token).getSubject());
         if (user == null) throw new UnauthorizedUserException("User with token " + token + " not found!");
 
         ArrayList<ShortUser> sortedUsers = new ArrayList<>();
-        switch (sortoption){
+        switch (sortoption) {
             //1. Order by avg distance
-            case 1:userService.findAllUsers().stream().sorted((u1,u2) -> Double.compare(u2.getAvgDistance(), u1.getAvgDistance())).forEach(user1 -> sortedUsers.add(new ShortUser(user1)));
+            case 1:
+                userService.findAllUsers().stream().sorted((u1, u2) -> Double.compare(u2.getAvgDistance(), u1.getAvgDistance())).forEach(user1 -> sortedUsers.add(new ShortUser(user1)));
                 break;
             //2. Order by avg speed
-            case 2:userService.findAllUsers().stream().sorted((u1,u2) -> Double.compare(u2.getAvgSpeed(),u1.getAvgSpeed())).forEach(user1 -> sortedUsers.add(new ShortUser(user1)));
+            case 2:
+                userService.findAllUsers().stream().sorted((u1, u2) -> Double.compare(u2.getAvgSpeed(), u1.getAvgSpeed())).forEach(user1 -> sortedUsers.add(new ShortUser(user1)));
                 break;
             //3. Order by max distance
-            case 3:userService.findAllUsers().stream().sorted((u1,u2) -> Long.compare(u2.getMaxDistance(),u1.getMaxDistance())).forEach(user1 -> sortedUsers.add(new ShortUser(user1)));
+            case 3:
+                userService.findAllUsers().stream().sorted((u1, u2) -> Long.compare(u2.getMaxDistance(), u1.getMaxDistance())).forEach(user1 -> sortedUsers.add(new ShortUser(user1)));
                 break;
             //4. Order by max speed
-            case 4:userService.findAllUsers().stream().sorted((u1,u2) -> Double.compare(u2.getMaxSpeed(),u1.getMaxSpeed())).forEach(user1 -> sortedUsers.add(new ShortUser(user1)));
+            case 4:
+                userService.findAllUsers().stream().sorted((u1, u2) -> Double.compare(u2.getMaxSpeed(), u1.getMaxSpeed())).forEach(user1 -> sortedUsers.add(new ShortUser(user1)));
                 break;
             //5. Order by nr of competitions won
-            case 5:userService.findAllUsers().stream().sorted((u1,u2) -> Integer.compare(u2.getNrOfCompetitionsWon(),u1.getNrOfCompetitionsWon())).forEach(user1 -> sortedUsers.add(new ShortUser(user1)));
+            case 5:
+                userService.findAllUsers().stream().sorted((u1, u2) -> Integer.compare(u2.getNrOfCompetitionsWon(), u1.getNrOfCompetitionsWon())).forEach(user1 -> sortedUsers.add(new ShortUser(user1)));
                 break;
             //6. Order by nr of competitions done
-            case 6:userService.findAllUsers().stream().sorted((u1,u2) -> Integer.compare(u2.getNrOfCompetitionsDone(),u1.getNrOfCompetitionsDone())).forEach(user1 -> sortedUsers.add(new ShortUser(user1)));
+            case 6:
+                userService.findAllUsers().stream().sorted((u1, u2) -> Integer.compare(u2.getNrOfCompetitionsDone(), u1.getNrOfCompetitionsDone())).forEach(user1 -> sortedUsers.add(new ShortUser(user1)));
                 break;
             //7. Order by ratio done/won
-            case 7:userService.findAllUsers().stream().sorted((u1,u2) ->
-                    Double.compare((u2.getNrOfCompetitionsDone()>0)?u2.getNrOfCompetitionsWon()/u2.getNrOfCompetitionsDone():0,(u1.getNrOfCompetitionsDone()>0)?u1.getNrOfCompetitionsWon()/u1.getNrOfCompetitionsDone() : 0))
-                    .forEach(user1 -> sortedUsers.add(new ShortUser(user1)));
+            case 7:
+                userService.findAllUsers().stream().sorted((u1, u2) ->
+                        Double.compare((u2.getNrOfCompetitionsDone() > 0) ? u2.getNrOfCompetitionsWon() / u2.getNrOfCompetitionsDone() : 0, (u1.getNrOfCompetitionsDone() > 0) ? u1.getNrOfCompetitionsWon() / u1.getNrOfCompetitionsDone() : 0))
+                        .forEach(user1 -> sortedUsers.add(new ShortUser(user1)));
                 break;
             //8. Order by total distance
-            case 8:userService.findAllUsers().stream().sorted((u1,u2) -> Long.compare(u2.getTotalDistance(),u1.getTotalDistance())).forEach(user1 -> sortedUsers.add(new ShortUser(user1)));
-                ;break;
+            case 8:
+                userService.findAllUsers().stream().sorted((u1, u2) -> Long.compare(u2.getTotalDistance(), u1.getTotalDistance())).forEach(user1 -> sortedUsers.add(new ShortUser(user1)));
+                ;
+                break;
         }
 
         return new ResponseEntity<List<ShortUser>>(sortedUsers, HttpStatus.OK);
@@ -287,6 +312,7 @@ public class UserRestController {
 
     /**
      * set avatar of user
+     *
      * @param token
      * @param avatarname
      * @return
@@ -309,14 +335,16 @@ public class UserRestController {
 
     /**
      * Befriend another {@link User}.
-     * @param token authorization id
+     *
+     * @param token    authorization id
      * @param username username of friend
      * @return HTTP status
      */
     @RequestMapping(value = "/addFriend/{username}", method = RequestMethod.PUT)
     public ResponseEntity<ShortUser> befriendUser(@RequestHeader("token") String token, @PathVariable("username") String username) {
         User currentUser = userService.findUserByAuthId(JWT.decode(token).getSubject());
-        if (currentUser == null) throw new UnauthorizedUserException("User with token " + token + " not found, cannot add friend!");
+        if (currentUser == null)
+            throw new UnauthorizedUserException("User with token " + token + " not found, cannot add friend!");
 
         if (currentUser.getUsername().equals(username)) {
             return new ResponseEntity(new CustomErrorType("A User can't befriend itself!"),
@@ -325,9 +353,10 @@ public class UserRestController {
         }
 
         User friend = userService.findUserByUsername(username);
-        if (friend == null) throw new UserNotFoundException("User with username " + username + " not found, cannot add friend!");
+        if (friend == null)
+            throw new UserNotFoundException("User with username " + username + " not found, cannot add friend!");
 
-        friendshipService.addFriend(currentUser,friend);
+        friendshipService.addFriend(currentUser, friend);
 
         ShortUser userDTO = new ShortUser(currentUser);
 
@@ -336,20 +365,23 @@ public class UserRestController {
 
 
     /**
-     *Defriend another {@link User}.
-     * @param token authorization id
+     * Defriend another {@link User}.
+     *
+     * @param token    authorization id
      * @param username username of friend
      * @return HTTP status
      */
     @RequestMapping(value = "/removeFriend/{username}", method = RequestMethod.DELETE)
     public ResponseEntity<ShortUser> defriendUser(@RequestHeader("token") String token, @PathVariable("username") String username) {
         User currentUser = userService.findUserByAuthId(JWT.decode(token).getSubject());
-        if (currentUser == null) throw new UnauthorizedUserException("User with token " + token + " not found, cannot add friend!");
+        if (currentUser == null)
+            throw new UnauthorizedUserException("User with token " + token + " not found, cannot add friend!");
 
         User friend = userService.findUserByUsername(username);
-        if (friend == null) throw new UserNotFoundException("User with username " + username + " not found, cannot add friend!");
+        if (friend == null)
+            throw new UserNotFoundException("User with username " + username + " not found, cannot add friend!");
 
-        friendshipService.removeFriend(currentUser,friend);
+        friendshipService.removeFriend(currentUser, friend);
 
         ShortUser userDTO = new ShortUser(currentUser);
 
@@ -359,13 +391,15 @@ public class UserRestController {
 
     /**
      * Get all friends
+     *
      * @param token
      * @return
      */
     @RequestMapping(value = "/getAllFriends", method = RequestMethod.GET)
     public ResponseEntity<List<ShortUser>> getAllFriends(@RequestHeader("token") String token) {
         User user = userService.findUserByAuthId(JWT.decode(token).getSubject());
-        if (user == null) throw new UnauthorizedUserException("User with token " + token + " not found, cannot fetch friends!");
+        if (user == null)
+            throw new UnauthorizedUserException("User with token " + token + " not found, cannot fetch friends!");
 
         List<ShortUser> friends = new ArrayList<>();
         if (user.getFriendships() == null || user.getFriendships().isEmpty())
@@ -373,7 +407,8 @@ public class UserRestController {
 
 
         for (Friendship friendship : user.getFriendships()) {
-            if(friendshipService.checkFriendship(user,friendship.getFriend())) friends.add(new ShortUser(friendship.getFriend()));
+            if (friendshipService.checkFriendship(user, friendship.getFriend()))
+                friends.add(new ShortUser(friendship.getFriend()));
         }
 
         return new ResponseEntity<List<ShortUser>>(friends, HttpStatus.OK);
@@ -381,12 +416,13 @@ public class UserRestController {
 
     /**
      * Get all friends sorted
+     *
      * @param token
      * @param sortoption
      * @return
      */
     @RequestMapping(value = "/getAllFriendsSorted/{sortoption}", method = RequestMethod.GET)
-    public ResponseEntity<?> getAllFriendsSorted(@RequestHeader("token") String token,@PathVariable("sortoption") int sortoption) {
+    public ResponseEntity<?> getAllFriendsSorted(@RequestHeader("token") String token, @PathVariable("sortoption") int sortoption) {
         User user = userService.findUserByAuthId(JWT.decode(token).getSubject());
         if (user == null) throw new UnauthorizedUserException("User with token " + token + " not found!");
 
@@ -394,36 +430,44 @@ public class UserRestController {
         List<ShortUser> friends = new ArrayList<>();
         friends.add(new ShortUser(user));
         for (Friendship friendship : user.getFriendships()) {
-            if(friendshipService.checkFriendship(user,friendship.getFriend())) friends.add(new ShortUser(friendship.getFriend()));
+            if (friendshipService.checkFriendship(user, friendship.getFriend()))
+                friends.add(new ShortUser(friendship.getFriend()));
         }
 
-        switch (sortoption){
+        switch (sortoption) {
             //1. Order by avg distance
-            case 1:friends.stream().sorted((u1,u2) -> Double.compare(u2.getAvgDistance(),u1.getAvgDistance())).forEach(user1 -> friendsSorted.add(user1));
+            case 1:
+                friendsSorted = friends.stream().sorted((u1, u2) -> Double.compare(u2.getAvgDistance(), u1.getAvgDistance())).collect(Collectors.toList());
                 break;
             //2. Order by avg speed
-            case 2:friends.stream().sorted((u1,u2) -> Double.compare(u2.getAvgSpeed(),u1.getAvgSpeed())).forEach(user1 -> friendsSorted.add(user1));
+            case 2:
+                friendsSorted = friends.stream().sorted((u1, u2) -> Double.compare(u2.getAvgSpeed(), u1.getAvgSpeed())).collect(Collectors.toList());
                 break;
             //3. Order by max distance
-            case 3:friends.stream().sorted((u1,u2) -> Long.compare(u2.getMaxDistance(),u1.getMaxDistance())).forEach(user1 -> friendsSorted.add(user1));
+            case 3:
+                friendsSorted = friends.stream().sorted((u1, u2) -> Long.compare(u2.getMaxDistance(), u1.getMaxDistance())).collect(Collectors.toList());
                 break;
             //4. Order by max speed
-            case 4:friends.stream().sorted((u1,u2) -> Double.compare(u2.getMaxSpeed(),u1.getMaxSpeed())).forEach(user1 -> friendsSorted.add(user1));
+            case 4:
+                friendsSorted = friends.stream().sorted((u1, u2) -> Double.compare(u2.getMaxSpeed(), u1.getMaxSpeed())).collect(Collectors.toList());
                 break;
             //5. Order by nr of competitions won
-            case 5:friends.stream().sorted((u1,u2) -> Integer.compare(u2.getNrOfCompetitionsWon(),u1.getNrOfCompetitionsWon())).forEach(user1 -> friendsSorted.add(user1));
+            case 5:
+                friendsSorted = friends.stream().sorted((u1, u2) -> Integer.compare(u2.getNrOfCompetitionsWon(), u1.getNrOfCompetitionsWon())).collect(Collectors.toList());
                 break;
             //6. Order by nr of competitions done
-            case 6:friends.stream().sorted((u1,u2) -> Integer.compare(u2.getNrOfCompetitionsDone(),u1.getNrOfCompetitionsDone())).forEach(user1 -> friendsSorted.add(user1));
+            case 6:
+                friendsSorted = friends.stream().sorted((u1, u2) -> Integer.compare(u2.getNrOfCompetitionsDone(), u1.getNrOfCompetitionsDone())).collect(Collectors.toList());
                 break;
             //7. Order by ratio done/won
-            case 7:friends.stream().sorted((u1,u2) ->
-                    Double.compare((u2.getNrOfCompetitionsDone()>0)?u2.getNrOfCompetitionsWon()/u2.getNrOfCompetitionsDone():0,(u1.getNrOfCompetitionsDone()>0)?u1.getNrOfCompetitionsWon()/u1.getNrOfCompetitionsDone() : 0))
-                    .forEach(user1 -> friendsSorted.add(user1));
+            case 7:
+                friendsSorted = friends.stream().sorted(
+                        Comparator.comparingDouble(u -> (u.getNrOfCompetitionsDone() > 0 ? ((double) u.getNrOfCompetitionsWon()) / ((double) u.getNrOfCompetitionsDone()) : 0))).collect(Collectors.toList());
                 break;
             //8. Order by total distance
-            case 8:friends.stream().sorted((u1,u2) -> Long.compare(u2.getTotalDistance(),u1.getTotalDistance())).forEach(user1 -> friendsSorted.add(user1));
-                ;break;
+            case 8:
+                friendsSorted = friends.stream().sorted((u1, u2) -> Long.compare(u2.getTotalDistance(), u1.getTotalDistance())).collect(Collectors.toList());
+                break;
         }
 
         return new ResponseEntity<List<ShortUser>>(friendsSorted, HttpStatus.OK);
@@ -432,6 +476,7 @@ public class UserRestController {
 
     /**
      * Get all online friends
+     *
      * @param token
      * @return
      */
@@ -443,7 +488,8 @@ public class UserRestController {
 
         List<ShortUser> onlineFriends = new ArrayList<>();
         for (Friendship friendship : user.getFriendships()) {
-            if(friendshipService.checkFriendship(user,friendship.getFriend()) && friendship.getFriend().isOnline()) onlineFriends.add(new ShortUser(friendship.getFriend()));
+            if (friendshipService.checkFriendship(user, friendship.getFriend()) && friendship.getFriend().isOnline())
+                onlineFriends.add(new ShortUser(friendship.getFriend()));
         }
 
 
@@ -451,9 +497,9 @@ public class UserRestController {
     }
 
 
-
     /**
      * Accept a friendrequest
+     *
      * @param token
      * @param username
      * @return
@@ -465,9 +511,10 @@ public class UserRestController {
 
 
         User friend = userService.findUserByUsername(username);
-        if (friend == null) throw new UserNotFoundException("User with username " + username + " not found, cannot add friend!");
+        if (friend == null)
+            throw new UserNotFoundException("User with username " + username + " not found, cannot add friend!");
 
-        friendshipService.acceptFriend(user,friend);
+        friendshipService.acceptFriend(user, friend);
 
         ShortUser currShortUser = new ShortUser(user);
         return new ResponseEntity<ShortUser>(currShortUser, HttpStatus.OK);
@@ -476,13 +523,15 @@ public class UserRestController {
 
     /**
      * Get all potential friends (users - own user - friends)
+     *
      * @param token
      * @return
      */
     @RequestMapping(value = "/getAllPotentialFriends", method = RequestMethod.GET)
     public ResponseEntity<List<ShortUser>> getAllPotentialFriends(@RequestHeader("token") String token) {
         User user = userService.findUserByAuthId(JWT.decode(token).getSubject());
-        if (user == null) throw new UnauthorizedUserException("User with token " + token + " not found, cannot fetch friends!");
+        if (user == null)
+            throw new UnauthorizedUserException("User with token " + token + " not found, cannot fetch friends!");
 
         List<User> users = userService.findAllUsers();
         if (users == null || users.isEmpty()) throw new NoContentException("No Users were found!");
@@ -493,7 +542,7 @@ public class UserRestController {
 
         List<ShortUser> potentialFriends = new ArrayList<>();
         for (User potFriend : users) {
-            if(!friends.contains(potFriend))potentialFriends.add(new ShortUser(potFriend));
+            if (!friends.contains(potFriend)) potentialFriends.add(new ShortUser(potFriend));
         }
 
         return new ResponseEntity<List<ShortUser>>(potentialFriends, HttpStatus.OK);
@@ -502,18 +551,20 @@ public class UserRestController {
 
     /**
      * get unaccepted {@link Friendship}.
+     *
      * @param token
      * @return
      */
     @RequestMapping(value = "/getFriendrequests", method = RequestMethod.GET)
     public ResponseEntity<List<ShortUser>> getFriendrequests(@RequestHeader("token") String token) {
         User user = userService.findUserByAuthId(JWT.decode(token).getSubject());
-        if (user == null) throw new UnauthorizedUserException("User with token " + token + " not found, cannot fetch friends!");
+        if (user == null)
+            throw new UnauthorizedUserException("User with token " + token + " not found, cannot fetch friends!");
 
         List<ShortUser> friendRequests = new ArrayList<>();
 
         for (Friendship friendship : user.getFriendships()) {
-            if(!friendship.isAccepted())friendRequests.add(new ShortUser(friendship.getFriend()));
+            if (!friendship.isAccepted()) friendRequests.add(new ShortUser(friendship.getFriend()));
         }
 
         return new ResponseEntity<List<ShortUser>>(friendRequests, HttpStatus.OK);
