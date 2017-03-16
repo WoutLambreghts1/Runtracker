@@ -334,6 +334,8 @@ public class UserRestController {
                         .collect(Collectors.toList());
                 break;
         }
+        if (sortedUsers.size() > 10)
+            sortedUsers = sortedUsers.subList(sortedUsers.size() - 10, sortedUsers.size());
         Collections.reverse(sortedUsers);
 
         return new ResponseEntity<List<ShortUser>>(sortedUsers, HttpStatus.OK);
@@ -522,6 +524,8 @@ public class UserRestController {
                         .collect(Collectors.toList());
                 break;
         }
+        if (friendsSorted.size() > 10)
+            friendsSorted = friendsSorted.subList(friendsSorted.size() - 10, friendsSorted.size());
         Collections.reverse(friendsSorted);
 
         return new ResponseEntity<List<ShortUser>>(friendsSorted, HttpStatus.OK);
